@@ -1,0 +1,162 @@
+<div class="job-detail-container">
+  <button class="back-button" (click)="goBack()">
+    <span>&larr;</span> Geri Dön
+  </button>
+
+  <div *ngIf="loading" class="loading">
+    <p>Yükleniyor...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button *ngIf="job" (click)="loadJobDetails(job.id)" class="retry-button">Tekrar Dene</button>
+  </div>
+
+  <div *ngIf="!loading && !error && job" class="job-detail-card">
+    <div class="job-header">
+      <div class="job-title-container">
+        <h1>{{ job.title }}</h1>
+        <button class="delete-button" (click)="deleteJob()" title="İş ilanını sil">
+          <span class="delete-icon">🗑️</span>
+        </button>
+      </div>
+      <div class="job-badges">
+        <span class="quality-badge" [ngClass]="getQualityScoreClass(job.qualityScore)">
+          Kalite: {{ job.qualityScore }}/5
+        </span>
+        <span class="action-badge" [ngClass]="getActionSuggestionClass(job.actionSuggestion)">
+          {{ getActionSuggestionText(job.actionSuggestion) }}
+        </span>
+      </div>
+    </div>
+
+    <div class="job-company-info">
+      <div>
+        <h3>{{ job.company }}</h3>
+        <p class="job-location">{{ job.location }}</p>
+      </div>
+      <div class="job-links" *ngIf="job.companyWebsite || job.url">
+        <a *ngIf="job.companyWebsite" [href]="job.companyWebsite" target="_blank" class="company-link">Firma Web Sitesi</a>
+        <a *ngIf="job.url" [href]="job.url" target="_blank" class="job-link">İlan Sayfası</a>
+      </div>
+    </div>
+
+    <div class="job-tags" *ngIf="job.tags && job.tags.length > 0">
+      <span class="tag" *ngFor="let tag of job.tags">{{ tag }}</span>
+    </div>
+
+    <div class="job-meta-info">
+      <div class="meta-item">
+        <span class="meta-label">Kategori:</span>
+        <span class="meta-value category-badge">{{ job.category }}</span>
+      </div>
+
+      <div class="meta-item">
+        <span class="meta-label">Çalışma Şekli:</span>
+        <span class="meta-value">{{ job.employmentType }}</span>
+      </div>
+
+      <div class="meta-item">
+        <span class="meta-label">Maaş Aralığı:</span>
+        <span class="meta-value">{{ job.salary }}</span>
+      </div>
+
+      <div class="meta-item">
+        <span class="meta-label">Yayınlanma Tarihi:</span>
+        <span class="meta-value">{{ job.postedDate | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+      <div *ngIf="job.applicationDeadline" class="meta-item">
+        <span class="meta-label">Son Başvuru Tarihi:</span>
+        <span class="meta-value">{{ job.applicationDeadline | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+      <div class="meta-item">
+        <span class="meta-label">Kaynak:</span>
+        <span class="meta-value source-badge">{{ job.source }}</span>
+      </div>
+
+      <div *ngIf="job.contactEmail" class="meta-item">
+        <span class="meta-label">İletişim:</span>
+        <a [href]="'mailto:' + job.contactEmail" class="meta-value email-link">{{ job.contactEmail }}</a>
+      </div>
+    </div>
+
+    <div class="job-description">
+      <h3>Açıklama</h3>
+      <p>{{ job.description }}</p>
+    </div>
+
+    <div class="job-actions">
+      <div *ngIf="!job.isApplied" class="action-buttons">
+        <button
+          [disabled]="applyingInProgress"
+          (click)="toggleApplicationForm()"
+          class="apply-button"
+        >
+          <span>Başvur</span>
+        </button>
+
+        <button
+          [disabled]="applyingInProgress"
+          (click)="autoApply()"
+          class="auto-apply-button"
+          title="n8n webhook'unu tetikleyerek otomatik başvuru yapar"
+        >
+          <span *ngIf="!applyingInProgress">n8n ile Başvur</span>
+          <span *ngIf="applyingInProgress">Başvuruluyor...</span>
+        </button>
+
+        <button
+          [disabled]="notifyingInProgress"
+          (click)="notifyWebhook()"
+          class="notify-button"
+        >
+          <span *ngIf="!notifyingInProgress">Webhook Bildir</span>
+          <span *ngIf="notifyingInProgress">Bildiriliyor...</span>
+        </button>
+      </div>
+
+      <div *ngIf="job.isApplied" class="applied-info">
+        <span class="applied-badge">Başvuruldu</span>
+        <span *ngIf="job.appliedDate" class="applied-date">
+          Başvuru Tarihi: {{ job.appliedDate | date:'dd/MM/yyyy' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Başvuru Formu -->
+    <div *ngIf="showApplicationForm && !job.isApplied" class="application-form">
+      <h3>Başvuru Formu</h3>
+
+      <div class="form-group">
+        <label for="applicationMessage">Başvuru Mesajı:</label>
+        <textarea
+          id="applicationMessage"
+          [(ngModel)]="applicationMessage"
+          rows="6"
+          placeholder="Başvuru mesajınızı giriniz..."
+        ></textarea>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="attachCV">
+          Özgeçmiş Ekle
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button
+          (click)="applyToJob()"
+          [disabled]="applyingInProgress || !applicationMessage"
+          class="submit-button"
+        >
+          <span *ngIf="!applyingInProgress">Başvuruyu Gönder</span>
+          <span *ngIf="applyingInProgress">Gönderiliyor...</span>
+        </button>
+        <button (click)="toggleApplicationForm()" class="cancel-button">Vazgeç</button>
+      </div>
+    </div>
+  </div>
+</div>

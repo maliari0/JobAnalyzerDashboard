@@ -1,0 +1,31 @@
+﻿<div class="app-container">
+  <header class="app-header">
+    <div class="logo-container">
+      <h1 class="app-title">{{ title }}</h1>
+    </div>
+    <nav class="main-nav">
+      <ul class="nav-list">
+        <li class="nav-item" [ngClass]="{'active': isActive('/') || isActive('')}">
+          <a routerLink="/" class="nav-link">İş İlanları</a>
+        </li>
+        <li class="nav-item" [ngClass]="{'active': isActive('/history')}">
+          <a routerLink="/history" class="nav-link">Başvuru Geçmişi</a>
+        </li>
+        <li class="nav-item" [ngClass]="{'active': isActive('/profile')}">
+          <a routerLink="/profile" class="nav-link">Profil</a>
+        </li>
+        <li class="nav-item" [ngClass]="{'active': isActive('/n8n-test')}">
+          <a routerLink="/n8n-test" class="nav-link">N8n Test</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="app-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="app-footer">
+    <p>&copy; 2025 Job Analyzer Dashboard | n8n Entegrasyonu ile Geliştirilmiştir</p>
+  </footer>
+</div>

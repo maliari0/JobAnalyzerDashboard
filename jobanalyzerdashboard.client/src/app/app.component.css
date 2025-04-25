@@ -1,0 +1,114 @@
+﻿/* Ana Konteyner */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Header */
+.app-header {
+  background-color: #343a40;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Navigasyon */
+.main-nav {
+  display: flex;
+  align-items: center;
+}
+
+.nav-list {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin-left: 1.5rem;
+}
+
+.nav-link {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: white;
+}
+
+.nav-item.active .nav-link {
+  color: white;
+  font-weight: 600;
+  border-bottom: 2px solid #007bff;
+}
+
+/* Ana İçerik */
+.app-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Footer */
+.app-footer {
+  background-color: #343a40;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Responsive Tasarım */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .logo-container {
+    margin-bottom: 1rem;
+  }
+
+  .nav-item {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+
+  .app-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-list {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-item {
+    margin: 0.5rem 0;
+  }
+}

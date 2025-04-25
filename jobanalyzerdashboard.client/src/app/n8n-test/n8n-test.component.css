@@ -1,0 +1,198 @@
+.n8n-test-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.n8n-test-container h2 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.n8n-test-container h3 {
+  color: #343a40;
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+/* Webhook URL Bölümü */
+.webhook-url-section {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.url-input-group {
+  margin-bottom: 10px;
+}
+
+.webhook-url-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.url-info {
+  font-size: 14px;
+  color: #6c757d;
+  margin-bottom: 0;
+}
+
+/* Test Verisi Editörü */
+.test-data-editor {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.data-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.data-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.data-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+/* Test Aksiyonları */
+.test-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.test-button, .send-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.test-button {
+  background-color: #007bff;
+}
+
+.send-button {
+  background-color: #28a745;
+}
+
+.test-button:hover:not(:disabled) {
+  background-color: #0069d9;
+}
+
+.send-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.test-button:disabled, .send-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Hata Mesajı */
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+/* Test Sonuçları */
+.test-result, .test-data-preview {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+pre {
+  background-color: #e9ecef;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Entegrasyon Kılavuzu */
+.integration-guide {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.integration-guide h4 {
+  color: #495057;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.integration-guide ul {
+  padding-left: 20px;
+}
+
+.integration-guide li {
+  margin-bottom: 5px;
+}
+
+.integration-guide code {
+  background-color: #e9ecef;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .data-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .test-actions {
+    flex-direction: column;
+  }
+
+  .test-button, .send-button {
+    width: 100%;
+  }
+}

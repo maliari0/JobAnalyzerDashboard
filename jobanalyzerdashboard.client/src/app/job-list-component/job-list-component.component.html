@@ -1,0 +1,151 @@
+<div class="job-list-container">
+  <div class="job-list-header">
+    <h2>Mevcut İş İlanları</h2>
+
+    <!-- İstatistikler -->
+    <div *ngIf="stats" class="job-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ stats.totalJobs }}</span>
+        <span class="stat-label">Toplam İlan</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ stats.appliedJobs }}</span>
+        <span class="stat-label">Başvurulan</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ stats.highQualityJobs }}</span>
+        <span class="stat-label">Yüksek Kalite</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ stats.averageSalary | number:'1.0-0' }} TL</span>
+        <span class="stat-label">Ort. Maaş</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtreler -->
+  <div class="filters-container">
+    <div class="filter-group">
+      <label for="category">Kategori:</label>
+      <select id="category" [(ngModel)]="selectedCategory">
+        <option value="">Tümü</option>
+        <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="tag">Etiket:</label>
+      <select id="tag" [(ngModel)]="selectedTag">
+        <option value="">Tümü</option>
+        <option *ngFor="let tag of tags" [value]="tag">{{ tag }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="qualityScore">Min. Kalite:</label>
+      <select id="qualityScore" [(ngModel)]="selectedQualityScore">
+        <option [ngValue]="null">Tümü</option>
+        <option [ngValue]="5">5 - Mükemmel</option>
+        <option [ngValue]="4">4 - Çok İyi</option>
+        <option [ngValue]="3">3 - İyi</option>
+        <option [ngValue]="2">2 - Orta</option>
+        <option [ngValue]="1">1 - Düşük</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="actionSuggestion">Eylem:</label>
+      <select id="actionSuggestion" [(ngModel)]="selectedActionSuggestion">
+        <option value="">Tümü</option>
+        <option value="sakla">Sakla</option>
+        <option value="bildir">Bildir</option>
+        <option value="ilgisiz">İlgisiz</option>
+      </select>
+    </div>
+
+    <div class="filter-group checkbox-group">
+      <label>
+        <input type="checkbox" [(ngModel)]="showOnlyApplied">
+        Sadece Başvurulanlar
+      </label>
+    </div>
+
+    <div class="filter-group">
+      <label for="sortBy">Sıralama:</label>
+      <select id="sortBy" [(ngModel)]="sortBy">
+        <option value="date">Tarih</option>
+        <option value="quality">Kalite</option>
+        <option value="salary">Maaş</option>
+      </select>
+      <select [(ngModel)]="sortDirection">
+        <option value="desc">Azalan</option>
+        <option value="asc">Artan</option>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button (click)="applyFilters()" class="apply-button">Filtrele</button>
+      <button (click)="resetFilters()" class="reset-button">Sıfırla</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Yükleniyor...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="loadJobs()" class="retry-button">Tekrar Dene</button>
+  </div>
+
+  <div *ngIf="!loading && !error && jobs.length === 0" class="no-jobs">
+    <p>Filtrelere uygun iş ilanı bulunmamaktadır.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && jobs.length > 0" class="jobs-grid">
+    <div *ngFor="let job of jobs" class="job-card" (click)="viewJobDetails(job.id)">
+      <div class="job-header">
+        <h3>{{ job.title }}</h3>
+        <div class="job-badges">
+          <span class="quality-badge" [ngClass]="getQualityScoreClass(job.qualityScore)">
+            {{ job.qualityScore }}/5
+          </span>
+          <span class="action-badge" [ngClass]="getActionSuggestionClass(job.actionSuggestion)">
+            {{ getActionSuggestionText(job.actionSuggestion) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="job-company">
+        <span>{{ job.company }}</span>
+        <span class="job-location">{{ job.location }}</span>
+      </div>
+
+      <div class="job-details">
+        <p class="job-description">{{ job.description | slice:0:150 }}{{ job.description.length > 150 ? '...' : '' }}</p>
+
+        <div class="job-meta">
+          <span class="job-type">{{ job.employmentType }}</span>
+          <span class="job-salary">{{ job.salary }}</span>
+        </div>
+
+        <div class="job-tags" *ngIf="job.tags && job.tags.length > 0">
+          <span class="tag" *ngFor="let tag of job.tags">{{ tag }}</span>
+        </div>
+
+        <div class="job-dates">
+          <span class="posted-date">Yayınlanma: {{ job.postedDate | date:'dd/MM/yyyy' }}</span>
+          <span *ngIf="job.applicationDeadline" class="deadline">
+            Son Başvuru: {{ job.applicationDeadline | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="job-footer">
+        <span class="source-badge">{{ job.source }}</span>
+        <span class="category-badge">{{ job.category }}</span>
+        <span *ngIf="job.isApplied" class="applied-badge">Başvuruldu</span>
+      </div>
+    </div>
+  </div>
+</div>

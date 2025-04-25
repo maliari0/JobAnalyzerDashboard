@@ -1,0 +1,170 @@
+{
+  "Version": 1,
+  "ManifestType": "Build",
+  "Endpoints": [
+    {
+      "Route": "uploads/resumes/Ali_Yılmaz_20250424111249.pdf",
+      "AssetFile": "uploads/resumes/Ali_Yılmaz_20250424111249.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 24 Apr 2025 08:12:49 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/Ali_Yılmaz_20250424111249.whttvayxuy.pdf",
+      "AssetFile": "uploads/resumes/Ali_Yılmaz_20250424111249.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 24 Apr 2025 08:12:49 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "whttvayxuy"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/resumes/Ali_Yılmaz_20250424111249.pdf"
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/Ali_Yılmaz_20250424113025.pdf",
+      "AssetFile": "uploads/resumes/Ali_Yılmaz_20250424113025.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 24 Apr 2025 08:30:25 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/Ali_Yılmaz_20250424113025.whttvayxuy.pdf",
+      "AssetFile": "uploads/resumes/Ali_Yılmaz_20250424113025.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 24 Apr 2025 08:30:25 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "whttvayxuy"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/resumes/Ali_Yılmaz_20250424113025.pdf"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\JobAnalyzerDashboard.Server.props" />
+</Project>

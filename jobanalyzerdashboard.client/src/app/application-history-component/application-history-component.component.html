@@ -1,0 +1,89 @@
+<div class="application-history-container">
+  <h2>Başvuru Geçmişi</h2>
+
+  <div *ngIf="loading" class="loading">
+    <p>Yükleniyor...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="loadApplications()" class="retry-button">Tekrar Dene</button>
+  </div>
+
+  <div *ngIf="!loading && !error && applications.length === 0" class="no-applications">
+    <p>Henüz başvuru bulunmamaktadır.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && applications.length > 0" class="applications-container">
+    <table class="applications-table">
+      <thead>
+        <tr>
+          <th>Başvuru Tarihi</th>
+          <th>İş İlanı</th>
+          <th>Şirket</th>
+          <th>Başvuru Yöntemi</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let application of applications">
+          <td>{{ application.appliedDate | date:'dd/MM/yyyy' }}</td>
+          <td class="job-title" (click)="viewJobDetails(application.jobId)">{{ application.job?.title || 'Bilinmeyen İlan' }}</td>
+          <td>{{ application.job?.company || 'Bilinmeyen Şirket' }}</td>
+          <td>{{ application.appliedMethod }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(application.status)">
+              {{ application.status }}
+            </span>
+          </td>
+          <td>
+            <button class="action-button" (click)="selectApplication(application)">
+              Durumu Güncelle
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Durum Güncelleme Modal -->
+  <div *ngIf="selectedApplication" class="status-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Başvuru Durumunu Güncelle</h3>
+        <button class="close-button" (click)="selectedApplication = null">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>İş İlanı:</strong> {{ selectedApplication.job?.title || 'Bilinmeyen İlan' }}</p>
+        <p><strong>Mevcut Durum:</strong>
+          <span class="status-badge" [ngClass]="getStatusClass(selectedApplication.status)">
+            {{ selectedApplication.status }}
+          </span>
+        </p>
+
+        <div class="status-options">
+          <h4>Yeni Durum Seçin:</h4>
+          <div class="status-buttons">
+            <button
+              *ngFor="let status of statusOptions"
+              [ngClass]="['status-option-button', getStatusClass(status)]"
+              [disabled]="updatingStatus || selectedApplication.status === status"
+              (click)="updateStatus(status)"
+            >
+              {{ status }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="cancel-button" [disabled]="updatingStatus" (click)="selectedApplication = null">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Arka Plan -->
+  <div *ngIf="selectedApplication" class="modal-backdrop" (click)="selectedApplication = null"></div>
+</div>

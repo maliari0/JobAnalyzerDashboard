@@ -1,0 +1,268 @@
+.application-history-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.application-history-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.loading, .error-message, .no-applications {
+  text-align: center;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 5px;
+}
+
+.loading {
+  background-color: #f8f9fa;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.no-applications {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.retry-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.retry-button:hover {
+  background-color: #0069d9;
+}
+
+.applications-container {
+  overflow-x: auto;
+}
+
+.applications-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.applications-table th,
+.applications-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.applications-table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+}
+
+.applications-table tr:last-child td {
+  border-bottom: none;
+}
+
+.applications-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.job-title {
+  color: #007bff;
+  cursor: pointer;
+}
+
+.job-title:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-accepted {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-interview {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.action-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.action-button:hover {
+  background-color: #5a6268;
+}
+
+/* Modal Stilleri */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.status-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #343a40;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6c757d;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: #343a40;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.status-options {
+  margin-top: 20px;
+}
+
+.status-options h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #495057;
+}
+
+.status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.status-option-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.status-option-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #eee;
+}
+
+.cancel-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.cancel-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .applications-table {
+    font-size: 14px;
+  }
+
+  .applications-table th,
+  .applications-table td {
+    padding: 8px 10px;
+  }
+
+  .action-button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .status-badge {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+}

@@ -1,0 +1,254 @@
+<div class="profile-container">
+  <h2>Profil Bilgileri</h2>
+
+  <div *ngIf="loading" class="loading">
+    <p>Yükleniyor...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="loadProfile()" class="retry-button">Tekrar Dene</button>
+  </div>
+
+  <div *ngIf="successMessage" class="success-message">
+    <p>{{ successMessage }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error && profile" class="profile-card">
+    <div class="profile-header">
+      <h3>Kişisel Bilgiler</h3>
+      <button (click)="toggleEditMode()" class="edit-button">
+        {{ isEditing ? 'İptal' : 'Düzenle' }}
+      </button>
+    </div>
+
+    <!-- Görüntüleme Modu -->
+    <div *ngIf="!isEditing" class="profile-view-mode">
+      <div class="profile-section">
+        <div class="profile-field">
+          <span class="field-label">Ad Soyad:</span>
+          <span class="field-value">{{ profile.fullName }}</span>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">E-posta:</span>
+          <span class="field-value">{{ profile.email }}</span>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">Telefon:</span>
+          <span class="field-value">{{ profile.phone || 'Belirtilmemiş' }}</span>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h4>Sosyal Medya</h4>
+        <div class="profile-field">
+          <span class="field-label">LinkedIn:</span>
+          <span class="field-value">
+            <a *ngIf="profile.linkedInUrl" [href]="profile.linkedInUrl" target="_blank">{{ profile.linkedInUrl }}</a>
+            <span *ngIf="!profile.linkedInUrl">Belirtilmemiş</span>
+          </span>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">GitHub:</span>
+          <span class="field-value">
+            <a *ngIf="profile.githubUrl" [href]="profile.githubUrl" target="_blank">{{ profile.githubUrl }}</a>
+            <span *ngIf="!profile.githubUrl">Belirtilmemiş</span>
+          </span>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">Portfolio:</span>
+          <span class="field-value">
+            <a *ngIf="profile.portfolioUrl" [href]="profile.portfolioUrl" target="_blank">{{ profile.portfolioUrl }}</a>
+            <span *ngIf="!profile.portfolioUrl">Belirtilmemiş</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h4>Yetenekler ve Deneyim</h4>
+        <div class="profile-field">
+          <span class="field-label">Yetenekler:</span>
+          <span class="field-value">{{ profile.skills || 'Belirtilmemiş' }}</span>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">Eğitim:</span>
+          <span class="field-value">{{ profile.education || 'Belirtilmemiş' }}</span>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">Deneyim:</span>
+          <span class="field-value">{{ profile.experience || 'Belirtilmemiş' }}</span>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h4>Tercihler</h4>
+        <div class="profile-field">
+          <span class="field-label">Tercih Edilen Çalışma Şekli:</span>
+          <span class="field-value">{{ profile.preferredJobTypes || 'Belirtilmemiş' }}</span>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">Tercih Edilen Lokasyonlar:</span>
+          <span class="field-value">{{ profile.preferredLocations || 'Belirtilmemiş' }}</span>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">Minimum Maaş Beklentisi:</span>
+          <span class="field-value">{{ profile.minimumSalary || 'Belirtilmemiş' }}</span>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h4>Özgeçmişler</h4>
+        <div *ngIf="profile.resumes && profile.resumes.length > 0" class="resume-list">
+          <div *ngFor="let resume of profile.resumes; let i = index" class="resume-item">
+            <div class="resume-info">
+              <span class="resume-name">{{ resume.fileName }}</span>
+              <span class="resume-date">{{ resume.uploadDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="resume-actions">
+              <a [href]="resume.filePath" target="_blank" class="resume-link">Görüntüle</a>
+              <button *ngIf="resume.isDefault" class="default-badge" disabled>Varsayılan</button>
+              <button *ngIf="!resume.isDefault" (click)="setDefaultResume(i)" class="set-default-button">Varsayılan Yap</button>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!profile.resumes || profile.resumes.length === 0" class="no-resume">
+          <p>Henüz yüklenmiş özgeçmiş bulunmamaktadır.</p>
+        </div>
+        <button (click)="openResumeUploadDialog()" class="upload-resume-button">
+          <span class="upload-icon">+</span> Yeni Özgeçmiş Yükle
+        </button>
+      </div>
+    </div>
+
+    <!-- Düzenleme Modu -->
+    <form *ngIf="isEditing" [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-edit-mode">
+      <div class="profile-section">
+        <h4>Kişisel Bilgiler</h4>
+
+        <div class="form-group">
+          <label for="fullName">Ad Soyad *</label>
+          <input type="text" id="fullName" formControlName="fullName" class="form-control">
+          <div *ngIf="hasError('fullName', 'required')" class="error-text">Ad soyad gereklidir.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">E-posta *</label>
+          <input type="email" id="email" formControlName="email" class="form-control">
+          <div *ngIf="hasError('email', 'required')" class="error-text">E-posta gereklidir.</div>
+          <div *ngIf="hasError('email', 'email')" class="error-text">Geçerli bir e-posta adresi giriniz.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Telefon</label>
+          <input type="tel" id="phone" formControlName="phone" class="form-control">
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h4>Sosyal Medya</h4>
+
+        <div class="form-group">
+          <label for="linkedInUrl">LinkedIn URL</label>
+          <input type="url" id="linkedInUrl" formControlName="linkedInUrl" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="githubUrl">GitHub URL</label>
+          <input type="url" id="githubUrl" formControlName="githubUrl" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="portfolioUrl">Portfolio URL</label>
+          <input type="url" id="portfolioUrl" formControlName="portfolioUrl" class="form-control">
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h4>Yetenekler ve Deneyim</h4>
+
+        <div class="form-group">
+          <label for="skills">Yetenekler</label>
+          <textarea id="skills" formControlName="skills" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="education">Eğitim</label>
+          <textarea id="education" formControlName="education" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="experience">Deneyim</label>
+          <textarea id="experience" formControlName="experience" class="form-control" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h4>Tercihler</h4>
+
+        <div class="form-group">
+          <label for="preferredJobTypes">Tercih Edilen Çalışma Şekli</label>
+          <input type="text" id="preferredJobTypes" formControlName="preferredJobTypes" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="preferredLocations">Tercih Edilen Lokasyonlar</label>
+          <input type="text" id="preferredLocations" formControlName="preferredLocations" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="minimumSalary">Minimum Maaş Beklentisi</label>
+          <input type="text" id="minimumSalary" formControlName="minimumSalary" class="form-control">
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h4>Özgeçmişler</h4>
+        <div *ngIf="profile.resumes && profile.resumes.length > 0" class="resume-list">
+          <div *ngFor="let resume of profile.resumes; let i = index" class="resume-item">
+            <div class="resume-info">
+              <span class="resume-name">{{ resume.fileName }}</span>
+              <span class="resume-date">{{ resume.uploadDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="resume-actions">
+              <a [href]="resume.filePath" target="_blank" class="resume-link">Görüntüle</a>
+              <button *ngIf="resume.isDefault" class="default-badge" disabled>Varsayılan</button>
+              <button *ngIf="!resume.isDefault" (click)="setDefaultResume(i)" class="set-default-button">Varsayılan Yap</button>
+              <button (click)="deleteResume(i)" class="delete-resume-button">Sil</button>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!profile.resumes || profile.resumes.length === 0" class="no-resume">
+          <p>Henüz yüklenmiş özgeçmiş bulunmamaktadır.</p>
+        </div>
+
+        <div class="resume-upload-section">
+          <label for="resumeFile" class="resume-upload-label">Yeni Özgeçmiş Yükle (PDF)</label>
+          <input type="file" id="resumeFile" (change)="onResumeFileSelected($event)" accept=".pdf" class="resume-file-input">
+          <div class="resume-upload-info">
+            <span *ngIf="selectedResumeFile">Seçilen dosya: {{ selectedResumeFile.name }}</span>
+          </div>
+          <button type="button" [disabled]="!selectedResumeFile" (click)="uploadResume()" class="upload-button">
+            <span *ngIf="!uploadingResume">Yükle</span>
+            <span *ngIf="uploadingResume">Yükleniyor...</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" (click)="toggleEditMode()" class="cancel-button">İptal</button>
+        <button type="submit" [disabled]="profileForm.invalid || loading" class="save-button">
+          <span *ngIf="!loading">Kaydet</span>
+          <span *ngIf="loading">Kaydediliyor...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
