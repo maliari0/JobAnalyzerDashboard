@@ -48,13 +48,12 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
         static ApplicationController()
         {
-            // JobController'dan _jobs listesini almak için reflection kullanıyoruz
-            // Gerçek uygulamada bu bir veritabanı olacak
+            // JobController'dan _jobs listesini almak için reflection kullanılıyor
+            // Gerçek uygulamada bu bir veritabanı olacağı için değişiklik yapılacak.
             var jobControllerType = typeof(JobController);
             var jobsField = jobControllerType.GetField("_jobs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             _jobs = jobsField?.GetValue(null) as List<Job> ?? new List<Job>();
 
-            // Job referanslarını ayarla
             foreach (var application in _applications)
             {
                 application.Job = _jobs.FirstOrDefault(j => j.Id == application.JobId);
@@ -72,7 +71,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             var query = _applications.AsQueryable();
 
-            // Filtreleme işlemleri
             if (filter.JobId.HasValue)
             {
                 query = query.Where(a => a.JobId == filter.JobId.Value);
@@ -103,7 +101,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 query = query.Where(a => a.AppliedDate <= filter.ToDate.Value);
             }
 
-            // Sıralama
             if (!string.IsNullOrEmpty(filter.SortBy))
             {
                 switch (filter.SortBy.ToLower())
@@ -125,13 +122,11 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
             else
             {
-                // Varsayılan sıralama: En yeni başvurular önce
                 query = query.OrderByDescending(a => a.AppliedDate);
             }
 
             var result = query.ToList();
 
-            // Job bilgilerini ekle
             foreach (var application in result)
             {
                 if (application.Job == null && application.JobId > 0)
@@ -190,7 +185,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 return NotFound();
             }
 
-            // Job bilgisini ekle
             if (application.Job == null && application.JobId > 0)
             {
                 application.Job = _jobs.FirstOrDefault(j => j.Id == application.JobId);
