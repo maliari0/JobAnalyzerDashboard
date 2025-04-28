@@ -44,6 +44,13 @@ export class ApplicationHistoryComponentComponent implements OnInit {
   }
 
   viewJobDetails(jobId: number): void {
+    // Eğer iş ilanı silinmişse, detay sayfasına yönlendirme
+    const application = this.applications.find(a => a.jobId === jobId);
+    if (application && application.isJobDeleted) {
+      alert('Bu iş ilanı silinmiş. Detaylar görüntülenemiyor.');
+      return;
+    }
+
     this.router.navigate(['/job', jobId]);
   }
 

@@ -13,13 +13,16 @@ namespace JobAnalyzerDashboard.Server.Models
         public string AppliedMethod { get; set; } = string.Empty; // Email, Form, API
 
         // N8n entegrasyonu için eklenen alanlar
-        public string SentMessage { get; set; } = string.Empty; 
-        public bool IsAutoApplied { get; set; } = false; 
+        public string SentMessage { get; set; } = string.Empty;
+        public bool IsAutoApplied { get; set; } = false;
         public string NotionPageId { get; set; } = string.Empty; // old
-        public bool CvAttached { get; set; } = false; 
-        public string TelegramNotificationSent { get; set; } = string.Empty; 
+        public bool CvAttached { get; set; } = false;
+        public string TelegramNotificationSent { get; set; } = string.Empty;
 
         // Navigation property
         public Job? Job { get; set; }
+
+        // İş ilanı silinmiş mi?
+        public bool IsJobDeleted { get; set; } = false;
     }
 }

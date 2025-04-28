@@ -16,4 +16,7 @@ export interface Application {
   notionPageId?: string; // Notion'daki sayfa ID'si
   cvAttached?: boolean; // CV eklendi mi?
   telegramNotificationSent?: string; // Telegram bildirimi gönderildi mi?
+
+  // İş ilanı silinmiş mi?
+  isJobDeleted?: boolean;
 }

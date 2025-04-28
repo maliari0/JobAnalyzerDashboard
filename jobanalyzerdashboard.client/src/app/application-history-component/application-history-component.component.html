@@ -29,8 +29,11 @@
       <tbody>
         <tr *ngFor="let application of applications">
           <td>{{ application.appliedDate | date:'dd/MM/yyyy' }}</td>
-          <td class="job-title" (click)="viewJobDetails(application.jobId)">{{ application.job?.title || 'Bilinmeyen İlan' }}</td>
-          <td>{{ application.job?.company || 'Bilinmeyen Şirket' }}</td>
+          <td class="job-title" [ngClass]="{'deleted-job': application.isJobDeleted}" (click)="viewJobDetails(application.jobId)" (keyup.enter)="viewJobDetails(application.jobId)" tabindex="0">
+            {{ application.job?.title || 'Silinmiş İlan' }}
+            <span *ngIf="application.isJobDeleted" class="deleted-badge">Silinmiş</span>
+          </td>
+          <td [ngClass]="{'deleted-job': application.isJobDeleted}">{{ application.job?.company || 'Bilinmeyen Şirket' }}</td>
           <td>{{ application.appliedMethod }}</td>
           <td>
             <span class="status-badge" [ngClass]="getStatusClass(application.status)">

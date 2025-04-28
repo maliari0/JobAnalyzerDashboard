@@ -37,3 +37,4 @@ C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\obj
 C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\obj\Debug\net8.0\JobAnalyzerDashboard.Server.genruntimeconfig.cache
 C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\obj\Debug\net8.0\ref\JobAnalyzerDashboard.Server.dll
 C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\bin\Debug\net8.0\JobAnalyzerDashboard.Server.staticwebassets.runtime.json
+C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\obj\Debug\net8.0\JobAnalyzerDashboard.Server.sourcelink.json

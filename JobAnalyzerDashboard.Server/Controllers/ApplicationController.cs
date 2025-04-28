@@ -129,9 +129,15 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
             foreach (var application in result)
             {
-                if (application.Job == null && application.JobId > 0)
+                if (application.JobId > 0)
                 {
                     application.Job = _jobs.FirstOrDefault(j => j.Id == application.JobId);
+
+                    // İş ilanı silinmiş mi kontrol et
+                    if (application.Job == null)
+                    {
+                        application.IsJobDeleted = true;
+                    }
                 }
             }
 
@@ -185,9 +191,15 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 return NotFound();
             }
 
-            if (application.Job == null && application.JobId > 0)
+            if (application.JobId > 0)
             {
                 application.Job = _jobs.FirstOrDefault(j => j.Id == application.JobId);
+
+                // İş ilanı silinmiş mi kontrol et
+                if (application.Job == null)
+                {
+                    application.IsJobDeleted = true;
+                }
             }
 
             return Ok(application);

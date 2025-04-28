@@ -89,6 +89,22 @@
   text-decoration: underline;
 }
 
+.deleted-job {
+  color: #6c757d !important;
+  text-decoration: line-through;
+}
+
+.deleted-badge {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 2px 5px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 3px;
+  font-size: 10px;
+  text-decoration: none;
+}
+
 .status-badge {
   display: inline-block;
   padding: 5px 10px;
