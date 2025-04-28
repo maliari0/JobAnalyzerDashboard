@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using JobAnalyzerDashboard.Server.Models;
+using JobAnalyzerDashboard.Server.Repositories;
 using JobAnalyzerDashboard.Server.Services;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,407 +14,232 @@ namespace JobAnalyzerDashboard.Server.Controllers
     [Route("api/[controller]")]
     public class ApplicationController : ControllerBase
     {
-        private static readonly List<Application> _applications = new List<Application>
-        {
-            new Application
-            {
-                Id = 1,
-                JobId = 2,
-                AppliedDate = DateTime.Now.AddDays(-1),
-                Status = "Pending",
-                AppliedMethod = "Email",
-                IsAutoApplied = false,
-                SentMessage = "Merhaba,\n\nBackend Developer pozisyonu için başvurumu yapmak istiyorum. 3 yıllık C# ve .NET Core deneyimim bulunmaktadır. Özgeçmişimi ekte bulabilirsiniz.\n\nAli Yılmaz"
-            },
-            new Application
-            {
-                Id = 2,
-                JobId = 4,
-                AppliedDate = DateTime.Now.AddHours(-12),
-                Status = "Interview",
-                AppliedMethod = "n8n",
-                IsAutoApplied = true,
-                SentMessage = "Merhaba,\n\nJunior Frontend Developer pozisyonu için başvurumu yapmak istiyorum. React ve TypeScript konularında deneyimim bulunmaktadır. Özgeçmişimi ekte bulabilirsiniz.\n\nAli Yılmaz",
-                ResponseDetails = "Mülakat için davet edildiniz. Tarih: " + DateTime.Now.AddDays(3).ToString("dd/MM/yyyy HH:mm"),
-                ResponseDate = DateTime.Now.AddHours(-2),
-                CvAttached = true,
-                TelegramNotificationSent = "Otomatik Başvuru Yapıldı! Başlık: Junior Frontend Developer (React)"
-            }
-        };
-
         private readonly ILogger<ApplicationController> _logger;
+        private readonly IApplicationRepository _applicationRepository;
+        private readonly IJobRepository _jobRepository;
         private readonly EmailService _emailService;
-        private static readonly List<Job> _jobs; // Gerçek uygulamada veritabanı kullanılacak
 
-        static ApplicationController()
-        {
-            // JobController'dan _jobs listesini almak için reflection kullanılıyor
-            // Gerçek uygulamada bu bir veritabanı olacağı için değişiklik yapılacak.
-            var jobControllerType = typeof(JobController);
-            var jobsField = jobControllerType.GetField("_jobs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            _jobs = jobsField?.GetValue(null) as List<Job> ?? new List<Job>();
-
-            foreach (var application in _applications)
-            {
-                application.Job = _jobs.FirstOrDefault(j => j.Id == application.JobId);
-            }
-        }
-
-        public ApplicationController(ILogger<ApplicationController> logger, EmailService emailService)
+        public ApplicationController(
+            ILogger<ApplicationController> logger,
+            IApplicationRepository applicationRepository,
+            IJobRepository jobRepository,
+            EmailService emailService)
         {
             _logger = logger;
+            _applicationRepository = applicationRepository;
+            _jobRepository = jobRepository;
             _emailService = emailService;
         }
 
         [HttpGet]
-        public IActionResult GetAll([FromQuery] ApplicationFilterModel filter)
+        public async Task<IActionResult> GetAll([FromQuery] ApplicationFilterModel filter)
         {
-            var query = _applications.AsQueryable();
-
-            if (filter.JobId.HasValue)
+            try
             {
-                query = query.Where(a => a.JobId == filter.JobId.Value);
+                var applications = await _applicationRepository.GetApplicationsWithFiltersAsync(
+                    filter.JobId,
+                    filter.Status,
+                    filter.AppliedMethod,
+                    filter.IsAutoApplied,
+                    filter.FromDate,
+                    filter.ToDate,
+                    filter.SortBy,
+                    filter.SortDirection);
+
+                return Ok(applications);
             }
-
-            if (!string.IsNullOrEmpty(filter.Status))
+            catch (Exception ex)
             {
-                query = query.Where(a => a.Status.ToLower() == filter.Status.ToLower());
+                _logger.LogError(ex, "Başvurular alınırken hata oluştu");
+                return StatusCode(500, new { message = "Başvurular alınırken bir hata oluştu" });
             }
-
-            if (!string.IsNullOrEmpty(filter.AppliedMethod))
-            {
-                query = query.Where(a => a.AppliedMethod.ToLower() == filter.AppliedMethod.ToLower());
-            }
-
-            if (filter.IsAutoApplied.HasValue)
-            {
-                query = query.Where(a => a.IsAutoApplied == filter.IsAutoApplied.Value);
-            }
-
-            if (filter.FromDate.HasValue)
-            {
-                query = query.Where(a => a.AppliedDate >= filter.FromDate.Value);
-            }
-
-            if (filter.ToDate.HasValue)
-            {
-                query = query.Where(a => a.AppliedDate <= filter.ToDate.Value);
-            }
-
-            if (!string.IsNullOrEmpty(filter.SortBy))
-            {
-                switch (filter.SortBy.ToLower())
-                {
-                    case "date":
-                        query = filter.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(a => a.AppliedDate) :
-                            query.OrderBy(a => a.AppliedDate);
-                        break;
-                    case "status":
-                        query = filter.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(a => a.Status) :
-                            query.OrderBy(a => a.Status);
-                        break;
-                    default:
-                        query = query.OrderByDescending(a => a.AppliedDate);
-                        break;
-                }
-            }
-            else
-            {
-                query = query.OrderByDescending(a => a.AppliedDate);
-            }
-
-            var result = query.ToList();
-
-            foreach (var application in result)
-            {
-                if (application.JobId > 0)
-                {
-                    application.Job = _jobs.FirstOrDefault(j => j.Id == application.JobId);
-
-                    // İş ilanı silinmiş mi kontrol et
-                    if (application.Job == null)
-                    {
-                        application.IsJobDeleted = true;
-                    }
-                }
-            }
-
-            return Ok(result);
-        }
-
-        [HttpGet("stats")]
-        public IActionResult GetStats()
-        {
-            var stats = new
-            {
-                TotalApplications = _applications.Count,
-                PendingApplications = _applications.Count(a => a.Status == "Pending"),
-                AcceptedApplications = _applications.Count(a => a.Status == "Accepted"),
-                RejectedApplications = _applications.Count(a => a.Status == "Rejected"),
-                InterviewApplications = _applications.Count(a => a.Status == "Interview"),
-                AutoAppliedCount = _applications.Count(a => a.IsAutoApplied),
-                ManualAppliedCount = _applications.Count(a => !a.IsAutoApplied),
-                ApplicationMethodBreakdown = _applications
-                    .GroupBy(a => a.AppliedMethod)
-                    .Select(g => new { Method = g.Key, Count = g.Count() })
-                    .OrderByDescending(x => x.Count)
-                    .ToList(),
-                StatusBreakdown = _applications
-                    .GroupBy(a => a.Status)
-                    .Select(g => new { Status = g.Key, Count = g.Count() })
-                    .OrderByDescending(x => x.Count)
-                    .ToList(),
-                RecentApplications = _applications
-                    .OrderByDescending(a => a.AppliedDate)
-                    .Take(5)
-                    .Select(a => new {
-                        a.Id,
-                        a.JobId,
-                        JobTitle = a.Job?.Title ?? "Bilinmeyen İlan",
-                        a.AppliedDate,
-                        a.Status
-                    })
-                    .ToList()
-            };
-
-            return Ok(stats);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var application = _applications.FirstOrDefault(a => a.Id == id);
-            if (application == null)
+            try
             {
-                return NotFound();
-            }
-
-            if (application.JobId > 0)
-            {
-                application.Job = _jobs.FirstOrDefault(j => j.Id == application.JobId);
-
-                // İş ilanı silinmiş mi kontrol et
-                if (application.Job == null)
+                var application = await _applicationRepository.GetApplicationWithJobAsync(id);
+                if (application == null)
                 {
-                    application.IsJobDeleted = true;
+                    return NotFound(new { message = "Başvuru bulunamadı" });
                 }
-            }
 
-            return Ok(application);
+                return Ok(application);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Başvuru alınırken hata oluştu: {Id}", id);
+                return StatusCode(500, new { message = "Başvuru alınırken bir hata oluştu" });
+            }
         }
 
         [HttpPost]
-        public IActionResult Create(ApplicationCreateModel model)
+        public async Task<IActionResult> Create(ApplicationCreateModel model)
         {
-            if (model == null)
+            try
             {
-                return BadRequest("Geçersiz başvuru verisi");
+                if (model == null)
+                {
+                    return BadRequest(new { message = "Geçersiz başvuru verisi" });
+                }
+
+                var job = await _jobRepository.GetByIdAsync(model.JobId);
+                if (job == null)
+                {
+                    return NotFound(new { message = "İş ilanı bulunamadı" });
+                }
+
+                var application = new Application
+                {
+                    JobId = model.JobId,
+                    AppliedDate = DateTime.UtcNow,
+                    Status = "Pending",
+                    AppliedMethod = model.AppliedMethod,
+                    SentMessage = model.Message,
+                    IsAutoApplied = model.IsAutoApplied,
+                    CvAttached = model.CvAttached,
+                    TelegramNotificationSent = model.TelegramNotification
+                };
+
+                await _applicationRepository.AddAsync(application);
+                await _jobRepository.SaveChangesAsync();
+
+                _logger.LogInformation("Yeni başvuru oluşturuldu: {Id} - {JobId}", application.Id, application.JobId);
+
+                return CreatedAtAction(nameof(GetById), new { id = application.Id }, application);
             }
-
-            // İş ilanını kontrol et
-            var job = _jobs.FirstOrDefault(j => j.Id == model.JobId);
-            if (job == null)
+            catch (Exception ex)
             {
-                return BadRequest("Geçersiz iş ilanı ID'si");
+                _logger.LogError(ex, "Başvuru oluşturulurken hata oluştu");
+                return StatusCode(500, new { message = "Başvuru oluşturulurken bir hata oluştu" });
             }
-
-            // Zaten başvuru yapılmış mı kontrol et
-            if (_applications.Any(a => a.JobId == model.JobId))
-            {
-                return BadRequest("Bu iş ilanına zaten başvuru yapılmış");
-            }
-
-            // Yeni başvuru oluştur
-            var application = new Application
-            {
-                Id = _applications.Count > 0 ? _applications.Max(a => a.Id) + 1 : 1,
-                JobId = model.JobId,
-                AppliedDate = DateTime.Now,
-                Status = "Pending",
-                AppliedMethod = model.AppliedMethod ?? "Manual",
-                SentMessage = model.Message ?? "",
-                IsAutoApplied = model.IsAutoApplied,
-                CvAttached = model.CvAttached,
-                Job = job
-            };
-
-            // İş ilanını güncelle
-            job.IsApplied = true;
-            job.AppliedDate = DateTime.Now;
-
-            // Başvuruyu ekle
-            _applications.Add(application);
-
-            _logger.LogInformation("Yeni başvuru oluşturuldu: {id} - {title}", application.Id, job.Title);
-
-            return CreatedAtAction(nameof(GetById), new { id = application.Id }, application);
         }
 
-        [HttpPut("{id}/status")]
-        public IActionResult UpdateStatus(int id, [FromBody] StatusUpdateModel model)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, Application application)
         {
-            var application = _applications.FirstOrDefault(a => a.Id == id);
-            if (application == null)
+            try
             {
-                return NotFound();
+                if (application == null || id != application.Id)
+                {
+                    return BadRequest(new { message = "Geçersiz başvuru verisi" });
+                }
+
+                var existingApplication = await _applicationRepository.GetByIdAsync(id);
+                if (existingApplication == null)
+                {
+                    return NotFound(new { message = "Başvuru bulunamadı" });
+                }
+
+                await _applicationRepository.UpdateAsync(application);
+                await _applicationRepository.SaveChangesAsync();
+
+                _logger.LogInformation("Başvuru güncellendi: {Id}", application.Id);
+
+                return Ok(application);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Başvuru güncellenirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { message = "Başvuru güncellenirken bir hata oluştu" });
+            }
+        }
 
-            application.Status = model.Status;
-            application.ResponseDate = DateTime.Now;
-            application.ResponseDetails = model.Details ?? "";
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var application = await _applicationRepository.GetByIdAsync(id);
+                if (application == null)
+                {
+                    return NotFound(new { message = "Başvuru bulunamadı" });
+                }
 
-            _logger.LogInformation("Başvuru durumu güncellendi: {id} - {status}", id, model.Status);
+                await _applicationRepository.DeleteAsync(application);
+                await _applicationRepository.SaveChangesAsync();
 
-            return Ok(application);
+                _logger.LogInformation("Başvuru silindi: {Id}", id);
+
+                return Ok(new { message = "Başvuru başarıyla silindi" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Başvuru silinirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { message = "Başvuru silinirken bir hata oluştu" });
+            }
+        }
+
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            try
+            {
+                var stats = await _applicationRepository.GetStatsAsync();
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Başvuru istatistikleri alınırken hata oluştu");
+                return StatusCode(500, new { message = "Başvuru istatistikleri alınırken bir hata oluştu" });
+            }
         }
 
         [HttpPost("auto-apply")]
         public async Task<IActionResult> AutoApply(AutoApplyModel model)
         {
-            if (model == null || model.JobId <= 0)
+            try
             {
-                return BadRequest("Geçersiz başvuru verisi");
-            }
-
-            // İş ilanını kontrol et
-            var job = _jobs.FirstOrDefault(j => j.Id == model.JobId);
-            if (job == null)
-            {
-                return BadRequest("Geçersiz iş ilanı ID'si");
-            }
-
-            // Zaten başvuru yapılmış mı kontrol et
-            if (_applications.Any(a => a.JobId == model.JobId))
-            {
-                return BadRequest("Bu iş ilanına zaten başvuru yapılmış");
-            }
-
-            // Yeni başvuru oluştur
-            var application = new Application
-            {
-                Id = _applications.Count > 0 ? _applications.Max(a => a.Id) + 1 : 1,
-                JobId = model.JobId,
-                AppliedDate = DateTime.Now,
-                Status = "Pending",
-                AppliedMethod = "n8n",
-                SentMessage = model.Message ?? "Otomatik oluşturulan başvuru mesajı",
-                IsAutoApplied = true,
-                CvAttached = true,
-                TelegramNotificationSent = model.TelegramNotification ?? "",
-                NotionPageId = model.NotionPageId ?? "",
-                Job = job
-            };
-
-            // Profil bilgilerini al
-            var loggerFactory = HttpContext.RequestServices.GetService<ILoggerFactory>();
-            var profileLogger = loggerFactory?.CreateLogger<ProfileController>();
-            var environment = HttpContext.RequestServices.GetService<IWebHostEnvironment>();
-
-            if (profileLogger == null || environment == null)
-            {
-                return StatusCode(500, new { success = false, message = "Servis bağımlılıkları alınamadı" });
-            }
-
-            var profileController = new ProfileController(profileLogger, environment);
-            var profileResult = profileController.Get() as OkObjectResult;
-            var profile = profileResult?.Value as Profile;
-
-            if (profile == null)
-            {
-                return BadRequest(new { success = false, message = "Profil bilgileri bulunamadı" });
-            }
-
-            // Varsayılan özgeçmişi al
-            Resume? defaultResume = null;
-            var resumesResult = profileController.GetResumes() as OkObjectResult;
-            var resumes = resumesResult?.Value as List<Resume>;
-
-            if (resumes != null && resumes.Any())
-            {
-                defaultResume = resumes.FirstOrDefault(r => r.IsDefault) ?? resumes.First();
-            }
-
-            // Başvuru mesajını hazırla
-            string? messageInput = model?.Message;
-            string message = string.Empty;
-
-            if (string.IsNullOrEmpty(messageInput))
-            {
-                message = $"Merhaba,\n\n{job.Title} pozisyonu için başvurumu yapmak istiyorum. Özgeçmişimi ekte bulabilirsiniz.\n\nSaygılarımla,\n{profile.FullName}";
-            }
-            else
-            {
-                message = messageInput;
-            }
-
-            // Başvuru mesajını güncelle
-            application.SentMessage = message;
-
-            // E-posta gönder
-            string? attachmentPath = null;
-            if (defaultResume != null)
-            {
-                attachmentPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", defaultResume.FilePath.TrimStart('/'));
-                application.CvAttached = true;
-            }
-
-            bool emailSent = false;
-            if (!string.IsNullOrEmpty(job.ContactEmail))
-            {
-                string subject = $"Başvuru: {job.Title}";
-                emailSent = await _emailService.SendEmailAsync(job.ContactEmail, subject, message, attachmentPath);
-
-                _logger.LogInformation("Başvuru e-postası gönderildi: {email}, İlan: {title}", job.ContactEmail, job.Title);
-            }
-
-            // İş ilanını güncelle
-            job.IsApplied = true;
-            job.AppliedDate = DateTime.Now;
-
-            // Başvuruyu ekle
-            _applications.Add(application);
-
-            _logger.LogInformation("Otomatik başvuru oluşturuldu: {id} - {title}", application.Id, job.Title);
-
-            return Ok(new {
-                success = true,
-                message = "Otomatik başvuru başarıyla yapıldı" + (emailSent ? " ve e-posta gönderildi" : ""),
-                applicationId = application.Id,
-                jobId = job.Id,
-                jobTitle = job.Title,
-                emailSent = emailSent,
-                resumeAttached = defaultResume != null
-            });
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var application = _applications.FirstOrDefault(a => a.Id == id);
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-            // Başvuruyu sil
-            _applications.Remove(application);
-
-            // İş ilanını güncelle (eğer başka başvuru yoksa)
-            if (!_applications.Any(a => a.JobId == application.JobId))
-            {
-                var job = _jobs.FirstOrDefault(j => j.Id == application.JobId);
-                if (job != null)
+                if (model == null || model.JobId <= 0)
                 {
-                    job.IsApplied = false;
-                    job.AppliedDate = null;
+                    return BadRequest(new { message = "Geçersiz otomatik başvuru verisi" });
                 }
+
+                var job = await _jobRepository.GetByIdAsync(model.JobId);
+                if (job == null)
+                {
+                    return NotFound(new { message = "İş ilanı bulunamadı" });
+                }
+
+                // Başvuru oluştur
+                var application = new Application
+                {
+                    JobId = model.JobId,
+                    AppliedDate = DateTime.UtcNow,
+                    Status = "Pending",
+                    AppliedMethod = "n8n",
+                    SentMessage = model.Message,
+                    IsAutoApplied = true,
+                    CvAttached = true,
+                    TelegramNotificationSent = model.TelegramNotification
+                };
+
+                await _applicationRepository.AddAsync(application);
+                await _applicationRepository.SaveChangesAsync();
+
+                job.IsApplied = true;
+                job.AppliedDate = DateTime.UtcNow;
+                await _jobRepository.UpdateAsync(job);
+                await _jobRepository.SaveChangesAsync();
+
+                _logger.LogInformation("Otomatik başvuru oluşturuldu: {Id} - {Title}", application.Id, job.Title);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Otomatik başvuru başarıyla yapıldı",
+                    applicationId = application.Id,
+                    jobId = job.Id,
+                    jobTitle = job.Title
+                });
             }
-
-            _logger.LogInformation("Başvuru silindi: {id}", id);
-
-            return Ok(new { success = true, message = "Başvuru başarıyla silindi" });
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Otomatik başvuru yapılırken hata oluştu");
+                return StatusCode(500, new { message = "Otomatik başvuru yapılırken bir hata oluştu" });
+            }
         }
     }
 
@@ -433,16 +258,11 @@ namespace JobAnalyzerDashboard.Server.Controllers
     public class ApplicationCreateModel
     {
         public int JobId { get; set; }
-        public string? AppliedMethod { get; set; }
+        public string AppliedMethod { get; set; } = "Manual";
         public string? Message { get; set; }
         public bool IsAutoApplied { get; set; } = false;
         public bool CvAttached { get; set; } = false;
-    }
-
-    public class StatusUpdateModel
-    {
-        public string Status { get; set; } = "Pending";
-        public string? Details { get; set; }
+        public string? TelegramNotification { get; set; }
     }
 
     public class AutoApplyModel
@@ -450,6 +270,5 @@ namespace JobAnalyzerDashboard.Server.Controllers
         public int JobId { get; set; }
         public string? Message { get; set; }
         public string? TelegramNotification { get; set; }
-        public string? NotionPageId { get; set; }
     }
 }

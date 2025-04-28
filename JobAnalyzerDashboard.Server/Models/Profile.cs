@@ -17,17 +17,17 @@ namespace JobAnalyzerDashboard.Server.Models
         public string PreferredJobTypes { get; set; } = string.Empty;
         public string PreferredLocations { get; set; } = string.Empty;
         public string MinimumSalary { get; set; } = string.Empty;
-        public string ResumeFilePath { get; set; } = string.Empty; 
+        public string ResumeFilePath { get; set; } = string.Empty;
 
         public List<Resume> Resumes { get; set; } = new List<Resume>();
 
-        public string NotionPageId { get; set; } = string.Empty; 
-        public string TelegramChatId { get; set; } = string.Empty; 
-        public string PreferredModel { get; set; } = string.Empty; 
-        public string TechnologyStack { get; set; } = string.Empty; 
-        public string Position { get; set; } = string.Empty; 
-        public List<string> PreferredCategories { get; set; } = new List<string>(); 
-        public int MinQualityScore { get; set; } = 3; 
-        public bool AutoApplyEnabled { get; set; } = false; 
+        public string NotionPageId { get; set; } = string.Empty;
+        public string TelegramChatId { get; set; } = string.Empty;
+        public string PreferredModel { get; set; } = string.Empty;
+        public string TechnologyStack { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
+        public string PreferredCategories { get; set; } = "[]";
+        public int MinQualityScore { get; set; } = 3;
+        public bool AutoApplyEnabled { get; set; } = false;
     }
 }

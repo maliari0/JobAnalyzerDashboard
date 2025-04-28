@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.EntityFrameworkCore;
+using JobAnalyzerDashboard.Server.Data;
+using JobAnalyzerDashboard.Server.Services;
 using System;
 using System.IO;
 
@@ -12,8 +15,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// PostgreSQL veritabanı bağlantısını ekle
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Repository servislerini ekle
+builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IJobRepository, JobAnalyzerDashboard.Server.Repositories.JobRepository>();
+builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IApplicationRepository, JobAnalyzerDashboard.Server.Repositories.ApplicationRepository>();
+builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IProfileRepository, JobAnalyzerDashboard.Server.Repositories.ProfileRepository>();
+
 // E-posta servisini ekle
-builder.Services.AddSingleton<JobAnalyzerDashboard.Server.Services.EmailService>();
+builder.Services.AddSingleton<EmailService>();
 
 // CORS politikasını ekle - n8n entegrasyonu için
 builder.Services.AddCors(options =>

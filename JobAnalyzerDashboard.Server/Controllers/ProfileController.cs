@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using JobAnalyzerDashboard.Server.Models;
+using JobAnalyzerDashboard.Server.Repositories;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
@@ -12,171 +13,153 @@ namespace JobAnalyzerDashboard.Server.Controllers
     [Route("api/[controller]")]
     public class ProfileController : ControllerBase
     {
-        private static readonly Profile _profile = new Profile
-        {
-            Id = 1,
-            FullName = "Ali Yılmaz",
-            Email = "ali.yilmaz@example.com",
-            Phone = "+90 555 123 4567",
-            LinkedInUrl = "https://linkedin.com/in/aliyilmaz",
-            GithubUrl = "https://github.com/aliyilmaz",
-            PortfolioUrl = "https://aliyilmaz.dev",
-            Skills = "C#, ASP.NET Core, Angular, JavaScript, TypeScript, SQL, Git",
-            Education = "Bilgisayar Mühendisliği, XYZ Üniversitesi, 2020",
-            Experience = "3 yıl Full Stack Developer deneyimi",
-            PreferredJobTypes = "Remote, Hybrid",
-            PreferredLocations = "İstanbul, Ankara, İzmir",
-            MinimumSalary = "40.000 TL",
-            ResumeFilePath = "/uploads/resume.pdf"
-        };
-
-        private static readonly List<Resume> _resumes = new List<Resume>
-        {
-            new Resume
-            {
-                Id = 1,
-                FileName = "Ali_Yilmaz_CV.pdf",
-                FilePath = "/uploads/resumes/Ali_Yilmaz_CV.pdf",
-                FileSize = 1024 * 1024, // 1MB
-                FileType = "application/pdf",
-                UploadDate = DateTime.Now.AddDays(-30),
-                IsDefault = true,
-                ProfileId = 1
-            }
-        };
-
         private readonly ILogger<ProfileController> _logger;
+        private readonly IProfileRepository _profileRepository;
         private readonly IWebHostEnvironment _environment;
 
-        public ProfileController(ILogger<ProfileController> logger, IWebHostEnvironment environment)
+        public ProfileController(
+            ILogger<ProfileController> logger,
+            IProfileRepository profileRepository,
+            IWebHostEnvironment environment)
         {
             _logger = logger;
+            _profileRepository = profileRepository;
             _environment = environment;
         }
 
         [HttpGet]
-        public IActionResult Get()
-        {
-            // Profil bilgilerine özgeçmişleri ekle
-            _profile.Resumes = _resumes.Where(r => r.ProfileId == _profile.Id).ToList();
-
-            return Ok(_profile);
-        }
-
-        [HttpPut]
-        public IActionResult Update(Profile updatedProfile)
-        {
-            if (updatedProfile == null)
-            {
-                return BadRequest();
-            }
-
-            // Sadece belirli alanları güncelle, ID'yi değiştirme
-            _profile.FullName = updatedProfile.FullName;
-            _profile.Email = updatedProfile.Email;
-            _profile.Phone = updatedProfile.Phone;
-            _profile.LinkedInUrl = updatedProfile.LinkedInUrl;
-            _profile.GithubUrl = updatedProfile.GithubUrl;
-            _profile.PortfolioUrl = updatedProfile.PortfolioUrl;
-            _profile.Skills = updatedProfile.Skills;
-            _profile.Education = updatedProfile.Education;
-            _profile.Experience = updatedProfile.Experience;
-            _profile.PreferredJobTypes = updatedProfile.PreferredJobTypes;
-            _profile.PreferredLocations = updatedProfile.PreferredLocations;
-            _profile.MinimumSalary = updatedProfile.MinimumSalary;
-
-            // N8n entegrasyonu için eklenen alanları güncelle
-            _profile.NotionPageId = updatedProfile.NotionPageId;
-            _profile.TelegramChatId = updatedProfile.TelegramChatId;
-            _profile.PreferredModel = updatedProfile.PreferredModel;
-            _profile.TechnologyStack = updatedProfile.TechnologyStack;
-            _profile.Position = updatedProfile.Position;
-            _profile.PreferredCategories = updatedProfile.PreferredCategories;
-            _profile.MinQualityScore = updatedProfile.MinQualityScore;
-            _profile.AutoApplyEnabled = updatedProfile.AutoApplyEnabled;
-
-            // Profil bilgilerine özgeçmişleri ekle
-            _profile.Resumes = _resumes.Where(r => r.ProfileId == _profile.Id).ToList();
-
-            return Ok(_profile);
-        }
-
-        [HttpGet("resumes")]
-        public IActionResult GetResumes()
-        {
-            return Ok(_resumes.Where(r => r.ProfileId == _profile.Id).ToList());
-        }
-
-        [HttpGet("resumes/default")]
-        public IActionResult GetDefaultResume()
-        {
-            var defaultResume = _resumes.FirstOrDefault(r => r.ProfileId == _profile.Id && r.IsDefault);
-
-            if (defaultResume == null)
-            {
-                return NotFound(new { message = "Varsayılan özgeçmiş bulunamadı" });
-            }
-
-            return Ok(defaultResume);
-        }
-
-        [HttpPost("upload-resume")]
-        public IActionResult UploadResume(IFormFile file)
+        public async Task<IActionResult> Get()
         {
             try
             {
-                if (file == null || file.Length == 0)
+                // Varsayılan profil ID'si 1
+                var profile = await _profileRepository.GetProfileWithResumesAsync(1);
+                if (profile == null)
                 {
-                    return BadRequest(new { message = "Dosya seçilmedi" });
+                    return NotFound(new { message = "Profil bulunamadı" });
                 }
 
-                // PDF dosyası kontrolü
-                if (file.ContentType != "application/pdf")
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Profil alınırken hata oluştu");
+                return StatusCode(500, new { message = "Profil alınırken bir hata oluştu" });
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(Profile profile)
+        {
+            try
+            {
+                if (profile == null)
                 {
-                    return BadRequest(new { message = "Sadece PDF dosyaları yüklenebilir" });
+                    return BadRequest(new { message = "Geçersiz profil verisi" });
                 }
 
-                // Dosya boyutu kontrolü (5MB)
-                if (file.Length > 5 * 1024 * 1024)
+                // Varsayılan profil ID'si 1
+                var existingProfile = await _profileRepository.GetByIdAsync(1);
+                if (existingProfile == null)
                 {
-                    return BadRequest(new { message = "Dosya boyutu 5MB'dan küçük olmalıdır" });
+                    return NotFound(new { message = "Profil bulunamadı" });
                 }
 
-                // Uploads klasörünü oluştur
-                string uploadsFolder = Path.Combine(_environment.ContentRootPath, "wwwroot", "uploads", "resumes");
-                Directory.CreateDirectory(uploadsFolder);
+                profile.Id = 1; // ID'yi zorla 1 yap
+                await _profileRepository.UpdateAsync(profile);
+                await _profileRepository.SaveChangesAsync();
 
-                // Benzersiz dosya adı oluştur
-                string uniqueFileName = $"{_profile.FullName.Replace(" ", "_")}_{DateTime.Now.ToString("yyyyMMddHHmmss")}.pdf";
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                _logger.LogInformation("Profil güncellendi");
+
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Profil güncellenirken hata oluştu");
+                return StatusCode(500, new { message = "Profil güncellenirken bir hata oluştu" });
+            }
+        }
+
+        [HttpGet("resumes")]
+        public async Task<IActionResult> GetResumes()
+        {
+            try
+            {
+                // Varsayılan profil ID'si 1
+                var resumes = await _profileRepository.GetResumesAsync(1);
+                return Ok(resumes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Özgeçmişler alınırken hata oluştu");
+                return StatusCode(500, new { message = "Özgeçmişler alınırken bir hata oluştu" });
+            }
+        }
+
+        [HttpPost("resumes")]
+        public async Task<IActionResult> UploadResume([FromForm] ResumeUploadModel model)
+        {
+            try
+            {
+                if (model.File == null || model.File.Length == 0)
+                {
+                    return BadRequest(new { message = "Dosya yüklenmedi" });
+                }
+
+                if (!model.File.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    return BadRequest(new { message = "Sadece PDF dosyaları kabul edilmektedir" });
+                }
+
+                // Dosya adını güvenli hale getir
+                string fileName = Path.GetFileNameWithoutExtension(model.File.FileName);
+                fileName = $"{fileName}_{DateTime.UtcNow:yyyyMMddHHmmss}.pdf";
+
+                // Dosya yolu oluştur
+                string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "resumes");
+                string filePath = Path.Combine(uploadsFolder, fileName);
+
+                // Klasör yoksa oluştur
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
 
                 // Dosyayı kaydet
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    file.CopyTo(fileStream);
+                    await model.File.CopyToAsync(fileStream);
                 }
 
-                // Yeni özgeçmiş oluştur
+                // Özgeçmiş kaydını oluştur
                 var resume = new Resume
                 {
-                    Id = _resumes.Count > 0 ? _resumes.Max(r => r.Id) + 1 : 1,
-                    FileName = uniqueFileName,
-                    FilePath = $"/uploads/resumes/{uniqueFileName}",
-                    FileSize = file.Length,
-                    FileType = file.ContentType,
-                    UploadDate = DateTime.Now,
-                    IsDefault = _resumes.Count(r => r.ProfileId == _profile.Id) == 0, // İlk özgeçmiş ise varsayılan yap
-                    ProfileId = _profile.Id
+                    FileName = model.File.FileName,
+                    FilePath = $"/uploads/resumes/{fileName}",
+                    FileSize = model.File.Length,
+                    FileType = model.File.ContentType,
+                    UploadDate = DateTime.UtcNow,
+                    IsDefault = model.IsDefault,
+                    ProfileId = 1 // Varsayılan profil ID'si
                 };
 
-                // Dosya erişim izinlerini kontrol et
-                _logger.LogInformation("Dosya yolu: {filePath}", filePath);
-                _logger.LogInformation("Dosya URL: {fileUrl}", resume.FilePath);
+                // Eğer varsayılan olarak işaretlendiyse, diğer özgeçmişlerin varsayılan durumunu kaldır
+                if (model.IsDefault)
+                {
+                    await _profileRepository.SetDefaultResumeAsync(0, 1); // 0 ID'si geçici olarak kullanılıyor
+                }
 
-                // Özgeçmişi listeye ekle
-                _resumes.Add(resume);
+                // Özgeçmişi veritabanına kaydet
+                await _profileRepository.AddResumeAsync(resume);
+                await _profileRepository.SaveChangesAsync();
 
-                _logger.LogInformation("Özgeçmiş yüklendi: {fileName}", uniqueFileName);
+                // Eğer varsayılan olarak işaretlendiyse, yeni eklenen özgeçmişi varsayılan yap
+                if (model.IsDefault)
+                {
+                    await _profileRepository.SetDefaultResumeAsync(resume.Id, 1);
+                }
+
+                _logger.LogInformation("Yeni özgeçmiş yüklendi: {FileName}", resume.FileName);
 
                 return Ok(resume);
             }
@@ -188,66 +171,63 @@ namespace JobAnalyzerDashboard.Server.Controllers
         }
 
         [HttpPut("resumes/{id}/set-default")]
-        public IActionResult SetDefaultResume(int id)
+        public async Task<IActionResult> SetDefaultResume(int id)
         {
-            var resume = _resumes.FirstOrDefault(r => r.Id == id && r.ProfileId == _profile.Id);
-
-            if (resume == null)
+            try
             {
-                return NotFound(new { message = "Özgeçmiş bulunamadı" });
-            }
+                var resume = await _profileRepository.GetResumeByIdAsync(id);
+                if (resume == null)
+                {
+                    return NotFound(new { message = "Özgeçmiş bulunamadı" });
+                }
 
-            // Tüm özgeçmişlerin varsayılan durumunu kaldır
-            foreach (var r in _resumes.Where(r => r.ProfileId == _profile.Id))
+                await _profileRepository.SetDefaultResumeAsync(id, 1); // Varsayılan profil ID'si 1
+                _logger.LogInformation("Varsayılan özgeçmiş güncellendi: {Id}", id);
+
+                return Ok(new { message = "Varsayılan özgeçmiş güncellendi" });
+            }
+            catch (Exception ex)
             {
-                r.IsDefault = false;
+                _logger.LogError(ex, "Varsayılan özgeçmiş güncellenirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { message = "Varsayılan özgeçmiş güncellenirken bir hata oluştu" });
             }
-
-            // Seçilen özgeçmişi varsayılan yap
-            resume.IsDefault = true;
-
-            _logger.LogInformation("Varsayılan özgeçmiş ayarlandı: {fileName}", resume.FileName);
-
-            return Ok(resume);
         }
 
         [HttpDelete("resumes/{id}")]
-        public IActionResult DeleteResume(int id)
+        public async Task<IActionResult> DeleteResume(int id)
         {
-            var resume = _resumes.FirstOrDefault(r => r.Id == id && r.ProfileId == _profile.Id);
-
-            if (resume == null)
-            {
-                return NotFound(new { message = "Özgeçmiş bulunamadı" });
-            }
-
-            // Dosyayı sil
             try
             {
-                string filePath = Path.Combine(_environment.ContentRootPath, "wwwroot", resume.FilePath.TrimStart('/'));
+                var resume = await _profileRepository.GetResumeByIdAsync(id);
+                if (resume == null)
+                {
+                    return NotFound(new { message = "Özgeçmiş bulunamadı" });
+                }
+
+                // Dosyayı sil
+                string filePath = Path.Combine(_environment.WebRootPath, resume.FilePath.TrimStart('/'));
                 if (System.IO.File.Exists(filePath))
                 {
                     System.IO.File.Delete(filePath);
                 }
+
+                // Veritabanından kaydı sil
+                await _profileRepository.DeleteResumeAsync(id, 1); // Varsayılan profil ID'si 1
+                _logger.LogInformation("Özgeçmiş silindi: {Id}", id);
+
+                return Ok(new { message = "Özgeçmiş başarıyla silindi" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Özgeçmiş dosyası silinirken hata oluştu: {fileName}", resume.FileName);
-                // Dosya silinmese bile devam et
+                _logger.LogError(ex, "Özgeçmiş silinirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { message = "Özgeçmiş silinirken bir hata oluştu" });
             }
-
-            // Özgeçmişi listeden kaldır
-            _resumes.Remove(resume);
-
-            // Eğer silinen özgeçmiş varsayılan ise ve başka özgeçmişler varsa, ilk özgeçmişi varsayılan yap
-            if (resume.IsDefault && _resumes.Any(r => r.ProfileId == _profile.Id))
-            {
-                _resumes.First(r => r.ProfileId == _profile.Id).IsDefault = true;
-            }
-
-            _logger.LogInformation("Özgeçmiş silindi: {fileName}", resume.FileName);
-
-            return Ok(new { message = "Özgeçmiş başarıyla silindi" });
         }
+    }
+
+    public class ResumeUploadModel
+    {
+        public IFormFile File { get; set; }
+        public bool IsDefault { get; set; } = false;
     }
 }

@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using JobAnalyzerDashboard.Server.Models;
+using JobAnalyzerDashboard.Server.Repositories;
 using JobAnalyzerDashboard.Server.Services;
 using System;
 using System.Collections.Generic;
@@ -14,246 +15,193 @@ namespace JobAnalyzerDashboard.Server.Controllers
     public class JobController : ControllerBase
     {
         private readonly ILogger<JobController> _logger;
+        private readonly IJobRepository _jobRepository;
+        private readonly IApplicationRepository _applicationRepository;
+        private readonly IProfileRepository _profileRepository;
         private readonly EmailService _emailService;
 
-        public JobController(ILogger<JobController> logger, EmailService emailService)
+        public JobController(
+            ILogger<JobController> logger,
+            IJobRepository jobRepository,
+            IApplicationRepository applicationRepository,
+            IProfileRepository profileRepository,
+            EmailService emailService)
         {
             _logger = logger;
+            _jobRepository = jobRepository;
+            _applicationRepository = applicationRepository;
+            _profileRepository = profileRepository;
             _emailService = emailService;
         }
-        private static readonly List<Job> _jobs = new List<Job>
-        {
-            new Job
-            {
-                Id = 1,
-                Title = "Frontend Developer",
-                Description = "React.js bilen bir geliştirici arıyoruz. Modern web uygulamaları geliştirme deneyimi olan, UI/UX konularında bilgili adaylar arıyoruz.",
-                Company = "TechSoft A.Ş.",
-                Location = "İstanbul, Türkiye",
-                EmploymentType = "Remote",
-                Salary = "35.000 - 45.000 TL",
-                PostedDate = DateTime.Now.AddDays(-5),
-                ApplicationDeadline = DateTime.Now.AddDays(15),
-                QualityScore = 4,
-                Source = "Email",
-                IsApplied = false,
-                Category = "frontend",
-                Tags = new List<string> { "React", "Remote", "UI/UX" },
-                ActionSuggestion = "sakla",
-                CompanyWebsite = "https://techsoft.com.tr",
-                ContactEmail = "ik@techsoft.com.tr",
-                Url = "https://techsoft.com.tr/kariyer",
-                ParsedMinSalary = 35000
-            },
-            new Job
-            {
-                Id = 2,
-                Title = "Backend Developer",
-                Description = "C# ve .NET Core deneyimi olan, RESTful API tasarımı konusunda bilgili backend geliştiriciler arıyoruz.",
-                Company = "Yazılım Evi Ltd.",
-                Location = "Ankara, Türkiye",
-                EmploymentType = "Full-time",
-                Salary = "40.000 - 50.000 TL",
-                PostedDate = DateTime.Now.AddDays(-2),
-                ApplicationDeadline = DateTime.Now.AddDays(20),
-                QualityScore = 5,
-                Source = "Webhook",
-                IsApplied = true,
-                AppliedDate = DateTime.Now.AddDays(-1),
-                Category = "backend",
-                Tags = new List<string> { "C#", ".NET Core", "API" },
-                ActionSuggestion = "bildir",
-                CompanyWebsite = "https://yazilimevi.com.tr",
-                ContactEmail = "kariyer@yazilimevi.com.tr",
-                Url = "https://yazilimevi.com.tr/is-ilanlari/backend-developer",
-                ParsedMinSalary = 40000
-            },
-            new Job
-            {
-                Id = 3,
-                Title = "Full Stack Developer",
-                Description = "Angular ve ASP.NET Core deneyimi olan, veritabanı tasarımı konusunda bilgili full stack geliştiriciler arıyoruz.",
-                Company = "Global Tech Inc.",
-                Location = "İzmir, Türkiye",
-                EmploymentType = "Hybrid",
-                Salary = "45.000 - 55.000 TL",
-                PostedDate = DateTime.Now.AddDays(-7),
-                ApplicationDeadline = DateTime.Now.AddDays(10),
-                QualityScore = 3,
-                Source = "Email",
-                IsApplied = false,
-                Category = "fullstack",
-                Tags = new List<string> { "Angular", "ASP.NET Core", "SQL" },
-                ActionSuggestion = "ilgisiz",
-                CompanyWebsite = "https://globaltech.com",
-                ContactEmail = "hr@globaltech.com",
-                Url = "https://globaltech.com/careers",
-                ParsedMinSalary = 45000
-            },
-            new Job
-            {
-                Id = 4,
-                Title = "Junior Frontend Developer (React)",
-                Description = "React.js ile modern web uygulamaları geliştirecek, takımımıza katılacak junior seviye frontend geliştirici arıyoruz. TypeScript deneyimi bir artı olacaktır.",
-                Company = "StartupX",
-                Location = "Remote",
-                EmploymentType = "Remote",
-                Salary = "30.000 - 40.000 TL",
-                PostedDate = DateTime.Now.AddDays(-1),
-                ApplicationDeadline = DateTime.Now.AddDays(30),
-                QualityScore = 5,
-                Source = "n8n",
-                IsApplied = false,
-                Category = "frontend",
-                Tags = new List<string> { "React", "TypeScript", "Remote", "Junior" },
-                ActionSuggestion = "sakla",
-                CompanyWebsite = "https://startupx.io",
-                ContactEmail = "jobs@startupx.io",
-                Url = "https://startupx.io/careers/junior-frontend",
-                ParsedMinSalary = 30000,
-                IsJobPosting = true
-            }
-        };
 
         [HttpGet]
-        public IActionResult GetAll([FromQuery] JobFilterModel filter)
+        public async Task<IActionResult> GetAll([FromQuery] JobFilterModel filter)
         {
-            var query = _jobs.AsQueryable();
-
-            // Filtreleme işlemleri
-            if (!string.IsNullOrEmpty(filter.Category))
+            try
             {
-                query = query.Where(j => j.Category.ToLower() == filter.Category.ToLower());
-            }
+                var jobs = await _jobRepository.GetJobsWithFiltersAsync(
+                    filter.Category,
+                    filter.MinQualityScore,
+                    filter.IsApplied,
+                    filter.SearchTerm,
+                    filter.SortBy,
+                    filter.SortDirection);
 
-            if (filter.MinQualityScore.HasValue)
-            {
-                query = query.Where(j => j.QualityScore >= filter.MinQualityScore.Value);
+                return Ok(jobs);
             }
-
-            if (filter.MaxQualityScore.HasValue)
+            catch (Exception ex)
             {
-                query = query.Where(j => j.QualityScore <= filter.MaxQualityScore.Value);
+                _logger.LogError(ex, "İş ilanları alınırken hata oluştu");
+                return StatusCode(500, new { message = "İş ilanları alınırken bir hata oluştu" });
             }
-
-            if (!string.IsNullOrEmpty(filter.Tag))
-            {
-                query = query.Where(j => j.Tags.Any(t => t.ToLower() == filter.Tag.ToLower()));
-            }
-
-            if (!string.IsNullOrEmpty(filter.ActionSuggestion))
-            {
-                query = query.Where(j => j.ActionSuggestion.ToLower() == filter.ActionSuggestion.ToLower());
-            }
-
-            if (filter.MinSalary.HasValue)
-            {
-                query = query.Where(j => j.ParsedMinSalary >= filter.MinSalary.Value);
-            }
-
-            if (!string.IsNullOrEmpty(filter.EmploymentType))
-            {
-                query = query.Where(j => j.EmploymentType.ToLower().Contains(filter.EmploymentType.ToLower()));
-            }
-
-            if (filter.IsApplied.HasValue)
-            {
-                query = query.Where(j => j.IsApplied == filter.IsApplied.Value);
-            }
-
-            // Sıralama
-            if (!string.IsNullOrEmpty(filter.SortBy))
-            {
-                switch (filter.SortBy.ToLower())
-                {
-                    case "date":
-                        query = filter.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(j => j.PostedDate) :
-                            query.OrderBy(j => j.PostedDate);
-                        break;
-                    case "quality":
-                        query = filter.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(j => j.QualityScore) :
-                            query.OrderBy(j => j.QualityScore);
-                        break;
-                    case "salary":
-                        query = filter.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(j => j.ParsedMinSalary) :
-                            query.OrderBy(j => j.ParsedMinSalary);
-                        break;
-                    default:
-                        query = query.OrderByDescending(j => j.PostedDate);
-                        break;
-                }
-            }
-            else
-            {
-                // Varsayılan sıralama: En yeni ilanlar önce
-                query = query.OrderByDescending(j => j.PostedDate);
-            }
-
-            return Ok(query.ToList());
         }
 
         [HttpGet("categories")]
-        public IActionResult GetCategories()
+        public async Task<IActionResult> GetCategories()
         {
-            var categories = _jobs
-                .Where(j => !string.IsNullOrEmpty(j.Category))
-                .Select(j => j.Category)
-                .Distinct()
-                .OrderBy(c => c)
-                .ToList();
-
-            return Ok(categories);
+            try
+            {
+                var categories = await _jobRepository.GetCategoriesAsync();
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kategoriler alınırken hata oluştu");
+                return StatusCode(500, new { message = "Kategoriler alınırken bir hata oluştu" });
+            }
         }
 
         [HttpGet("tags")]
-        public IActionResult GetTags()
+        public async Task<IActionResult> GetTags()
         {
-            var tags = _jobs
-                .SelectMany(j => j.Tags)
-                .Distinct()
-                .OrderBy(t => t)
-                .ToList();
-
-            return Ok(tags);
+            try
+            {
+                var tags = await _jobRepository.GetTagsAsync();
+                return Ok(tags);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Etiketler alınırken hata oluştu");
+                return StatusCode(500, new { message = "Etiketler alınırken bir hata oluştu" });
+            }
         }
 
         [HttpGet("stats")]
-        public IActionResult GetStats()
+        public async Task<IActionResult> GetStats()
         {
-            var stats = new
+            try
             {
-                TotalJobs = _jobs.Count,
-                AppliedJobs = _jobs.Count(j => j.IsApplied),
-                HighQualityJobs = _jobs.Count(j => j.QualityScore >= 4),
-                AverageSalary = _jobs.Where(j => j.ParsedMinSalary > 0).Average(j => j.ParsedMinSalary),
-                CategoryBreakdown = _jobs
-                    .GroupBy(j => j.Category)
-                    .Select(g => new { Category = g.Key, Count = g.Count() })
-                    .OrderByDescending(x => x.Count)
-                    .ToList(),
-                QualityScoreBreakdown = _jobs
-                    .GroupBy(j => j.QualityScore)
-                    .Select(g => new { Score = g.Key, Count = g.Count() })
-                    .OrderBy(x => x.Score)
-                    .ToList()
-            };
-
-            return Ok(stats);
+                var stats = await _jobRepository.GetStatsAsync();
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "İstatistikler alınırken hata oluştu");
+                return StatusCode(500, new { message = "İstatistikler alınırken bir hata oluştu" });
+            }
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var job = _jobs.FirstOrDefault(j => j.Id == id);
-            if (job == null)
+            try
             {
-                return NotFound();
-            }
+                var job = await _jobRepository.GetByIdAsync(id);
+                if (job == null)
+                {
+                    return NotFound(new { message = "İş ilanı bulunamadı" });
+                }
 
-            return Ok(job);
+                return Ok(job);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "İş ilanı alınırken hata oluştu: {Id}", id);
+                return StatusCode(500, new { message = "İş ilanı alınırken bir hata oluştu" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(Job job)
+        {
+            try
+            {
+                if (job == null)
+                {
+                    return BadRequest(new { message = "Geçersiz iş ilanı verisi" });
+                }
+
+                job.PostedDate = DateTime.UtcNow;
+                job.IsApplied = false;
+
+                await _jobRepository.AddAsync(job);
+                await _jobRepository.SaveChangesAsync();
+
+                _logger.LogInformation("Yeni iş ilanı oluşturuldu: {Id} - {Title}", job.Id, job.Title);
+
+                return CreatedAtAction(nameof(GetById), new { id = job.Id }, job);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "İş ilanı oluşturulurken hata oluştu");
+                return StatusCode(500, new { message = "İş ilanı oluşturulurken bir hata oluştu" });
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, Job job)
+        {
+            try
+            {
+                if (job == null || id != job.Id)
+                {
+                    return BadRequest(new { message = "Geçersiz iş ilanı verisi" });
+                }
+
+                var existingJob = await _jobRepository.GetByIdAsync(id);
+                if (existingJob == null)
+                {
+                    return NotFound(new { message = "İş ilanı bulunamadı" });
+                }
+
+                await _jobRepository.UpdateAsync(job);
+                await _jobRepository.SaveChangesAsync();
+
+                _logger.LogInformation("İş ilanı güncellendi: {Id} - {Title}", job.Id, job.Title);
+
+                return Ok(job);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "İş ilanı güncellenirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { message = "İş ilanı güncellenirken bir hata oluştu" });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteJob(int id)
+        {
+            try
+            {
+                var job = await _jobRepository.GetByIdAsync(id);
+                if (job == null)
+                {
+                    return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
+                }
+
+                // İş ilanını sil
+                await _jobRepository.DeleteAsync(job);
+                await _jobRepository.SaveChangesAsync();
+
+                _logger.LogInformation("İş ilanı silindi: {Id} - {Title}", job.Id, job.Title);
+
+                return Ok(new { success = true, message = "İş ilanı başarıyla silindi" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "İş ilanı silinirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { success = false, message = "İş ilanı silinirken bir hata oluştu" });
+            }
         }
 
         [HttpPost("apply/{id}")]
@@ -261,46 +209,28 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                var job = _jobs.FirstOrDefault(j => j.Id == id);
+                var job = await _jobRepository.GetByIdAsync(id);
                 if (job == null)
                 {
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
                 }
 
                 // Profil bilgilerini al
-                var loggerFactory = HttpContext.RequestServices.GetService<ILoggerFactory>();
-                var profileLogger = loggerFactory?.CreateLogger<ProfileController>();
-                var environment = HttpContext.RequestServices.GetService<IWebHostEnvironment>();
-
-                if (profileLogger == null || environment == null)
-                {
-                    return StatusCode(500, new { success = false, message = "Servis bağımlılıkları alınamadı" });
-                }
-
-                var profileController = new ProfileController(profileLogger, environment);
-                var profileResult = profileController.Get() as OkObjectResult;
-                var profile = profileResult?.Value as Profile;
-
+                var profile = await _profileRepository.GetProfileWithResumesAsync(1); // Varsayılan profil ID'si
                 if (profile == null)
                 {
                     return BadRequest(new { success = false, message = "Profil bilgileri bulunamadı" });
                 }
 
                 // Varsayılan özgeçmişi al
-                Resume? defaultResume = null;
+                Resume defaultResume = null;
                 if (model?.AttachCV == true)
                 {
-                    var resumesResult = profileController.GetResumes() as OkObjectResult;
-                    var resumes = resumesResult?.Value as List<Resume>;
-
-                    if (resumes != null && resumes.Any())
-                    {
-                        defaultResume = resumes.FirstOrDefault(r => r.IsDefault) ?? resumes.First();
-                    }
+                    defaultResume = await _profileRepository.GetDefaultResumeAsync(profile.Id);
                 }
 
                 // Başvuru mesajını hazırla
-                string? messageInput = model?.Message;
+                string messageInput = model?.Message;
                 string message = string.Empty;
 
                 if (string.IsNullOrEmpty(messageInput))
@@ -313,7 +243,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 }
 
                 // E-posta gönder
-                string? attachmentPath = null;
+                string attachmentPath = null;
                 if (defaultResume != null)
                 {
                     attachmentPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", defaultResume.FilePath.TrimStart('/'));
@@ -325,46 +255,42 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     string subject = $"Başvuru: {job.Title}";
                     emailSent = await _emailService.SendEmailAsync(job.ContactEmail, subject, message, attachmentPath);
 
-                    _logger.LogInformation("Başvuru e-postası gönderildi: {email}, İlan: {title}", job.ContactEmail, job.Title);
+                    _logger.LogInformation("Başvuru e-postası gönderildi: {Email}, İlan: {Title}", job.ContactEmail, job.Title);
                 }
 
-
+                // İş ilanını güncelle
                 job.IsApplied = true;
-                job.AppliedDate = DateTime.Now;
+                job.AppliedDate = DateTime.UtcNow;
+                await _jobRepository.UpdateAsync(job);
+                await _jobRepository.SaveChangesAsync();
 
-
+                // Başvuru geçmişine ekle
                 try
                 {
-                    var appLoggerFactory = HttpContext.RequestServices.GetService<ILoggerFactory>();
-                    var applicationLogger = appLoggerFactory?.CreateLogger<ApplicationController>();
-
-                    if (applicationLogger != null)
+                    var application = new Application
                     {
-                        var applicationController = new ApplicationController(applicationLogger, _emailService);
+                        JobId = job.Id,
+                        AppliedDate = DateTime.UtcNow,
+                        Status = "Pending",
+                        AppliedMethod = model?.Method ?? "Manual",
+                        SentMessage = message,
+                        IsAutoApplied = false,
+                        CvAttached = defaultResume != null
+                    };
 
+                    await _applicationRepository.AddAsync(application);
+                    await _applicationRepository.SaveChangesAsync();
 
-                        var applicationModel = new ApplicationCreateModel
-                        {
-                            JobId = job.Id,
-                            AppliedMethod = model?.Method ?? "Manual",
-                            Message = message,
-                            IsAutoApplied = false,
-                            CvAttached = defaultResume != null
-                        };
-
-
-                        applicationController.Create(applicationModel);
-
-                        _logger.LogInformation("Başvuru geçmişine eklendi: {Id} - {Title}", job.Id, job.Title);
-                    }
+                    _logger.LogInformation("Başvuru geçmişine eklendi: {Id} - {Title}", job.Id, job.Title);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Başvuru geçmişine eklenirken hata oluştu: {Id}", job.Id);
-
+                    // Hata olsa bile devam et
                 }
 
-                return Ok(new {
+                return Ok(new
+                {
                     success = true,
                     message = "Başvuru başarıyla yapıldı" + (emailSent ? " ve e-posta gönderildi" : ""),
                     job = job,
@@ -376,41 +302,32 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Başvuru yapılırken hata oluştu: {id}", id);
+                _logger.LogError(ex, "Başvuru yapılırken hata oluştu: {Id}", id);
                 return StatusCode(500, new { success = false, message = "Başvuru yapılırken bir hata oluştu" });
             }
         }
 
         [HttpPost("webhook-notify/{id}")]
-        public IActionResult WebhookNotify(int id)
+        public async Task<IActionResult> WebhookNotify(int id)
         {
-            var job = _jobs.FirstOrDefault(j => j.Id == id);
-            if (job == null)
+            try
             {
-                return NotFound();
+                var job = await _jobRepository.GetByIdAsync(id);
+                if (job == null)
+                {
+                    return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
+                }
+
+                // Burada n8n webhook'una bildirim gönderilecek
+                // Şimdilik sadece başarılı yanıt döndürüyoruz
+
+                return Ok(new { success = true, message = "Webhook bildirimi gönderildi", jobId = id });
             }
-
-            // Burada n8n webhook'una bildirim gönderilecek
-            // Şimdilik sadece başarılı yanıt döndürüyoruz
-
-            return Ok(new { success = true, message = "Webhook bildirimi gönderildi", jobId = id });
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult DeleteJob(int id)
-        {
-            var job = _jobs.FirstOrDefault(j => j.Id == id);
-            if (job == null)
+            catch (Exception ex)
             {
-                return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
+                _logger.LogError(ex, "Webhook bildirimi gönderilirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { success = false, message = "Webhook bildirimi gönderilirken bir hata oluştu" });
             }
-
-            // İş ilanını listeden kaldır
-            _jobs.Remove(job);
-
-            _logger.LogInformation("İş ilanı silindi: {Id} - {Title}", job.Id, job.Title);
-
-            return Ok(new { success = true, message = "İş ilanı başarıyla silindi" });
         }
 
         [HttpPost("auto-apply/{id}")]
@@ -418,7 +335,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                var job = _jobs.FirstOrDefault(j => j.Id == id);
+                var job = await _jobRepository.GetByIdAsync(id);
                 if (job == null)
                 {
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
@@ -426,9 +343,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                 using (var httpClient = new HttpClient())
                 {
-
-                    var webhookUrl = "https://n8n-service-a2yz.onrender.com/webhook/apply-auto";
-
+                    var webhookUrl = "https://n8n-service-a2yz.onrender.com/webhook/job-intake";
 
                     var jobData = new
                     {
@@ -442,66 +357,56 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         company = job.Company
                     };
 
-
                     var jsonData = System.Text.Json.JsonSerializer.Serialize(jobData);
                     var content = new StringContent(
                         jsonData,
                         System.Text.Encoding.UTF8,
                         "application/json");
 
-
-                    _logger.LogInformation("Webhook'a gönderilen veri: {jsonData}", jsonData);
-                    _logger.LogInformation("Webhook URL: {webhookUrl}", webhookUrl);
-
+                    _logger.LogInformation("Webhook'a gönderilen veri: {JsonData}", jsonData);
+                    _logger.LogInformation("Webhook URL: {WebhookUrl}", webhookUrl);
 
                     var response = await httpClient.PostAsync(webhookUrl, content);
 
-
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogInformation("Webhook yanıtı: {statusCode}, İçerik: {responseContent}",
+                    _logger.LogInformation("Webhook yanıtı: {StatusCode}, İçerik: {ResponseContent}",
                         response.StatusCode, responseContent);
 
                     if (response.IsSuccessStatusCode)
                     {
-
                         job.IsApplied = true;
-                        job.AppliedDate = DateTime.Now;
-
+                        job.AppliedDate = DateTime.UtcNow;
+                        await _jobRepository.UpdateAsync(job);
+                        await _jobRepository.SaveChangesAsync();
 
                         try
                         {
-                            var loggerFactory = HttpContext.RequestServices.GetService<ILoggerFactory>();
-                            var applicationLogger = loggerFactory?.CreateLogger<ApplicationController>();
-
-                            if (applicationLogger != null)
+                            // Başvuru geçmişine ekle
+                            var application = new Application
                             {
-                                var applicationController = new ApplicationController(applicationLogger, _emailService);
+                                JobId = job.Id,
+                                AppliedDate = DateTime.UtcNow,
+                                Status = "Pending",
+                                AppliedMethod = "n8n",
+                                SentMessage = $"n8n webhook'u ile otomatik başvuru yapıldı: {job.Title}",
+                                IsAutoApplied = true,
+                                CvAttached = true
+                            };
 
+                            await _applicationRepository.AddAsync(application);
+                            await _applicationRepository.SaveChangesAsync();
 
-                                var applicationModel = new ApplicationCreateModel
-                                {
-                                    JobId = job.Id,
-                                    AppliedMethod = "n8n",
-                                    Message = $"n8n webhook'u ile otomatik başvuru yapıldı: {job.Title}",
-                                    IsAutoApplied = true,
-                                    CvAttached = true
-                                };
-
-
-                                applicationController.Create(applicationModel);
-
-                                _logger.LogInformation("Başvuru geçmişine eklendi: {Id} - {Title}", job.Id, job.Title);
-                            }
+                            _logger.LogInformation("Başvuru geçmişine eklendi: {Id} - {Title}", job.Id, job.Title);
                         }
                         catch (Exception ex)
                         {
                             _logger.LogError(ex, "Başvuru geçmişine eklenirken hata oluştu: {Id}", job.Id);
-
                         }
 
                         _logger.LogInformation("Otomatik başvuru webhook'u tetiklendi: {Id} - {Title}", job.Id, job.Title);
 
-                        return Ok(new {
+                        return Ok(new
+                        {
                             success = true,
                             message = "Otomatik başvuru işlemi başlatıldı",
                             job,
@@ -510,15 +415,16 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     }
                     else
                     {
-                        _logger.LogError("Webhook isteği başarısız: {statusCode}, Yanıt: {responseContent}",
+                        _logger.LogError("Webhook isteği başarısız: {StatusCode}, Yanıt: {ResponseContent}",
                             response.StatusCode, responseContent);
 
-
-
                         job.IsApplied = true;
-                        job.AppliedDate = DateTime.Now;
+                        job.AppliedDate = DateTime.UtcNow;
+                        await _jobRepository.UpdateAsync(job);
+                        await _jobRepository.SaveChangesAsync();
 
-                        return StatusCode(500, new {
+                        return StatusCode(500, new
+                        {
                             success = false,
                             message = $"Webhook isteği başarısız oldu: {response.StatusCode}",
                             error = responseContent,
@@ -529,7 +435,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Otomatik başvuru yapılırken hata oluştu: {id}", id);
+                _logger.LogError(ex, "Otomatik başvuru yapılırken hata oluştu: {Id}", id);
                 return StatusCode(500, new { success = false, message = "Otomatik başvuru yapılırken bir hata oluştu" });
             }
         }
@@ -539,12 +445,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
     {
         public string? Category { get; set; }
         public int? MinQualityScore { get; set; }
-        public int? MaxQualityScore { get; set; }
-        public string? Tag { get; set; }
-        public string? ActionSuggestion { get; set; }
-        public int? MinSalary { get; set; }
-        public string? EmploymentType { get; set; }
         public bool? IsApplied { get; set; }
+        public string? SearchTerm { get; set; }
         public string? SortBy { get; set; }
         public string? SortDirection { get; set; }
     }
