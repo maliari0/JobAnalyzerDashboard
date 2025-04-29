@@ -3,6 +3,7 @@ using System;
 using JobAnalyzerDashboard.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JobAnalyzerDashboard.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250428083638_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,7 +106,6 @@ namespace JobAnalyzerDashboard.Server.Migrations
 
                     b.Property<string>("Company")
                         .IsRequired()
-                        .IsUnicode(true)
                         .HasColumnType("text");
 
                     b.Property<string>("CompanyWebsite")
@@ -116,7 +118,6 @@ namespace JobAnalyzerDashboard.Server.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .IsUnicode(true)
                         .HasColumnType("text");
 
                     b.Property<string>("EmploymentType")
@@ -156,7 +157,6 @@ namespace JobAnalyzerDashboard.Server.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .IsUnicode(true)
                         .HasColumnType("text");
 
                     b.Property<string>("Url")
@@ -261,33 +261,6 @@ namespace JobAnalyzerDashboard.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Profiles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AutoApplyEnabled = false,
-                            Education = "",
-                            Email = "kullanici@example.com",
-                            Experience = "",
-                            FullName = "Kullanıcı",
-                            GithubUrl = "",
-                            LinkedInUrl = "",
-                            MinQualityScore = 3,
-                            MinimumSalary = "",
-                            NotionPageId = "",
-                            Phone = "",
-                            PortfolioUrl = "",
-                            Position = "",
-                            PreferredCategories = "[]",
-                            PreferredJobTypes = "",
-                            PreferredLocations = "",
-                            PreferredModel = "",
-                            ResumeFilePath = "",
-                            Skills = "",
-                            TechnologyStack = "",
-                            TelegramChatId = ""
-                        });
                 });
 
             modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.Resume", b =>

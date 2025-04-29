@@ -16,7 +16,8 @@ export interface Job {
   // N8n entegrasyonu için eklenen alanlar
   actionSuggestion: string; // sakla, bildir, ilgisiz
   category: string; // frontend, backend, mobile, devops, data science, diğer
-  tags: string[]; // remote, junior, b2b, vb.
+  tags: string; // JSON string olarak saklanıyor, görüntülemede parse edilecek
+  parsedTags?: string[]; // UI'da kullanmak için parse edilmiş tags
   companyWebsite: string;
   contactEmail: string;
   url: string;

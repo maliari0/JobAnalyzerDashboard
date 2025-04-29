@@ -33,15 +33,12 @@ export class ProfileService {
     return this.http.put<any>(`${this.apiUrl}/n8n-settings`, settings);
   }
 
-  uploadResume(file: File, resumeName?: string): Observable<Resume> {
+  uploadResume(file: File, isDefault: boolean = false): Observable<Resume> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('isDefault', isDefault.toString());
 
-    if (resumeName) {
-      formData.append('resumeName', resumeName);
-    }
-
-    return this.http.post<Resume>(`${this.apiUrl}/upload-resume`, formData);
+    return this.http.post<Resume>(`${this.apiUrl}/resumes`, formData);
   }
 
   getResumes(): Observable<Resume[]> {

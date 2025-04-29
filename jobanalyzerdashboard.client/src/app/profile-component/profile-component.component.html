@@ -95,7 +95,12 @@
 
         <div class="profile-field">
           <span class="field-label">Tercih Edilen Lokasyonlar:</span>
-          <span class="field-value">{{ profile.preferredLocations || 'Belirtilmemiş' }}</span>
+          <span class="field-value">
+            <span *ngIf="selectedCities && selectedCities.length > 0">
+              {{ selectedCities.join(', ') }}
+            </span>
+            <span *ngIf="!selectedCities || selectedCities.length === 0">Belirtilmemiş</span>
+          </span>
         </div>
 
         <div class="profile-field">
@@ -148,7 +153,15 @@
 
         <div class="form-group">
           <label for="phone">Telefon</label>
-          <input type="tel" id="phone" formControlName="phone" class="form-control">
+          <div class="phone-input-container">
+            <select formControlName="countryCode" class="country-code-select">
+              <option *ngFor="let country of countryCodes" [value]="country.code">
+                {{ country.name }} ({{ country.code }})
+              </option>
+            </select>
+            <input type="tel" id="phoneNumber" formControlName="phoneNumber" class="form-control phone-number-input" placeholder="5XX XXX XX XX">
+          </div>
+          <div *ngIf="hasError('phoneNumber', 'pattern')" class="error-text">Geçerli bir telefon numarası giriniz (10 haneli).</div>
         </div>
       </div>
 
@@ -200,7 +213,16 @@
 
         <div class="form-group">
           <label for="preferredLocations">Tercih Edilen Lokasyonlar</label>
-          <input type="text" id="preferredLocations" formControlName="preferredLocations" class="form-control">
+          <ng-select
+            [items]="turkeyCities"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [searchable]="true"
+            bindLabel="name"
+            placeholder="Şehir seçiniz"
+            formControlName="preferredLocations">
+          </ng-select>
+          <small class="form-text text-muted">Birden fazla şehir seçebilirsiniz</small>
         </div>
 
         <div class="form-group">
@@ -229,7 +251,7 @@
           <p>Henüz yüklenmiş özgeçmiş bulunmamaktadır.</p>
         </div>
 
-        <div class="resume-upload-section">
+        <div class="resume-upload-section" id="resumeUploadSection">
           <label for="resumeFile" class="resume-upload-label">Yeni Özgeçmiş Yükle (PDF)</label>
           <input type="file" id="resumeFile" (change)="onResumeFileSelected($event)" accept=".pdf" class="resume-file-input">
           <div class="resume-upload-info">

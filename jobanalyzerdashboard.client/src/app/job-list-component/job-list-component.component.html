@@ -129,8 +129,8 @@
           <span class="job-salary">{{ job.salary }}</span>
         </div>
 
-        <div class="job-tags" *ngIf="job.tags && job.tags.length > 0">
-          <span class="tag" *ngFor="let tag of job.tags">{{ tag }}</span>
+        <div class="job-tags" *ngIf="job.parsedTags && job.parsedTags.length > 0">
+          <span class="tag" *ngFor="let tag of job.parsedTags">{{ tag }}</span>
         </div>
 
         <div class="job-dates">

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Profile, Resume } from '../models/profile.model';
 import { ProfileService } from '../services/profile.service';
+import { TURKEY_CITIES, COUNTRY_CODES } from '../shared/data/turkey-cities';
 
 @Component({
   selector: 'app-profile-component',
@@ -16,6 +17,12 @@ export class ProfileComponentComponent implements OnInit {
   error = '';
   successMessage = '';
   isEditing = false;
+
+  // Ülke kodları ve şehirler
+  countryCodes = COUNTRY_CODES;
+  turkeyCities = TURKEY_CITIES;
+  selectedCountryCode: string = '+90';
+  selectedCities: string[] = [];
 
   // Özgeçmiş yükleme için
   selectedResumeFile: File | null = null;
@@ -37,7 +44,8 @@ export class ProfileComponentComponent implements OnInit {
     this.profileForm = this.fb.group({
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: [''],
+      countryCode: ['+90'],
+      phoneNumber: ['', [Validators.pattern(/^\d{10}$/)]],
       linkedInUrl: [''],
       githubUrl: [''],
       portfolioUrl: [''],
@@ -45,7 +53,7 @@ export class ProfileComponentComponent implements OnInit {
       education: [''],
       experience: [''],
       preferredJobTypes: [''],
-      preferredLocations: [''],
+      preferredLocations: [[]],
       minimumSalary: [''],
     });
   }
@@ -57,7 +65,47 @@ export class ProfileComponentComponent implements OnInit {
     this.profileService.getProfile().subscribe({
       next: (data) => {
         this.profile = data;
-        this.profileForm.patchValue(data);
+
+        // Telefon numarasını parçalara ayır
+        if (data.phone) {
+          const phoneMatch = data.phone.match(/^(\+\d+)?\s*(\d+)$/);
+          if (phoneMatch) {
+            this.selectedCountryCode = phoneMatch[1] || '+90';
+            const phoneNumber = phoneMatch[2];
+
+            this.profileForm.patchValue({
+              ...data,
+              countryCode: this.selectedCountryCode,
+              phoneNumber: phoneNumber
+            });
+          } else {
+            this.profileForm.patchValue({
+              ...data,
+              countryCode: '+90',
+              phoneNumber: data.phone
+            });
+          }
+        } else {
+          this.profileForm.patchValue(data);
+        }
+
+        // Tercih edilen lokasyonları ayarla
+        this.selectedCities = [];
+        if (data.preferredLocations && data.preferredLocations.trim() !== '') {
+          try {
+            const locations = JSON.parse(data.preferredLocations);
+            if (Array.isArray(locations)) {
+              this.selectedCities = locations;
+              this.profileForm.get('preferredLocations')?.setValue(this.selectedCities);
+            }
+          } catch (error) {
+            console.error('Lokasyon verisi ayrıştırılamadı:', error);
+            // Hata durumunda boş dizi kullan
+            this.selectedCities = [];
+            this.profileForm.get('preferredLocations')?.setValue([]);
+          }
+        }
+
         this.loading = false;
       },
       error: (err) => {
@@ -88,10 +136,24 @@ export class ProfileComponentComponent implements OnInit {
     this.error = '';
     this.successMessage = '';
 
+    const formValues = this.profileForm.value;
+
+    // Telefon numarasını birleştir
+    const phone = formValues.countryCode + ' ' + formValues.phoneNumber;
+
+    // Tercih edilen lokasyonları JSON'a dönüştür
+    const preferredLocations = JSON.stringify(formValues.preferredLocations || []);
+
     const updatedProfile = {
       ...this.profile,
-      ...this.profileForm.value
+      ...formValues,
+      phone: phone,
+      preferredLocations: preferredLocations
     };
+
+    // Form değerlerinden eklediğimiz özel alanları kaldır
+    delete updatedProfile.countryCode;
+    delete updatedProfile.phoneNumber;
 
     this.profileService.updateProfile(updatedProfile).subscribe({
       next: (data) => {
@@ -215,15 +277,23 @@ export class ProfileComponentComponent implements OnInit {
   }
 
   openResumeUploadDialog(): void {
-
+    // Düzenleme moduna geç
     this.isEditing = true;
 
-
+    // Düzenleme moduna geçtikten sonra özgeçmiş yükleme bölümüne kaydır
     setTimeout(() => {
-      const fileInput = document.getElementById('resumeFile');
-      if (fileInput) {
-        fileInput.scrollIntoView({ behavior: 'smooth' });
+      const resumeUploadSection = document.getElementById('resumeUploadSection');
+      if (resumeUploadSection) {
+        resumeUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Görsel olarak vurgulamak için
+        resumeUploadSection.classList.add('highlight-section');
+        setTimeout(() => {
+          resumeUploadSection.classList.remove('highlight-section');
+        }, 2000);
+      } else {
+        console.error('Özgeçmiş yükleme bölümü bulunamadı!');
       }
-    }, 100);
+    }, 500); // Düzenleme moduna geçiş için daha uzun bir süre bekle
   }
 }

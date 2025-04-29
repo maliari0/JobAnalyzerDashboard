@@ -5,8 +5,14 @@ using JobAnalyzerDashboard.Server.Data;
 using JobAnalyzerDashboard.Server.Services;
 using System;
 using System.IO;
+using System.Text;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// UTF-8 kodlamasını varsayılan olarak ayarla
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
 // Add services to the container.
 

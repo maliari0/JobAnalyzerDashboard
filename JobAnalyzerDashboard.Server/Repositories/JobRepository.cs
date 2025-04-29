@@ -128,7 +128,8 @@ namespace JobAnalyzerDashboard.Server.Repositories
                 TotalJobs = jobs.Count,
                 AppliedJobs = jobs.Count(j => j.IsApplied),
                 HighQualityJobs = jobs.Count(j => j.QualityScore >= 4),
-                AverageSalary = jobs.Where(j => j.ParsedMinSalary > 0).DefaultIfEmpty().Average(j => j?.ParsedMinSalary ?? 0),
+                AverageSalary = jobs.Any(j => j.ParsedMinSalary > 0) ?
+                    jobs.Where(j => j.ParsedMinSalary > 0).Average(j => j.ParsedMinSalary) : 0,
                 CategoryBreakdown = jobs
                     .GroupBy(j => j.Category)
                     .Select(g => new { Category = g.Key, Count = g.Count() })

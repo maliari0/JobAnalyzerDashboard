@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
+using System.Text.Json;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
@@ -343,7 +345,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                 using (var httpClient = new HttpClient())
                 {
-                    var webhookUrl = "https://n8n-service-a2yz.onrender.com/webhook/job-intake";
+                    var webhookUrl = "https://n8n-service-a2yz.onrender.com/webhook/apply-auto"; // n8n oto başvuru webhook URL'i
 
                     var jobData = new
                     {
@@ -357,10 +359,15 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         company = job.Company
                     };
 
-                    var jsonData = System.Text.Json.JsonSerializer.Serialize(jobData);
+                    var options = new JsonSerializerOptions
+                    {
+                        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                        WriteIndented = true
+                    };
+                    var jsonData = JsonSerializer.Serialize(jobData, options);
                     var content = new StringContent(
                         jsonData,
-                        System.Text.Encoding.UTF8,
+                        Encoding.UTF8,
                         "application/json");
 
                     _logger.LogInformation("Webhook'a gönderilen veri: {JsonData}", jsonData);
@@ -418,10 +425,11 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         _logger.LogError("Webhook isteği başarısız: {StatusCode}, Yanıt: {ResponseContent}",
                             response.StatusCode, responseContent);
 
-                        job.IsApplied = true;
-                        job.AppliedDate = DateTime.UtcNow;
-                        await _jobRepository.UpdateAsync(job);
-                        await _jobRepository.SaveChangesAsync();
+                        // Başarısız durumda iş ilanını "Başvuruldu" olarak işaretleme
+                        // job.IsApplied = true;
+                        // job.AppliedDate = DateTime.UtcNow;
+                        // await _jobRepository.UpdateAsync(job);
+                        // await _jobRepository.SaveChangesAsync();
 
                         return StatusCode(500, new
                         {

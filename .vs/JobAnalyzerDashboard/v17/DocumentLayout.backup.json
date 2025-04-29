@@ -7,16 +7,40 @@
       "RelativeMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|solutionrelative:jobanalyzerdashboard.client\\src\\app\\app-routing.module.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.client\\tsconfig.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|solutionrelative:jobanalyzerdashboard.client\\tsconfig.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.client\\src\\app\\app.module.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|solutionrelative:jobanalyzerdashboard.client\\src\\app\\app.module.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|solutionrelative:jobanalyzerdashboard.client\\src\\app\\app.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.spec.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|solutionrelative:jobanalyzerdashboard.client\\src\\app\\app.component.spec.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.client\\_services\\job.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|solutionrelative:jobanalyzerdashboard.client\\_services\\job.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAEF2D42-E896-49F6-85BF-BA094E1BBA77}|JobAnalyzerDashboard.Server\\JobAnalyzerDashboard.Server.csproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.server\\controllers\\jobcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAEF2D42-E896-49F6-85BF-BA094E1BBA77}|JobAnalyzerDashboard.Server\\JobAnalyzerDashboard.Server.csproj|solutionrelative:jobanalyzerdashboard.server\\controllers\\jobcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{84D6C8AD-1535-9D7B-CD28-BDB35F7EC841}|jobanalyzerdashboard.client\\jobanalyzerdashboard.client.esproj|solutionrelative:jobanalyzerdashboard.client\\src\\app\\app.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{AAEF2D42-E896-49F6-85BF-BA094E1BBA77}|JobAnalyzerDashboard.Server\\JobAnalyzerDashboard.Server.csproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.server\\controllers\\webhookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AAEF2D42-E896-49F6-85BF-BA094E1BBA77}|JobAnalyzerDashboard.Server\\JobAnalyzerDashboard.Server.csproj|solutionrelative:jobanalyzerdashboard.server\\controllers\\webhookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{AAEF2D42-E896-49F6-85BF-BA094E1BBA77}|JobAnalyzerDashboard.Server\\JobAnalyzerDashboard.Server.csproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.server\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AAEF2D42-E896-49F6-85BF-BA094E1BBA77}|JobAnalyzerDashboard.Server\\JobAnalyzerDashboard.Server.csproj|solutionrelative:jobanalyzerdashboard.server\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AAEF2D42-E896-49F6-85BF-BA094E1BBA77}|JobAnalyzerDashboard.Server\\JobAnalyzerDashboard.Server.csproj|c:\\users\\aliar\\source\\repos\\jobanalyzerdashboard\\jobanalyzerdashboard.server\\controllers\\jobcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AAEF2D42-E896-49F6-85BF-BA094E1BBA77}|JobAnalyzerDashboard.Server\\JobAnalyzerDashboard.Server.csproj|solutionrelative:jobanalyzerdashboard.server\\controllers\\jobcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,7 +50,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,20 +66,111 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "tsconfig.json",
+              "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\tsconfig.json",
+              "RelativeDocumentMoniker": "jobanalyzerdashboard.client\\tsconfig.json",
+              "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\tsconfig.json",
+              "RelativeToolTip": "jobanalyzerdashboard.client\\tsconfig.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-04-22T11:58:51.879Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "job.service.ts",
+              "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\_services\\job.service.ts",
+              "RelativeDocumentMoniker": "jobanalyzerdashboard.client\\_services\\job.service.ts",
+              "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\_services\\job.service.ts",
+              "RelativeToolTip": "jobanalyzerdashboard.client\\_services\\job.service.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-04-22T11:48:25.028Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "app.component.html",
+              "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.html",
+              "RelativeDocumentMoniker": "jobanalyzerdashboard.client\\src\\app\\app.component.html",
+              "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.html",
+              "RelativeToolTip": "jobanalyzerdashboard.client\\src\\app\\app.component.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-04-22T11:47:22.336Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "app.component.spec.ts",
+              "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.spec.ts",
+              "RelativeDocumentMoniker": "jobanalyzerdashboard.client\\src\\app\\app.component.spec.ts",
+              "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.spec.ts",
+              "RelativeToolTip": "jobanalyzerdashboard.client\\src\\app\\app.component.spec.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-04-22T11:47:19.81Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "app.component.ts",
+              "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.ts",
+              "RelativeDocumentMoniker": "jobanalyzerdashboard.client\\src\\app\\app.component.ts",
+              "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app.component.ts",
+              "RelativeToolTip": "jobanalyzerdashboard.client\\src\\app\\app.component.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-04-22T11:47:18.346Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "app.module.ts",
+              "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app.module.ts",
+              "RelativeDocumentMoniker": "jobanalyzerdashboard.client\\src\\app\\app.module.ts",
+              "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app.module.ts",
+              "RelativeToolTip": "jobanalyzerdashboard.client\\src\\app\\app.module.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-04-22T11:47:15.958Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "app-routing.module.ts",
               "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app-routing.module.ts",
               "RelativeDocumentMoniker": "jobanalyzerdashboard.client\\src\\app\\app-routing.module.ts",
               "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\jobanalyzerdashboard.client\\src\\app\\app-routing.module.ts",
               "RelativeToolTip": "jobanalyzerdashboard.client\\src\\app\\app-routing.module.ts",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2025-04-22T11:45:01.201Z",
+              "WhenOpened": "2025-04-22T11:47:02.9Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
+              "Title": "JobController.cs",
+              "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\Controllers\\JobController.cs",
+              "RelativeDocumentMoniker": "JobAnalyzerDashboard.Server\\Controllers\\JobController.cs",
+              "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\Controllers\\JobController.cs",
+              "RelativeToolTip": "JobAnalyzerDashboard.Server\\Controllers\\JobController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-22T11:42:48.984Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "WebhookController.cs",
               "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\Controllers\\WebhookController.cs",
               "RelativeDocumentMoniker": "JobAnalyzerDashboard.Server\\Controllers\\WebhookController.cs",
@@ -68,7 +183,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 9,
               "Title": "ProfileController.cs",
               "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\Controllers\\ProfileController.cs",
               "RelativeDocumentMoniker": "JobAnalyzerDashboard.Server\\Controllers\\ProfileController.cs",
@@ -76,21 +191,7 @@
               "RelativeToolTip": "JobAnalyzerDashboard.Server\\Controllers\\ProfileController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-22T11:42:59.495Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "JobController.cs",
-              "DocumentMoniker": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\Controllers\\JobController.cs",
-              "RelativeDocumentMoniker": "JobAnalyzerDashboard.Server\\Controllers\\JobController.cs",
-              "ToolTip": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\Controllers\\JobController.cs",
-              "RelativeToolTip": "JobAnalyzerDashboard.Server\\Controllers\\JobController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-22T11:42:48.984Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-22T11:42:59.495Z"
             }
           ]
         }

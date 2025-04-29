@@ -34,6 +34,11 @@ namespace JobAnalyzerDashboard.Server.Repositories
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<T> GetByIdAsNoTrackingAsync(int id)
+        {
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+        }
+
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);

@@ -75,9 +75,11 @@
 
     <h4>1. Render.com Üzerindeki N8n Webhook'u Kullanma</h4>
     <ul>
-      <li>Webhook URL'i: <code>https://n8n-service-a2yz.onrender.com/webhook/job-intake</code></li>
-      <li>Bu URL'e POST isteği göndererek iş ilanı verilerini gönderebilirsiniz</li>
+      <li>İş İlanı Webhook URL'i: <code>https://n8n-service-a2yz.onrender.com/webhook/job-intake</code></li>
+      <li>Başvuru Webhook URL'i: <code>https://n8n-service-a2yz.onrender.com/webhook/apply-auto</code></li>
+      <li>Bu URL'lere POST isteği göndererek iş ilanı verilerini veya başvuru verilerini gönderebilirsiniz</li>
       <li>Gönderilen veriler n8n tarafından işlenir ve analiz edilir</li>
+      <li>Not: n8n webhook'ları genellikle 500 OK yanıtı döndürür, bu normal bir durumdur</li>
     </ul>
 
     <h4>2. Gönderilecek Veri Formatı</h4>

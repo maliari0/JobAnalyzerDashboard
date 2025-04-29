@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using JobAnalyzerDashboard.Server.Models;
 using System.Collections.Generic;
+using System.Text;
 
 namespace JobAnalyzerDashboard.Server.Data
 {
@@ -38,6 +39,24 @@ namespace JobAnalyzerDashboard.Server.Data
                 .Property(j => j.Tags)
                 .HasColumnType("text");
 
+            // Job entity'si için Description alanını UTF-8 olarak sakla
+            modelBuilder.Entity<Job>()
+                .Property(j => j.Description)
+                .HasColumnType("text")
+                .IsUnicode(true);
+
+            // Job entity'si için Title alanını UTF-8 olarak sakla
+            modelBuilder.Entity<Job>()
+                .Property(j => j.Title)
+                .HasColumnType("text")
+                .IsUnicode(true);
+
+            // Job entity'si için Company alanını UTF-8 olarak sakla
+            modelBuilder.Entity<Job>()
+                .Property(j => j.Company)
+                .HasColumnType("text")
+                .IsUnicode(true);
+
             // Profile entity'si için PreferredCategories alanını JSON olarak sakla
             modelBuilder.Entity<Profile>()
                 .Property(p => p.PreferredCategories)
@@ -49,7 +68,34 @@ namespace JobAnalyzerDashboard.Server.Data
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Seed data'yı migration sonrası manuel olarak ekleyeceğiz
+            // Varsayılan profil ekle
+            modelBuilder.Entity<Profile>().HasData(
+                new Profile
+                {
+                    Id = 1,
+                    FullName = "Kullanıcı",
+                    Email = "kullanici@example.com",
+                    Phone = "",
+                    LinkedInUrl = "",
+                    GithubUrl = "",
+                    PortfolioUrl = "",
+                    Skills = "",
+                    Education = "",
+                    Experience = "",
+                    PreferredJobTypes = "",
+                    PreferredLocations = "",
+                    MinimumSalary = "",
+                    ResumeFilePath = "",
+                    NotionPageId = "",
+                    TelegramChatId = "",
+                    PreferredModel = "",
+                    TechnologyStack = "",
+                    Position = "",
+                    PreferredCategories = "[]",
+                    MinQualityScore = 3,
+                    AutoApplyEnabled = false
+                }
+            );
         }
     }
 }

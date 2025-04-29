@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Job } from '../models/job.model';
 import { JobFilter, JobService, JobStats } from '../services/job.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-list-component',
@@ -27,7 +28,11 @@ export class JobListComponentComponent implements OnInit {
   sortBy: string = 'date';
   sortDirection: string = 'desc';
 
-  constructor(private jobService: JobService, private router: Router) {}
+  constructor(
+    private jobService: JobService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -43,17 +48,25 @@ export class JobListComponentComponent implements OnInit {
     // Filtre nesnesini oluştur
     this.updateFilter();
 
-    this.jobService.getJobs(this.filter).subscribe({
-      next: (data) => {
-        this.jobs = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'İş ilanları yüklenirken bir hata oluştu.';
-        this.loading = false;
-        console.error(err);
-      }
-    });
+    this.jobService.getJobs(this.filter)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          // Değişiklikleri manuel olarak tetikle
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (data) => {
+          this.jobs = data;
+          // Değişiklikleri manuel olarak tetikle
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.error = 'İş ilanları yüklenirken bir hata oluştu.';
+          console.error(err);
+        }
+      });
   }
 
   loadCategories(): void {

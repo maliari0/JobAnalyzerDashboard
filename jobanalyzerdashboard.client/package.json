@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^19.2.7",
     "@angular/platform-browser-dynamic": "^19.2.7",
     "@angular/router": "^19.2.7",
+    "@ng-select/ng-select": "^14.7.0",
     "jest-editor-support": "*",
     "jobanalyzerdashboard.client": "file:",
     "run-script-os": "*",

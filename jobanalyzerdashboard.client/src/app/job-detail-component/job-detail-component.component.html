@@ -9,7 +9,7 @@
 
   <div *ngIf="error" class="error-message">
     <p>{{ error }}</p>
-    <button *ngIf="job" (click)="loadJobDetails(job.id)" class="retry-button">Tekrar Dene</button>
+    <button *ngIf="job" (click)="clearError()" class="retry-button">Tekrar Dene</button>
   </div>
 
   <div *ngIf="!loading && !error && job" class="job-detail-card">
@@ -41,8 +41,8 @@
       </div>
     </div>
 
-    <div class="job-tags" *ngIf="job.tags && job.tags.length > 0">
-      <span class="tag" *ngFor="let tag of job.tags">{{ tag }}</span>
+    <div class="job-tags" *ngIf="job.parsedTags && job.parsedTags.length > 0">
+      <span class="tag" *ngFor="let tag of job.parsedTags">{{ tag }}</span>
     </div>
 
     <div class="job-meta-info">

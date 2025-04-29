@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Job } from '../models/job.model';
 import { ApplicationRequest, JobService } from '../services/job.service';
 import { ApplicationService } from '../services/application.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-detail-component',
@@ -24,7 +25,8 @@ export class JobDetailComponentComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private jobService: JobService,
-    private applicationService: ApplicationService
+    private applicationService: ApplicationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -42,20 +44,29 @@ export class JobDetailComponentComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.jobService.getJobById(id).subscribe({
-      next: (data) => {
-        this.job = data;
-        this.loading = false;
+    this.jobService.getJobById(id)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          // Değişiklikleri manuel olarak tetikle
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (data) => {
+          this.job = data;
 
-        // Varsayılan başvuru mesajını oluştur
-        this.generateDefaultMessage();
-      },
-      error: (err) => {
-        this.error = 'İş ilanı detayları yüklenirken bir hata oluştu.';
-        this.loading = false;
-        console.error(err);
-      }
-    });
+          // Varsayılan başvuru mesajını oluştur
+          this.generateDefaultMessage();
+
+          // Değişiklikleri manuel olarak tetikle
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.error = 'İş ilanı detayları yüklenirken bir hata oluştu.';
+          console.error(err);
+        }
+      });
   }
 
   generateDefaultMessage(): void {
@@ -112,24 +123,41 @@ Ali Yılmaz`;
     }
 
     this.applyingInProgress = true;
+    this.error = ''; // Önceki hata mesajlarını temizle
 
-
-    this.jobService.autoApply(this.job.id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.job!.isApplied = true;
-          this.job!.appliedDate = new Date().toISOString();
-          this.showApplicationForm = false;
-          alert('Otomatik başvuru işlemi başlatıldı! n8n webhook\'u tetiklendi.');
+    this.jobService.autoApply(this.job.id)
+      .pipe(
+        finalize(() => {
+          this.applyingInProgress = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.job!.isApplied = true;
+            this.job!.appliedDate = new Date().toISOString();
+            this.showApplicationForm = false;
+            alert('Otomatik başvuru işlemi başlatıldı! n8n webhook\'u tetiklendi.');
+          } else {
+            // Başarısız yanıt durumunda
+            this.error = response.message || 'Otomatik başvuru yapılırken bir hata oluştu.';
+            // İlan başvuruldu olarak işaretlenmediyse, UI'da da gösterme
+            this.job!.isApplied = false;
+            this.job!.appliedDate = undefined;
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          // HTTP hatası durumunda
+          this.error = 'Otomatik başvuru yapılırken bir hata oluştu: ' +
+                      (err.error?.message || err.message || 'Bilinmeyen hata');
+          // İlan başvuruldu olarak işaretlenmediyse, UI'da da gösterme
+          this.job!.isApplied = false;
+          this.job!.appliedDate = undefined;
+          console.error(err);
         }
-        this.applyingInProgress = false;
-      },
-      error: (err) => {
-        this.error = 'Otomatik başvuru yapılırken bir hata oluştu.';
-        this.applyingInProgress = false;
-        console.error(err);
-      }
-    });
+      });
   }
 
   notifyWebhook(): void {
@@ -139,19 +167,25 @@ Ali Yılmaz`;
 
     this.notifyingInProgress = true;
 
-    this.jobService.webhookNotify(this.job.id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          alert('Webhook bildirimi başarıyla gönderildi!');
+    this.jobService.webhookNotify(this.job.id)
+      .pipe(
+        finalize(() => {
+          this.notifyingInProgress = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            alert('Webhook bildirimi başarıyla gönderildi!');
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.error = 'Webhook bildirimi gönderilirken bir hata oluştu.';
+          console.error(err);
         }
-        this.notifyingInProgress = false;
-      },
-      error: (err) => {
-        this.error = 'Webhook bildirimi gönderilirken bir hata oluştu.';
-        this.notifyingInProgress = false;
-        console.error(err);
-      }
-    });
+      });
   }
 
   deleteJob(): void {
@@ -209,5 +243,9 @@ Ali Yılmaz`;
       case 'ilgisiz': return 'İlgisiz';
       default: return action;
     }
+  }
+
+  clearError(): void {
+    this.error = '';
   }
 }
