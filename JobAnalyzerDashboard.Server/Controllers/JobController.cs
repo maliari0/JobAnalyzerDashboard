@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
 using System.Text.Json;
+using JobAnalyzerDashboard.Server.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
@@ -21,19 +23,25 @@ namespace JobAnalyzerDashboard.Server.Controllers
         private readonly IApplicationRepository _applicationRepository;
         private readonly IProfileRepository _profileRepository;
         private readonly EmailService _emailService;
+        private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
         public JobController(
             ILogger<JobController> logger,
             IJobRepository jobRepository,
             IApplicationRepository applicationRepository,
             IProfileRepository profileRepository,
-            EmailService emailService)
+            EmailService emailService,
+            ApplicationDbContext context,
+            IWebHostEnvironment environment)
         {
             _logger = logger;
             _jobRepository = jobRepository;
             _applicationRepository = applicationRepository;
             _profileRepository = profileRepository;
             _emailService = emailService;
+            _context = context;
+            _environment = environment;
         }
 
         [HttpGet]
@@ -332,6 +340,42 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
+        [HttpPost("force-delete/{id}")]
+        public async Task<IActionResult> ForceDeleteJob(int id)
+        {
+            try
+            {
+                // Doğrudan veritabanından silme işlemi
+                var job = await _context.Jobs.FindAsync(id);
+                if (job == null)
+                {
+                    return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
+                }
+
+                // İlgili başvuruları da sil
+                var applications = await _context.Applications.Where(a => a.JobId == id).ToListAsync();
+                if (applications.Any())
+                {
+                    _context.Applications.RemoveRange(applications);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("İş ilanına ait {Count} başvuru silindi: {Id}", applications.Count, id);
+                }
+
+                // İş ilanını sil
+                _context.Jobs.Remove(job);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("İş ilanı zorla silindi: {Id} - {Title}", job.Id, job.Title);
+
+                return Ok(new { success = true, message = "İş ilanı başarıyla silindi", jobId = id, title = job.Title });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "İş ilanı zorla silinirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { success = false, message = "İş ilanı zorla silinirken bir hata oluştu: " + ex.Message });
+            }
+        }
+
         [HttpPost("auto-apply/{id}")]
         public async Task<IActionResult> AutoApply(int id)
         {
@@ -347,6 +391,50 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 {
                     var webhookUrl = "https://n8n-service-a2yz.onrender.com/webhook/apply-auto"; // n8n oto başvuru webhook URL'i
 
+                    // Varsayılan özgeçmişi al
+                    Resume defaultResume = null;
+                    string resumeBase64 = null;
+
+                    try
+                    {
+                        // Profil servisinden varsayılan özgeçmişi al
+                        var profile = await _profileRepository.GetProfileWithResumesAsync(1);
+                        if (profile != null)
+                        {
+                            defaultResume = await _profileRepository.GetDefaultResumeAsync(profile.Id);
+                            if (defaultResume != null)
+                            {
+                                // Dosya yolunu oluştur
+                                string filePath = Path.Combine(_environment.WebRootPath, defaultResume.FilePath.TrimStart('/'));
+
+                                // Dosyanın varlığını kontrol et
+                                if (System.IO.File.Exists(filePath))
+                                {
+                                    // Dosyayı oku
+                                    var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                                    resumeBase64 = Convert.ToBase64String(fileBytes);
+                                    _logger.LogInformation("Varsayılan özgeçmiş alındı: {Id} - {FileName}", defaultResume.Id, defaultResume.FileName);
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("Varsayılan özgeçmiş dosyası bulunamadı: {FilePath}", filePath);
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Varsayılan özgeçmiş bulunamadı");
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Profil bulunamadı");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Varsayılan özgeçmiş alınırken hata oluştu");
+                    }
+
                     var jobData = new
                     {
                         title = job.Title,
@@ -356,7 +444,16 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         contact_email = job.ContactEmail,
                         url = job.Url,
                         location = job.Location?.ToLower(),
-                        company = job.Company
+                        company = job.Company,
+                        resume = defaultResume != null ? new
+                        {
+                            fileContent = resumeBase64,
+                            fileName = defaultResume.FileName,
+                            filePath = defaultResume.FilePath,
+                            fileType = defaultResume.FileType,
+                            fileSize = defaultResume.FileSize,
+                            uploadDate = defaultResume.UploadDate
+                        } : null
                     };
 
                     var options = new JsonSerializerOptions

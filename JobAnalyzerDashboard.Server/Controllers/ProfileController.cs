@@ -288,6 +288,60 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
+        [HttpGet("resumes/default")]
+        public async Task<IActionResult> GetDefaultResume()
+        {
+            try
+            {
+                // Varsayılan profil ID'si 1
+                var defaultResume = await _profileRepository.GetDefaultResumeAsync(1);
+                if (defaultResume == null)
+                {
+                    _logger.LogWarning("Varsayılan özgeçmiş bulunamadı");
+                    return NotFound(new { message = "Varsayılan özgeçmiş bulunamadı" });
+                }
+
+                // Dosya yolunu oluştur
+                string filePath = Path.Combine(_environment.WebRootPath, defaultResume.FilePath.TrimStart('/'));
+
+                // Dosyanın varlığını kontrol et
+                if (!System.IO.File.Exists(filePath))
+                {
+                    _logger.LogWarning("Varsayılan özgeçmiş dosyası bulunamadı: {FilePath}", filePath);
+                    return NotFound(new { message = "Varsayılan özgeçmiş dosyası bulunamadı" });
+                }
+
+                // Dosyayı oku
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                // Dosya boyutu çok büyükse, ilk 1000 baytını al
+                var truncatedBytes = fileBytes.Length > 1000 ? fileBytes.Take(1000).ToArray() : fileBytes;
+                var base64Content = Convert.ToBase64String(truncatedBytes);
+
+                // Özgeçmiş bilgilerini ve dosya içeriğini döndür
+                var result = new
+                {
+                    fileContent = base64Content,
+                    fileName = defaultResume.FileName,
+                    filePath = defaultResume.FilePath,
+                    fileType = defaultResume.FileType,
+                    fileSize = defaultResume.FileSize,
+                    uploadDate = defaultResume.UploadDate,
+                    id = defaultResume.Id,
+                    isDefault = defaultResume.IsDefault,
+                    isTruncated = fileBytes.Length > 1000
+                };
+
+                _logger.LogInformation("Varsayılan özgeçmiş alındı: {Id} - {FileName}", defaultResume.Id, defaultResume.FileName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Varsayılan özgeçmiş alınırken hata oluştu");
+                return StatusCode(500, new { message = "Varsayılan özgeçmiş alınırken bir hata oluştu" });
+            }
+        }
+
         [HttpGet("resumes/view/{fileName}")]
         public IActionResult ViewResume(string fileName)
         {

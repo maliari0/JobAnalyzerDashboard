@@ -23,6 +23,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.MaxDepth = 64; // Varsayılan değer 32'dir
     // Özel JSON formatını devre dışı bırak
     options.JsonSerializerOptions.WriteIndented = true;
+    // Büyük boyutlu verilerin serileştirilmesine izin ver
+    options.JsonSerializerOptions.DefaultBufferSize = 1024 * 1024; // 1 MB
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
