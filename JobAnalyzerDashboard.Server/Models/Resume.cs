@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace JobAnalyzerDashboard.Server.Models
 {
@@ -12,8 +13,9 @@ namespace JobAnalyzerDashboard.Server.Models
         public DateTime UploadDate { get; set; }
         public bool IsDefault { get; set; }
         public int ProfileId { get; set; }
-        
+
         // Navigation property
+        [JsonIgnore]
         public Profile? Profile { get; set; }
     }
 }

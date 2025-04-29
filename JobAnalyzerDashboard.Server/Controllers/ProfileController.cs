@@ -287,6 +287,43 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 return StatusCode(500, new { message = "Özgeçmiş silinirken bir hata oluştu" });
             }
         }
+
+        [HttpGet("resumes/view/{fileName}")]
+        public IActionResult ViewResume(string fileName)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(fileName))
+                {
+                    return BadRequest(new { message = "Dosya adı belirtilmedi" });
+                }
+
+                // Dosya yolunu oluştur
+                string filePath = Path.Combine(_environment.WebRootPath, "uploads", "resumes", fileName);
+
+                // Dosyanın varlığını kontrol et
+                if (!System.IO.File.Exists(filePath))
+                {
+                    _logger.LogWarning("Dosya bulunamadı: {FilePath}", filePath);
+                    return NotFound(new { message = "Dosya bulunamadı" });
+                }
+
+                // Dosyayı oku ve döndür
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                // MIME türünü belirle
+                string contentType = "application/pdf";
+
+                // Dosyayı döndür
+                _logger.LogInformation("Dosya görüntüleniyor: {FileName}", fileName);
+                return File(fileBytes, contentType, fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Dosya görüntülenirken hata oluştu: {FileName}", fileName);
+                return StatusCode(500, new { message = "Dosya görüntülenirken bir hata oluştu" });
+            }
+        }
     }
 
     public class ResumeUploadModel

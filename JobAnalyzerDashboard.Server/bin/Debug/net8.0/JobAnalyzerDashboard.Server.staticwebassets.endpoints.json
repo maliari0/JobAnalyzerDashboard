@@ -165,6 +165,170 @@
           "Value": "uploads/resumes/Ali_Yılmaz_20250424113025.pdf"
         }
       ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek-2_20250429072047.pdf",
+      "AssetFile": "uploads/resumes/cv_1_ornek-2_20250429072047.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 29 Apr 2025 07:20:47 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek-2_20250429072047.whttvayxuy.pdf",
+      "AssetFile": "uploads/resumes/cv_1_ornek-2_20250429072047.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 29 Apr 2025 07:20:47 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "whttvayxuy"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/resumes/cv_1_ornek-2_20250429072047.pdf"
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek-3_20250429074745.pdf",
+      "AssetFile": "uploads/resumes/cv_1_ornek-3_20250429074745.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 29 Apr 2025 07:47:45 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek-3_20250429074745.whttvayxuy.pdf",
+      "AssetFile": "uploads/resumes/cv_1_ornek-3_20250429074745.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 29 Apr 2025 07:47:45 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "whttvayxuy"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/resumes/cv_1_ornek-3_20250429074745.pdf"
+        }
+      ]
     }
   ]
 }

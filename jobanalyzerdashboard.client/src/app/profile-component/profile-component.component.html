@@ -116,11 +116,12 @@
             <div class="resume-info">
               <span class="resume-name">{{ resume.fileName }}</span>
               <span class="resume-date">{{ resume.uploadDate | date:'dd/MM/yyyy' }}</span>
+              <span *ngIf="resume.isDefault" class="default-badge">Varsayılan</span>
             </div>
             <div class="resume-actions">
-              <a [href]="resume.filePath" target="_blank" class="resume-link">Görüntüle</a>
-              <button *ngIf="resume.isDefault" class="default-badge" disabled>Varsayılan</button>
+              <a [href]="getResumeUrl(resume.filePath)" target="_blank" class="resume-link">Görüntüle</a>
               <button *ngIf="!resume.isDefault" (click)="setDefaultResume(i)" class="set-default-button">Varsayılan Yap</button>
+              <button (click)="deleteResume(i)" class="delete-resume-button">Sil</button>
             </div>
           </div>
         </div>
@@ -240,7 +241,7 @@
               <span class="resume-date">{{ resume.uploadDate | date:'dd/MM/yyyy' }}</span>
             </div>
             <div class="resume-actions">
-              <a [href]="resume.filePath" target="_blank" class="resume-link">Görüntüle</a>
+              <a [href]="getResumeUrl(resume.filePath)" target="_blank" class="resume-link">Görüntüle</a>
               <button *ngIf="resume.isDefault" class="default-badge" disabled>Varsayılan</button>
               <button *ngIf="!resume.isDefault" (click)="setDefaultResume(i)" class="set-default-button">Varsayılan Yap</button>
               <button (click)="deleteResume(i)" class="delete-resume-button">Sil</button>

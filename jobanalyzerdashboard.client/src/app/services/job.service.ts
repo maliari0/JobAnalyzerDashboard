@@ -185,8 +185,30 @@ export class JobService {
   }
 
   // Birden fazla job için process işlemi
-  private processJobsData(jobs: Job[]): Job[] {
-    return jobs.map(job => this.processJobData(job));
+  private processJobsData(jobs: any): Job[] {
+    // jobs bir dizi değilse, boş dizi döndür
+    if (!jobs) {
+      console.error('Jobs verisi boş:', jobs);
+      return [];
+    }
+
+    // ASP.NET Core'un özel JSON formatını kontrol et ($id ve $values)
+    if (jobs && typeof jobs === 'object' && '$values' in jobs && Array.isArray(jobs.$values)) {
+      console.log('ASP.NET Core özel JSON formatı tespit edildi, $values kullanılıyor');
+      jobs = jobs.$values;
+    }
+    // jobs bir dizi değilse, dizi olarak dönüştür
+    else if (!Array.isArray(jobs)) {
+      console.error('Jobs verisi bir dizi değil:', jobs);
+      // Eğer jobs bir nesne ise ve data özelliği varsa, data'yı kullan
+      if (jobs && typeof jobs === 'object' && 'data' in jobs && Array.isArray(jobs.data)) {
+        jobs = jobs.data;
+      } else {
+        return [];
+      }
+    }
+
+    return jobs.map((job: any) => this.processJobData(job));
   }
 
   getCategories(): Observable<string[]> {

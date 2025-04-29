@@ -64,6 +64,18 @@ export class ProfileComponentComponent implements OnInit {
 
     this.profileService.getProfile().subscribe({
       next: (data) => {
+        console.log('Profil verisi:', data);
+        console.log('Özgeçmişler:', data.resumes);
+
+        // Özgeçmişleri kontrol et ve düzelt
+        if (!data.resumes) {
+          data.resumes = [];
+        } else if (!Array.isArray(data.resumes)) {
+          // Eğer resumes bir dizi değilse, boş dizi olarak ayarla
+          console.error('Özgeçmişler bir dizi değil:', data.resumes);
+          data.resumes = [];
+        }
+
         this.profile = data;
 
         // Telefon numarasını parçalara ayır
@@ -211,20 +223,29 @@ export class ProfileComponentComponent implements OnInit {
     this.resumeUploadError = '';
     this.resumeUploadSuccess = '';
 
-    this.profileService.uploadResume(this.selectedResumeFile).subscribe({
+    // Varsayılan olarak işaretle (ilk yüklenen özgeçmiş varsayılan olsun)
+    const isDefault = !this.profile?.resumes || this.profile.resumes.length === 0;
+
+    this.profileService.uploadResume(this.selectedResumeFile, isDefault).subscribe({
       next: (resume) => {
         this.uploadingResume = false;
         this.resumeUploadSuccess = 'Özgeçmiş başarıyla yüklendi.';
         this.selectedResumeFile = null;
 
-
+        // Profil bilgilerini yenile
         this.loadProfile();
 
-
+        // Dosya input alanını temizle
         const fileInput = document.getElementById('resumeFile') as HTMLInputElement;
         if (fileInput) {
           fileInput.value = '';
         }
+
+        // Kısa bir süre sonra düzenleme modundan çık
+        setTimeout(() => {
+          this.isEditing = false;
+          this.successMessage = 'Özgeçmiş başarıyla yüklendi.';
+        }, 1000);
       },
       error: (err) => {
         this.uploadingResume = false;
@@ -240,11 +261,20 @@ export class ProfileComponentComponent implements OnInit {
     }
 
     const resumeId = this.profile.resumes[index].id;
+    const resumeName = this.profile.resumes[index].fileName;
 
     this.profileService.setDefaultResume(resumeId).subscribe({
       next: () => {
-
+        // Profil bilgilerini yenile
         this.loadProfile();
+
+        // Başarı mesajı göster
+        this.successMessage = `"${resumeName}" özgeçmişi varsayılan olarak ayarlandı.`;
+
+        // Düzenleme modundaysa, görüntüleme moduna geç
+        if (this.isEditing) {
+          this.isEditing = false;
+        }
       },
       error: (err) => {
         this.error = 'Varsayılan özgeçmiş ayarlanırken bir hata oluştu.';
@@ -263,11 +293,20 @@ export class ProfileComponentComponent implements OnInit {
     }
 
     const resumeId = this.profile.resumes[index].id;
+    const resumeName = this.profile.resumes[index].fileName;
 
     this.profileService.deleteResume(resumeId).subscribe({
       next: () => {
-
+        // Profil bilgilerini yenile
         this.loadProfile();
+
+        // Başarı mesajı göster
+        this.successMessage = `"${resumeName}" özgeçmişi başarıyla silindi.`;
+
+        // Düzenleme modundaysa, görüntüleme moduna geç
+        if (this.isEditing) {
+          this.isEditing = false;
+        }
       },
       error: (err) => {
         this.error = 'Özgeçmiş silinirken bir hata oluştu.';
@@ -295,5 +334,30 @@ export class ProfileComponentComponent implements OnInit {
         console.error('Özgeçmiş yükleme bölümü bulunamadı!');
       }
     }, 500); // Düzenleme moduna geçiş için daha uzun bir süre bekle
+  }
+
+  // CV dosyasının URL'sini düzeltmek için yardımcı metot
+  getResumeUrl(filePath: string): string {
+    if (!filePath) return '';
+
+    // Eğer filePath zaten tam bir URL ise, olduğu gibi döndür
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      return filePath;
+    }
+
+    // Özel endpoint'i kullanarak URL oluştur
+    // Dosya adını çıkar
+    const fileName = filePath.split('/').pop();
+    if (!fileName) return '';
+
+    // API URL'sini kullanarak tam URL oluştur
+    const currentUrl = window.location.href;
+    const apiBaseUrl = currentUrl.substring(0, currentUrl.indexOf('/', 8)); // 8: "https://".length
+
+    // Özel endpoint URL'sini oluştur
+    const viewUrl = `${apiBaseUrl}/api/profile/resumes/view/${fileName}`;
+    console.log('View URL:', viewUrl);
+
+    return viewUrl;
   }
 }

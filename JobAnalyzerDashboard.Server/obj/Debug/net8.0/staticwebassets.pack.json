@@ -9,6 +9,14 @@
       "PackagePath": "staticwebassets\\uploads\\resumes\\Ali_Yılmaz_20250424113025.pdf"
     },
     {
+      "Id": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek-2_20250429072047.pdf",
+      "PackagePath": "staticwebassets\\uploads\\resumes\\cv_1_ornek-2_20250429072047.pdf"
+    },
+    {
+      "Id": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek-3_20250429074745.pdf",
+      "PackagePath": "staticwebassets\\uploads\\resumes\\cv_1_ornek-3_20250429074745.pdf"
+    },
+    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.JobAnalyzerDashboard.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
     },

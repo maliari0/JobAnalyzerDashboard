@@ -16,7 +16,14 @@ System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Inst
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    // Döngüsel referanslar için ReferenceHandler.IgnoreCycles kullan
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.MaxDepth = 64; // Varsayılan değer 32'dir
+    // Özel JSON formatını devre dışı bırak
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -33,9 +40,16 @@ builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IProfileRepo
 // E-posta servisini ekle
 builder.Services.AddSingleton<EmailService>();
 
-// CORS politikasını ekle - n8n entegrasyonu için
+// CORS politikasını ekle - n8n entegrasyonu ve statik dosya erişimi için
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+
     options.AddPolicy("AllowN8n", policy =>
     {
         policy.WithOrigins("http://localhost:5678", "https://n8n-service-a2yz.onrender.com") // n8n'in çalıştığı adresler
@@ -76,6 +90,8 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads")),
     RequestPath = "/uploads",
+    ServeUnknownFileTypes = true, // Bilinmeyen dosya türlerini de servis et
+    DefaultContentType = "application/octet-stream", // Varsayılan içerik türü
     OnPrepareResponse = ctx =>
     {
         // PDF dosyaları için MIME türünü ayarla
@@ -83,6 +99,15 @@ app.UseStaticFiles(new StaticFileOptions
         {
             ctx.Context.Response.Headers.Append("Content-Type", "application/pdf");
         }
+
+        // CORS başlıklarını ekle
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
+        ctx.Context.Response.Headers.Append("Cross-Origin-Resource-Policy", "cross-origin");
+
+        // Content-Security-Policy başlığını ekle
+        ctx.Context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'");
 
         // Cache kontrolü
         ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
@@ -99,7 +124,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // CORS middleware'ini etkinleştir
-app.UseCors("AllowN8n");
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
