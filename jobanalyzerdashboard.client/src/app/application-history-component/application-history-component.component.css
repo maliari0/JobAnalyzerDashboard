@@ -133,6 +133,11 @@
   color: #004085;
 }
 
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
 .action-button {
   background-color: #6c757d;
   color: white;
@@ -147,6 +152,20 @@
   background-color: #5a6268;
 }
 
+.view-email-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.view-email-button:hover {
+  background-color: #218838;
+}
+
 /* Modal Stilleri */
 .modal-backdrop {
   position: fixed;
@@ -158,7 +177,7 @@
   z-index: 1000;
 }
 
-.status-modal {
+.status-modal, .email-modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -205,14 +224,29 @@
   padding: 20px;
 }
 
-.status-options {
+.status-options, .email-content {
   margin-top: 20px;
 }
 
-.status-options h4 {
+.status-options h4, .email-content h4 {
   margin-top: 0;
   margin-bottom: 10px;
   color: #495057;
+}
+
+.email-text {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.email-text pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  margin: 0;
 }
 
 .status-buttons {

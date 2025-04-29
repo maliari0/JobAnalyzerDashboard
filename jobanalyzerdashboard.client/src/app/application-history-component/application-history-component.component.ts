@@ -15,6 +15,7 @@ export class ApplicationHistoryComponentComponent implements OnInit {
   error = '';
   statusOptions = ['Pending', 'Accepted', 'Rejected', 'Interview'];
   selectedApplication: Application | null = null;
+  selectedEmailApplication: Application | null = null;
   updatingStatus = false;
 
   constructor(
@@ -87,6 +88,15 @@ export class ApplicationHistoryComponentComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  viewEmailContent(application: Application): void {
+    this.selectedEmailApplication = application;
+  }
+
+  closeAllModals(): void {
+    this.selectedApplication = null;
+    this.selectedEmailApplication = null;
   }
 
   getStatusClass(status: string): string {

@@ -41,9 +41,14 @@
             </span>
           </td>
           <td>
-            <button class="action-button" (click)="selectApplication(application)">
-              Durumu Güncelle
-            </button>
+            <div class="action-buttons">
+              <button class="action-button" (click)="selectApplication(application)">
+                Durumu Güncelle
+              </button>
+              <button *ngIf="application.emailContent" class="view-email-button" (click)="viewEmailContent(application)">
+                E-posta İçeriği
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -87,6 +92,34 @@
     </div>
   </div>
 
+  <!-- E-posta İçeriği Modal -->
+  <div *ngIf="selectedEmailApplication" class="email-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Başvuru E-posta İçeriği</h3>
+        <button class="close-button" (click)="selectedEmailApplication = null">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>İş İlanı:</strong> {{ selectedEmailApplication.job?.title || 'Bilinmeyen İlan' }}</p>
+        <p><strong>Şirket:</strong> {{ selectedEmailApplication.job?.company || 'Bilinmeyen Şirket' }}</p>
+        <p><strong>Başvuru Tarihi:</strong> {{ selectedEmailApplication.appliedDate | date:'dd/MM/yyyy' }}</p>
+
+        <div class="email-content">
+          <h4>E-posta İçeriği:</h4>
+          <div class="email-text">
+            <pre>{{ selectedEmailApplication.emailContent }}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="cancel-button" (click)="selectedEmailApplication = null">Kapat</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Arka Plan -->
-  <div *ngIf="selectedApplication" class="modal-backdrop" (click)="selectedApplication = null"></div>
+  <div *ngIf="selectedApplication || selectedEmailApplication" class="modal-backdrop"
+       (click)="closeAllModals()"></div>
 </div>

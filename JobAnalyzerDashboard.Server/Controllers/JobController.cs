@@ -340,6 +340,101 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
+        // n8n için özel endpoint - e-posta içeriğini kaydetmek için
+        [HttpPost("n8n-save-email")]
+        public async Task<IActionResult> N8nSaveEmail([FromBody] object rawData)
+        {
+            try
+            {
+                // Log the raw data for debugging
+                string rawJson = JsonSerializer.Serialize(rawData);
+                _logger.LogInformation("Received raw data from n8n: {RawData}", rawJson);
+
+                // Extract email content from various formats
+                string emailContent = "";
+
+                try
+                {
+                    // Try to parse as Dictionary
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(rawJson);
+
+                    // Check for direct emailContent
+                    if (dict != null && dict.ContainsKey("emailContent"))
+                    {
+                        emailContent = dict["emailContent"].GetString() ?? "";
+                    }
+                    // Check for body.emailContent
+                    else if (dict != null && dict.ContainsKey("body"))
+                    {
+                        var bodyElement = dict["body"];
+
+                        // If body is a string, use it directly
+                        if (bodyElement.ValueKind == JsonValueKind.String)
+                        {
+                            emailContent = bodyElement.GetString() ?? "";
+                        }
+                        // If body is an object, look for emailContent
+                        else if (bodyElement.ValueKind == JsonValueKind.Object)
+                        {
+                            var bodyDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(bodyElement.GetRawText());
+
+                            if (bodyDict != null && bodyDict.ContainsKey("emailContent"))
+                            {
+                                emailContent = bodyDict["emailContent"].GetString() ?? "";
+                            }
+                        }
+                    }
+                    // If nothing else works, try using the raw data as string
+                    else
+                    {
+                        emailContent = rawData.ToString() ?? "";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error parsing n8n data");
+                    emailContent = rawData.ToString() ?? "";
+                }
+
+                // If still no content, return error
+                if (string.IsNullOrEmpty(emailContent))
+                {
+                    return BadRequest(new { success = false, message = "Could not extract email content from request" });
+                }
+
+                // Find the latest application
+                var latestApplication = await _context.Applications
+                    .OrderByDescending(a => a.AppliedDate)
+                    .FirstOrDefaultAsync();
+
+                if (latestApplication == null)
+                {
+                    return NotFound(new { success = false, message = "No applications found" });
+                }
+
+                // Save the email content
+                latestApplication.EmailContent = emailContent;
+                _context.Applications.Update(latestApplication);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Email content saved for application: {Id}", latestApplication.Id);
+
+                return Ok(new {
+                    success = true,
+                    message = "Email content saved successfully",
+                    applicationId = latestApplication.Id
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving email content from n8n");
+                return StatusCode(500, new {
+                    success = false,
+                    message = "Error saving email content: " + ex.Message
+                });
+            }
+        }
+
         [HttpPost("force-delete/{id}")]
         public async Task<IActionResult> ForceDeleteJob(int id)
         {

@@ -19,6 +19,9 @@ namespace JobAnalyzerDashboard.Server.Models
         public bool CvAttached { get; set; } = false;
         public string TelegramNotificationSent { get; set; } = string.Empty;
 
+        // LLM tarafından oluşturulan e-posta içeriği
+        public string EmailContent { get; set; } = string.Empty;
+
         // Navigation property
         public Job? Job { get; set; }
 

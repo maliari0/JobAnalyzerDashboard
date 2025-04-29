@@ -19,4 +19,7 @@ export interface Application {
 
   // İş ilanı silinmiş mi?
   isJobDeleted?: boolean;
+
+  // LLM tarafından oluşturulan e-posta içeriği
+  emailContent?: string;
 }
