@@ -7,6 +7,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Globalization;
+using JobAnalyzerDashboard.Server.Models;
+using JobAnalyzerDashboard.Server.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,15 +48,30 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// JWT ayarlarını yapılandır
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+// CORS politikalarını yapılandır
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Repository servislerini ekle
 builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IJobRepository, JobAnalyzerDashboard.Server.Repositories.JobRepository>();
 builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IApplicationRepository, JobAnalyzerDashboard.Server.Repositories.ApplicationRepository>();
 builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IProfileRepository, JobAnalyzerDashboard.Server.Repositories.ProfileRepository>();
 
-// OAuth ve E-posta servislerini ekle
+// OAuth, E-posta ve Kimlik Doğrulama servislerini ekle
 builder.Services.AddScoped<OAuthService>();
 builder.Services.AddScoped<GmailApiService>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<AuthService>();
 
 // CORS politikasını ekle - n8n entegrasyonu ve statik dosya erişimi için
 builder.Services.AddCors(options =>
@@ -143,6 +160,9 @@ app.UseHttpsRedirection();
 
 // CORS middleware'ini etkinleştir
 app.UseCors("AllowAll");
+
+// JWT middleware'i ekle
+app.UseMiddleware<JobAnalyzerDashboard.Server.Middleware.JwtMiddleware>();
 
 app.UseAuthorization();
 

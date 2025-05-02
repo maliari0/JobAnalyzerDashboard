@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Net;
 using System.Net.Mail;
@@ -13,12 +14,18 @@ namespace JobAnalyzerDashboard.Server.Services
         private readonly ILogger<EmailService> _logger;
         private readonly GmailApiService _gmailService;
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public EmailService(ILogger<EmailService> logger, GmailApiService gmailService, ApplicationDbContext context)
+        public EmailService(
+            ILogger<EmailService> logger,
+            GmailApiService gmailService,
+            ApplicationDbContext context,
+            IConfiguration configuration)
         {
             _logger = logger;
             _gmailService = gmailService;
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task<bool> SendEmailAsync(string to, string subject, string body, string? attachmentPath = null, int profileId = 1)
@@ -36,20 +43,29 @@ namespace JobAnalyzerDashboard.Server.Services
                 }
                 else
                 {
-                    // Varsayılan SMTP ile e-posta gönder
+                    // E-posta ayarlarını yapılandırmadan al
+                    var emailSettings = _configuration.GetSection("EmailSettings");
+                    var smtpServer = emailSettings["SmtpServer"] ?? "smtp.gmail.com";
+                    var smtpPort = int.Parse(emailSettings["SmtpPort"] ?? "587");
+                    var smtpUsername = emailSettings["SmtpUsername"] ?? "aliari.test@gmail.com";
+                    var smtpPassword = emailSettings["SmtpPassword"] ?? "";
+                    var senderEmail = emailSettings["SenderEmail"] ?? "aliari.test@gmail.com";
+                    var senderName = emailSettings["SenderName"] ?? "Job Analyzer Dashboard";
+
+                    // Gmail SMTP ile e-posta gönder
                     using var client = new SmtpClient
                     {
-                        Host = "smtp.protonmail.ch",
-                        Port = 587,
+                        Host = smtpServer,
+                        Port = smtpPort,
                         EnableSsl = true,
                         DeliveryMethod = SmtpDeliveryMethod.Network,
                         UseDefaultCredentials = false,
-                        Credentials = new NetworkCredential("aliari0@proton.me", "102030NNmm")
+                        Credentials = new NetworkCredential(smtpUsername, smtpPassword)
                     };
 
                     var message = new MailMessage
                     {
-                        From = new MailAddress("aliari0@proton.me", "Job Analyzer Dashboard"),
+                        From = new MailAddress(senderEmail, senderName),
                         Subject = subject,
                         Body = body,
                         IsBodyHtml = true

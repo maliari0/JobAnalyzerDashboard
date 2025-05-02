@@ -303,7 +303,13 @@ namespace JobAnalyzerDashboard.Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Profiles");
 
@@ -374,6 +380,80 @@ namespace JobAnalyzerDashboard.Server.Migrations
                     b.ToTable("Resumes");
                 });
 
+            modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmailConfirmationToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EmailConfirmationTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("PasswordResetTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ProfileId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.Application", b =>
                 {
                     b.HasOne("JobAnalyzerDashboard.Server.Models.Job", "Job")
@@ -396,6 +476,16 @@ namespace JobAnalyzerDashboard.Server.Migrations
                     b.Navigation("Profile");
                 });
 
+            modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.Profile", b =>
+                {
+                    b.HasOne("JobAnalyzerDashboard.Server.Models.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("JobAnalyzerDashboard.Server.Models.Profile", "UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.Resume", b =>
                 {
                     b.HasOne("JobAnalyzerDashboard.Server.Models.Profile", "Profile")
@@ -410,6 +500,11 @@ namespace JobAnalyzerDashboard.Server.Migrations
             modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.Profile", b =>
                 {
                     b.Navigation("Resumes");
+                });
+
+            modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.User", b =>
+                {
+                    b.Navigation("Profile");
                 });
 #pragma warning restore 612, 618
         }

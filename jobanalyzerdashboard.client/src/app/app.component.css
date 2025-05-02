@@ -17,6 +17,10 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+.user-menu-container {
+  margin-left: 1rem;
+}
+
 .logo-container {
   display: flex;
   align-items: center;

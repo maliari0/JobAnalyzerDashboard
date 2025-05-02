@@ -30,5 +30,10 @@ namespace JobAnalyzerDashboard.Server.Models
         public string PreferredCategories { get; set; } = "[]";
         public int MinQualityScore { get; set; } = 3;
         public bool AutoApplyEnabled { get; set; } = false;
+
+        // Kullanıcı ilişkisi
+        [JsonIgnore]
+        public User? User { get; set; }
+        public int? UserId { get; set; }
     }
 }

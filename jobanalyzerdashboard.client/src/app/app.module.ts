@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -12,11 +12,25 @@ import { ProfileComponentComponent } from './profile-component/profile-component
 import { ApplicationHistoryComponentComponent } from './application-history-component/application-history-component.component';
 import { N8nTestComponent } from './n8n-test/n8n-test.component';
 
+// Auth Bileşenleri
+import { LoginComponentComponent } from './login-component/login-component.component';
+import { RegisterComponentComponent } from './register-component/register-component.component';
+import { ForgotPasswordComponentComponent } from './forgot-password-component/forgot-password-component.component';
+import { ResetPasswordComponentComponent } from './reset-password-component/reset-password-component.component';
+import { ConfirmEmailComponentComponent } from './confirm-email-component/confirm-email-component.component';
+import { UnauthorizedComponentComponent } from './unauthorized-component/unauthorized-component.component';
+import { UserMenuComponentComponent } from './user-menu-component/user-menu-component.component';
+import { ChangePasswordComponentComponent } from './change-password-component/change-password-component.component';
+
 // Servisler
 import { JobService } from './services/job.service';
 import { ProfileService } from './services/profile.service';
 import { ApplicationService } from './services/application.service';
 import { WebhookService } from './services/webhook.service';
+import { AuthService } from './services/auth.service';
+
+// Interceptors
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -25,7 +39,15 @@ import { WebhookService } from './services/webhook.service';
     JobDetailComponentComponent,
     ProfileComponentComponent,
     ApplicationHistoryComponentComponent,
-    N8nTestComponent
+    N8nTestComponent,
+    LoginComponentComponent,
+    RegisterComponentComponent,
+    ForgotPasswordComponentComponent,
+    ResetPasswordComponentComponent,
+    ConfirmEmailComponentComponent,
+    UnauthorizedComponentComponent,
+    UserMenuComponentComponent,
+    ChangePasswordComponentComponent
   ],
   imports: [
     BrowserModule,
@@ -39,7 +61,9 @@ import { WebhookService } from './services/webhook.service';
     JobService,
     ProfileService,
     ApplicationService,
-    WebhookService
+    WebhookService,
+    AuthService,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

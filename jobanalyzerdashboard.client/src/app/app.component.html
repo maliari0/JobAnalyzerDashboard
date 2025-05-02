@@ -8,10 +8,10 @@
         <li class="nav-item" [ngClass]="{'active': isActive('/') || isActive('')}">
           <a routerLink="/" class="nav-link">İş İlanları</a>
         </li>
-        <li class="nav-item" [ngClass]="{'active': isActive('/history')}">
+        <li class="nav-item" [ngClass]="{'active': isActive('/history')}" *ngIf="isLoggedIn">
           <a routerLink="/history" class="nav-link">Başvuru Geçmişi</a>
         </li>
-        <li class="nav-item" [ngClass]="{'active': isActive('/profile')}">
+        <li class="nav-item" [ngClass]="{'active': isActive('/profile')}" *ngIf="isLoggedIn">
           <a routerLink="/profile" class="nav-link">Profil</a>
         </li>
         <li class="nav-item" [ngClass]="{'active': isActive('/n8n-test')}">
@@ -19,6 +19,9 @@
         </li>
       </ul>
     </nav>
+    <div class="user-menu-container">
+      <app-user-menu-component></app-user-menu-component>
+    </div>
   </header>
 
   <main class="app-content">
@@ -27,5 +30,6 @@
 
   <footer class="app-footer">
     <p>&copy; 2025 Job Analyzer Dashboard | n8n Entegrasyonu ile Geliştirilmiştir</p>
+    <p>Muhammed Ali ARI</p>
   </footer>
 </div>

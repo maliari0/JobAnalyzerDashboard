@@ -17,6 +17,7 @@ namespace JobAnalyzerDashboard.Server.Data
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<Resume> Resumes { get; set; }
         public DbSet<OAuthToken> OAuthTokens { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +41,22 @@ namespace JobAnalyzerDashboard.Server.Data
                 .WithMany()
                 .HasForeignKey(t => t.ProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // User ve Profile ilişkisi
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Profile)
+                .WithOne(p => p.User)
+                .HasForeignKey<Profile>(p => p.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // User entity'si için indeksler
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
 
             // Job entity'si için Tags alanını JSON olarak sakla
             modelBuilder.Entity<Job>()

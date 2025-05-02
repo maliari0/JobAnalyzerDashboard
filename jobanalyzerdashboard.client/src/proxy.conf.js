@@ -10,7 +10,9 @@ const PROXY_CONFIG = [
       "/api/job",
       "/api/profile",
       "/api/application",
-      "/api/webhook"
+      "/api/webhook",
+      "/api/user",
+      "/api/auth"
     ],
     target,
     secure: false

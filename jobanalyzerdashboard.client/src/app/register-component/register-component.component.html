@@ -1,0 +1,111 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>Kayıt Ol</h2>
+    
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="firstName">Ad</label>
+          <input 
+            type="text" 
+            id="firstName" 
+            formControlName="firstName" 
+            class="form-control" 
+            [ngClass]="{ 'is-invalid': submitted && f['firstName'].errors }"
+          />
+          <div *ngIf="submitted && f['firstName'].errors" class="invalid-feedback">
+            <div *ngIf="f['firstName'].errors['required']">Ad gereklidir</div>
+          </div>
+        </div>
+        
+        <div class="form-group col-md-6">
+          <label for="lastName">Soyad</label>
+          <input 
+            type="text" 
+            id="lastName" 
+            formControlName="lastName" 
+            class="form-control" 
+            [ngClass]="{ 'is-invalid': submitted && f['lastName'].errors }"
+          />
+          <div *ngIf="submitted && f['lastName'].errors" class="invalid-feedback">
+            <div *ngIf="f['lastName'].errors['required']">Soyad gereklidir</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="username">Kullanıcı Adı</label>
+        <input 
+          type="text" 
+          id="username" 
+          formControlName="username" 
+          class="form-control" 
+          [ngClass]="{ 'is-invalid': submitted && f['username'].errors }"
+        />
+        <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
+          <div *ngIf="f['username'].errors['required']">Kullanıcı adı gereklidir</div>
+          <div *ngIf="f['username'].errors['minlength']">Kullanıcı adı en az 3 karakter olmalıdır</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">E-posta</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email" 
+          class="form-control" 
+          [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+        />
+        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+          <div *ngIf="f['email'].errors['required']">E-posta adresi gereklidir</div>
+          <div *ngIf="f['email'].errors['email']">Geçerli bir e-posta adresi giriniz</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Şifre</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password" 
+          class="form-control" 
+          [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+        />
+        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+          <div *ngIf="f['password'].errors['required']">Şifre gereklidir</div>
+          <div *ngIf="f['password'].errors['minlength']">Şifre en az 6 karakter olmalıdır</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">Şifre Tekrarı</label>
+        <input 
+          type="password" 
+          id="confirmPassword" 
+          formControlName="confirmPassword" 
+          class="form-control" 
+          [ngClass]="{ 'is-invalid': submitted && f['confirmPassword'].errors }"
+        />
+        <div *ngIf="submitted && f['confirmPassword'].errors" class="invalid-feedback">
+          <div *ngIf="f['confirmPassword'].errors['required']">Şifre tekrarı gereklidir</div>
+          <div *ngIf="f['confirmPassword'].errors['passwordMismatch']">Şifreler eşleşmiyor</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <button [disabled]="loading" class="btn btn-primary">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+          Kayıt Ol
+        </button>
+      </div>
+      
+      <div *ngIf="error" class="alert alert-danger mt-3">{{error}}</div>
+      <div *ngIf="success" class="alert alert-success mt-3">{{success}}</div>
+      
+      <div class="login-link">
+        Zaten hesabınız var mı? <a routerLink="/login">Giriş Yap</a>
+      </div>
+    </form>
+  </div>
+</div>

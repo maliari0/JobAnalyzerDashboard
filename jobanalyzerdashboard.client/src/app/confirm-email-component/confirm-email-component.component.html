@@ -1,0 +1,24 @@
+<div class="confirm-email-container">
+  <div class="confirm-email-card">
+    <h2>E-posta Doğrulama</h2>
+    
+    <div *ngIf="loading" class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Yükleniyor...</span>
+      </div>
+      <p class="mt-3">E-posta adresiniz doğrulanıyor, lütfen bekleyin...</p>
+    </div>
+    
+    <div *ngIf="!loading && error" class="alert alert-danger">
+      <p>{{error}}</p>
+      <div class="mt-3">
+        <a routerLink="/login" class="btn btn-primary">Giriş Sayfasına Dön</a>
+      </div>
+    </div>
+    
+    <div *ngIf="!loading && success" class="alert alert-success">
+      <p>{{success}}</p>
+      <p>Giriş sayfasına yönlendiriliyorsunuz...</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<div class="user-menu-container">
+  <!-- Giriş yapmamış kullanıcı için -->
+  <div *ngIf="!currentUser" class="auth-buttons">
+    <a routerLink="/login" class="btn btn-outline-primary">Giriş Yap</a>
+    <a routerLink="/register" class="btn btn-primary">Kayıt Ol</a>
+  </div>
+  
+  <!-- Giriş yapmış kullanıcı için -->
+  <div *ngIf="currentUser" class="user-menu">
+    <div class="user-avatar" (click)="toggleMenu()">
+      <span class="avatar-text">{{ currentUser.firstName.charAt(0) }}{{ currentUser.lastName.charAt(0) }}</span>
+    </div>
+    
+    <div class="user-name" (click)="toggleMenu()">
+      {{ currentUser.firstName }} {{ currentUser.lastName }}
+      <i class="fas fa-chevron-down"></i>
+    </div>
+    
+    <div class="dropdown-menu" [class.show]="isMenuOpen">
+      <div class="dropdown-header">
+        <div class="user-info">
+          <div class="user-avatar-small">
+            <span class="avatar-text-small">{{ currentUser.firstName.charAt(0) }}{{ currentUser.lastName.charAt(0) }}</span>
+          </div>
+          <div class="user-details">
+            <div class="user-fullname">{{ currentUser.firstName }} {{ currentUser.lastName }}</div>
+            <div class="user-email">{{ currentUser.email }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dropdown-divider"></div>
+      
+      <a class="dropdown-item" (click)="navigateTo('/profile')">
+        <i class="fas fa-user"></i> Profil
+      </a>
+      
+      <a class="dropdown-item" (click)="navigateTo('/applications')">
+        <i class="fas fa-history"></i> Başvuru Geçmişi
+      </a>
+      
+      <a class="dropdown-item" (click)="navigateTo('/change-password')">
+        <i class="fas fa-key"></i> Şifre Değiştir
+      </a>
+      
+      <div class="dropdown-divider"></div>
+      
+      <a class="dropdown-item logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Menü açıkken dışarı tıklandığında menüyü kapat -->
+<div *ngIf="isMenuOpen" class="backdrop" (click)="closeMenu()"></div>
