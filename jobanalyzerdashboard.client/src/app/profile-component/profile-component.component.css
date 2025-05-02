@@ -122,114 +122,22 @@
   margin-bottom: 15px;
 }
 
+/* Özgeçmiş Stilleri */
 .resume-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-}
-
-.resume-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.resume-name {
-  font-weight: 500;
-  color: #333;
-}
-
-.resume-date {
-  font-size: 12px;
-  color: #666;
-}
-
-.resume-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.resume-link {
-  color: #007bff;
-  text-decoration: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  background-color: #e7f1ff;
-}
-
-.resume-link:hover {
-  background-color: #d0e5ff;
-}
-
-.default-badge {
-  background-color: #28a745;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.set-default-button {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.set-default-button:hover {
-  background-color: #5a6268;
-}
-
-.delete-resume-button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.delete-resume-button:hover {
-  background-color: #c82333;
-}
-
-/* Vurgulama efekti */
-.highlight-section {
-  animation: highlight-pulse 2s ease-in-out;
-  border: 2px solid #007bff !important;
-}
-
-@keyframes highlight-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
-  50% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
-}
-
-.resume-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
   border: 1px solid #dee2e6;
   border-radius: 4px;
-  margin-bottom: 10px;
   background-color: #f8f9fa;
 }
 
 .resume-info {
   display: flex;
   flex-direction: column;
+  gap: 5px;
 }
 
 .resume-name {
@@ -245,6 +153,7 @@
 .resume-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .resume-link {
@@ -300,6 +209,20 @@
 .delete-resume-button:hover {
   background-color: #c82333;
 }
+
+/* Vurgulama efekti */
+.highlight-section {
+  animation: highlight-pulse 2s ease-in-out;
+  border: 2px solid #007bff !important;
+}
+
+@keyframes highlight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+}
+
+
 
 .no-resume {
   padding: 15px;
@@ -375,6 +298,103 @@
   background-color: #6c757d;
   cursor: not-allowed;
   opacity: 0.65;
+}
+
+/* OAuth Stilleri */
+.section-description {
+  margin-bottom: 15px;
+  color: #6c757d;
+}
+
+.loading-oauth {
+  text-align: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.no-oauth-connected {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.connect-google-button {
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.connect-google-button:hover {
+  background-color: #357ae8;
+}
+
+.connect-google-button i {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.oauth-connected {
+  margin-top: 15px;
+}
+
+.oauth-account {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  border: 1px solid #dee2e6;
+}
+
+.oauth-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.oauth-provider {
+  font-weight: 500;
+  color: #212529;
+}
+
+.oauth-email {
+  color: #495057;
+}
+
+.oauth-expires {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.oauth-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.disconnect-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.disconnect-button:hover {
+  background-color: #c82333;
 }
 
 /* Düzenleme Modu Stilleri */

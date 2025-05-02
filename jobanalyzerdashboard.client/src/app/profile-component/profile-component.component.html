@@ -132,6 +132,44 @@
           <span class="upload-icon">+</span> Yeni Özgeçmiş Yükle
         </button>
       </div>
+
+      <!-- OAuth Bölümü -->
+      <div class="profile-section">
+        <h4>E-posta Gönderim Ayarları</h4>
+        <p class="section-description">Başvurularınızı kendi e-posta adresinizden göndermek için hesabınızı bağlayın.</p>
+
+        <div *ngIf="loadingOAuth" class="loading-oauth">
+          <p>Yükleniyor...</p>
+        </div>
+
+        <div *ngIf="oauthError" class="error-message">
+          <p>{{ oauthError }}</p>
+        </div>
+
+        <div *ngIf="oauthSuccess" class="success-message">
+          <p>{{ oauthSuccess }}</p>
+        </div>
+
+        <div *ngIf="!loadingOAuth && oauthTokens.length === 0" class="no-oauth-connected">
+          <p>Henüz bağlı bir e-posta hesabı yok.</p>
+          <button (click)="connectGoogle()" class="connect-google-button">
+            <i class="fab fa-google"></i> Google Hesabı Bağla
+          </button>
+        </div>
+
+        <div *ngIf="!loadingOAuth && oauthTokens.length > 0" class="oauth-connected">
+          <div *ngFor="let token of oauthTokens" class="oauth-account">
+            <div class="oauth-info">
+              <span class="oauth-provider">{{ token.provider }}</span>
+              <span class="oauth-email">{{ token.email }}</span>
+              <span class="oauth-expires">Geçerlilik: {{ token.expiresAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="oauth-actions">
+              <button (click)="disconnectOAuth(token.provider)" class="disconnect-button">Bağlantıyı Kes</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Düzenleme Modu -->

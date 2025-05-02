@@ -19,10 +19,10 @@ export class N8nTestComponent implements OnInit {
   // Test verisi
   testData = {
     title: 'Junior Frontend Developer',
-    description: 'Merhaba, şirketimiz remote çalışacak React.js bilen bir junior frontend geliştirici arıyor. Maaş aralığı 35.000 - 45.000 TL\'dir. Başvurular için moyimik888@ingitel.com adresine mail atabilirsiniz.',
+    description: 'Merhaba, şirketimiz remote çalışacak React.js bilen bir junior frontend geliştirici arıyor. Maaş aralığı 35.000 - 45.000 TL\'dir. Başvurular için hilot27566@harinv.com adresine mail atabilirsiniz.',
     employment_type: 'remote',
     company_website: 'https://webstartup.com',
-    contact_email: 'moyimik888@ingitel.com',
+    contact_email: 'hilot27566@harinv.com',
     url: 'https://webstartup.com/careers/frontend-jr-2024'
   };
 

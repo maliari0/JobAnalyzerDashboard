@@ -10,6 +10,12 @@ using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Geliştirme ortamında User Secrets kullan
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 // UTF-8 kodlamasını varsayılan olarak ayarla
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
@@ -26,6 +32,12 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     // Büyük boyutlu verilerin serileştirilmesine izin ver
     options.JsonSerializerOptions.DefaultBufferSize = 1024 * 1024; // 1 MB
 });
+
+// Configure JSON content type
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+{
+    options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -39,8 +51,10 @@ builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IJobReposito
 builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IApplicationRepository, JobAnalyzerDashboard.Server.Repositories.ApplicationRepository>();
 builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IProfileRepository, JobAnalyzerDashboard.Server.Repositories.ProfileRepository>();
 
-// E-posta servisini ekle
-builder.Services.AddSingleton<EmailService>();
+// OAuth ve E-posta servislerini ekle
+builder.Services.AddScoped<OAuthService>();
+builder.Services.AddScoped<GmailApiService>();
+builder.Services.AddScoped<EmailService>();
 
 // CORS politikasını ekle - n8n entegrasyonu ve statik dosya erişimi için
 builder.Services.AddCors(options =>
@@ -49,7 +63,8 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .WithExposedHeaders("Content-Type", "Content-Disposition", "Content-Length");
     });
 
     options.AddPolicy("AllowN8n", policy =>
@@ -57,7 +72,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:5678", "https://n8n-service-a2yz.onrender.com") // n8n'in çalıştığı adresler
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("Content-Type", "Content-Disposition", "Content-Length");
     });
 });
 

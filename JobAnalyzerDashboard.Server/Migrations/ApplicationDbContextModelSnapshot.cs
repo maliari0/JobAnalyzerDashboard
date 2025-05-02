@@ -172,6 +172,47 @@ namespace JobAnalyzerDashboard.Server.Migrations
                     b.ToTable("Jobs");
                 });
 
+            modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.OAuthToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccessToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
+
+                    b.ToTable("OAuthTokens");
+                });
+
             modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.Profile", b =>
                 {
                     b.Property<int>("Id")
@@ -342,6 +383,17 @@ namespace JobAnalyzerDashboard.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("Job");
+                });
+
+            modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.OAuthToken", b =>
+                {
+                    b.HasOne("JobAnalyzerDashboard.Server.Models.Profile", "Profile")
+                        .WithMany()
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("JobAnalyzerDashboard.Server.Models.Resume", b =>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Profile, Resume } from '../models/profile.model';
+import { OAuthToken } from '../models/oauth.model';
 
 export interface N8nSettings {
   notionIntegration?: boolean;
@@ -63,5 +64,31 @@ export class ProfileService {
 
   testNotionConnection(pageId: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/test-notion`, { pageId });
+  }
+
+  // OAuth işlemleri için eklenen metodlar
+  getOAuthStatus(): Observable<OAuthToken[]> {
+    console.log('Calling OAuth status endpoint');
+    return this.http.get<OAuthToken[]>(`${this.apiUrl}/oauth-status`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+
+  authorizeGoogle(): void {
+    console.log('Redirecting to Google authorization');
+    window.location.href = `${this.apiUrl}/authorize-google`;
+  }
+
+  revokeOAuth(provider: string): Observable<any> {
+    console.log(`Revoking OAuth for provider: ${provider}`);
+    return this.http.delete<any>(`${this.apiUrl}/revoke-oauth/${provider}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
   }
 }

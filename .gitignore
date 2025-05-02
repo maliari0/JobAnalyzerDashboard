@@ -1,2 +1,30 @@
 /Gonderme.json
 /is_ilani_v0.4.json
+
+# Hassas bilgiler içeren dosyalar
+**/appsettings.json
+**/appsettings.Development.json
+**/appsettings.Production.json
+
+# Derleme çıktıları
+**/bin/
+**/obj/
+**/out/
+
+# Visual Studio dosyaları
+**/.vs/
+**/*.user
+**/*.userosscache
+**/*.suo
+**/*.userprefs
+
+# Logs
+**/logs/
+**/*.log
+
+# Geçici dosyalar
+**/[Tt]emp/
+**/[Tt]mp/
+**/*.tmp
+**/*.bak
+**/*.swp

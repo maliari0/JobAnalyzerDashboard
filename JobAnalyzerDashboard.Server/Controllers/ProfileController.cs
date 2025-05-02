@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using JobAnalyzerDashboard.Server.Models;
 using JobAnalyzerDashboard.Server.Repositories;
 using JobAnalyzerDashboard.Server.Data;
+using JobAnalyzerDashboard.Server.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,17 +20,20 @@ namespace JobAnalyzerDashboard.Server.Controllers
         private readonly IProfileRepository _profileRepository;
         private readonly IWebHostEnvironment _environment;
         private readonly ApplicationDbContext _context;
+        private readonly OAuthService _oauthService;
 
         public ProfileController(
             ILogger<ProfileController> logger,
             IProfileRepository profileRepository,
             IWebHostEnvironment environment,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            OAuthService oauthService)
         {
             _logger = logger;
             _profileRepository = profileRepository;
             _environment = environment;
             _context = context;
+            _oauthService = oauthService;
         }
 
         [HttpGet]
@@ -376,6 +380,76 @@ namespace JobAnalyzerDashboard.Server.Controllers
             {
                 _logger.LogError(ex, "Dosya görüntülenirken hata oluştu: {FileName}", fileName);
                 return StatusCode(500, new { message = "Dosya görüntülenirken bir hata oluştu" });
+            }
+        }
+
+        [HttpGet("oauth-status")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetOAuthStatus([FromQuery] int profileId = 1)
+        {
+            try
+            {
+                _logger.LogInformation("Getting OAuth status for profile {ProfileId}", profileId);
+                var tokens = await _oauthService.GetOAuthTokensAsync(profileId);
+
+                var result = tokens.Select(t => new
+                {
+                    t.Id,
+                    t.ProfileId,
+                    t.Provider,
+                    t.Email,
+                    t.ExpiresAt
+                }).ToList();
+
+                _logger.LogInformation("Found {Count} OAuth tokens for profile {ProfileId}", result.Count, profileId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting OAuth status for profile {ProfileId}", profileId);
+                return StatusCode(500, new { message = "Error getting OAuth status" });
+            }
+        }
+
+        [HttpGet("authorize-google")]
+        public IActionResult AuthorizeGoogle([FromQuery] int profileId = 1)
+        {
+            try
+            {
+                var authUrl = _oauthService.GetAuthorizationUrl("Google", profileId);
+                return Redirect(authUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating Google authorization URL");
+                return StatusCode(500, new { message = "Error generating Google authorization URL" });
+            }
+        }
+
+        [HttpDelete("revoke-oauth/{provider}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> RevokeAccess(string provider, [FromQuery] int profileId = 1)
+        {
+            try
+            {
+                _logger.LogInformation("Revoking {Provider} access for profile {ProfileId}", provider, profileId);
+                var success = await _oauthService.RevokeTokenAsync(profileId, provider);
+
+                if (success)
+                {
+                    _logger.LogInformation("{Provider} access revoked successfully for profile {ProfileId}", provider, profileId);
+                    return Ok(new { success = true, message = $"{provider} access revoked successfully" });
+                }
+                else
+                {
+                    _logger.LogWarning("No {Provider} token found for profile {ProfileId}", provider, profileId);
+                    return NotFound(new { success = false, message = $"No {provider} token found for this profile" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error revoking {Provider} access for profile {ProfileId}", provider, profileId);
+                return StatusCode(500, new { message = $"Error revoking {provider} access" });
             }
         }
     }

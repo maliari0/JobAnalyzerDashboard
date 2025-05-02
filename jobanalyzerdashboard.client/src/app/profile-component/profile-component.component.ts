@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Profile, Resume } from '../models/profile.model';
 import { ProfileService } from '../services/profile.service';
 import { TURKEY_CITIES, COUNTRY_CODES } from '../shared/data/turkey-cities';
+import { OAuthToken } from '../models/oauth.model';
 
 @Component({
   selector: 'app-profile-component',
@@ -17,6 +18,12 @@ export class ProfileComponentComponent implements OnInit {
   error = '';
   successMessage = '';
   isEditing = false;
+
+  // OAuth için
+  loadingOAuth = false;
+  oauthError = '';
+  oauthSuccess = '';
+  oauthTokens: OAuthToken[] = [];
 
   // Ülke kodları ve şehirler
   countryCodes = COUNTRY_CODES;
@@ -38,6 +45,57 @@ export class ProfileComponentComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadProfile();
+    this.loadOAuthStatus();
+  }
+
+  loadOAuthStatus(): void {
+    this.loadingOAuth = true;
+    this.oauthError = '';
+
+    try {
+      this.profileService.getOAuthStatus().subscribe({
+        next: (tokens) => {
+          this.oauthTokens = tokens;
+          this.loadingOAuth = false;
+        },
+        error: (err) => {
+          this.oauthError = 'OAuth durumu yüklenirken bir hata oluştu.';
+          this.loadingOAuth = false;
+          console.error('OAuth API hatası:', err);
+        }
+      });
+    } catch (error) {
+      this.oauthError = 'OAuth durumu yüklenirken bir hata oluştu.';
+      this.loadingOAuth = false;
+      console.error('OAuth genel hata:', error);
+    }
+  }
+
+  connectGoogle(): void {
+    this.profileService.authorizeGoogle();
+  }
+
+  disconnectOAuth(provider: string): void {
+    if (!confirm(`${provider} hesabınızın bağlantısını kesmek istediğinize emin misiniz?`)) {
+      return;
+    }
+
+    this.loadingOAuth = true;
+    this.oauthError = '';
+    this.oauthSuccess = '';
+
+    this.profileService.revokeOAuth(provider).subscribe({
+      next: (_response) => {
+        this.loadingOAuth = false;
+        this.oauthSuccess = `${provider} hesabınızın bağlantısı başarıyla kesildi.`;
+        this.loadOAuthStatus();
+      },
+      error: (err) => {
+        this.loadingOAuth = false;
+        this.oauthError = `${provider} hesabınızın bağlantısı kesilirken bir hata oluştu.`;
+        console.error(err);
+      }
+    });
   }
 
   initForm(): void {
@@ -227,7 +285,7 @@ export class ProfileComponentComponent implements OnInit {
     const isDefault = !this.profile?.resumes || this.profile.resumes.length === 0;
 
     this.profileService.uploadResume(this.selectedResumeFile, isDefault).subscribe({
-      next: (resume) => {
+      next: (_resume) => {
         this.uploadingResume = false;
         this.resumeUploadSuccess = 'Özgeçmiş başarıyla yüklendi.';
         this.selectedResumeFile = null;

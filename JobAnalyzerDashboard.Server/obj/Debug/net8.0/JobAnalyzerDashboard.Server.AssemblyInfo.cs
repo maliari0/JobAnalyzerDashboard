@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("JobAnalyzerDashboard-8F3E9ADB-7307-4739-9E69-2ED31A08F77D")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("JobAnalyzerDashboard.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a1fa2cb2dd8bfeca33d50b8b426b20ff09fe6747")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c2266532dbf9605a7feb14d6d525f8cabb3ea27")]
 [assembly: System.Reflection.AssemblyProductAttribute("JobAnalyzerDashboard.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JobAnalyzerDashboard.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

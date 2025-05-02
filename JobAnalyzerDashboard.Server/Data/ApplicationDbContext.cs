@@ -16,6 +16,7 @@ namespace JobAnalyzerDashboard.Server.Data
         public DbSet<Application> Applications { get; set; }
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<Resume> Resumes { get; set; }
+        public DbSet<OAuthToken> OAuthTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +33,12 @@ namespace JobAnalyzerDashboard.Server.Data
                 .HasOne(r => r.Profile)
                 .WithMany(p => p.Resumes)
                 .HasForeignKey(r => r.ProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OAuthToken>()
+                .HasOne(t => t.Profile)
+                .WithMany()
+                .HasForeignKey(t => t.ProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Job entity'si için Tags alanını JSON olarak sakla
