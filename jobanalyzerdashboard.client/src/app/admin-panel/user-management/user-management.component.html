@@ -1,0 +1,105 @@
+<div class="user-management-container">
+  <h2>Kullanıcı Yönetimi</h2>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Yükleniyor...
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <div class="table-responsive">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Kullanıcı Adı</th>
+          <th>E-posta</th>
+          <th>Ad</th>
+          <th>Soyad</th>
+          <th>Rol</th>
+          <th>Durum</th>
+          <th>Kayıt Tarihi</th>
+          <th>Son Giriş</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users" [class.editing]="editingUser?.id === user.id">
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.firstName }}</td>
+          <td>{{ user.lastName }}</td>
+          <td>
+            <ng-container *ngIf="editingUser?.id !== user.id">
+              <span [class.admin-role]="user.role === 'Admin'">{{ user.role }}</span>
+            </ng-container>
+            <ng-container *ngIf="editingUser?.id === user.id">
+              <select [(ngModel)]="editingUser!.role">
+                <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+              </select>
+            </ng-container>
+          </td>
+          <td>
+            <ng-container *ngIf="editingUser?.id !== user.id">
+              <span [class.active-status]="user.isActive" [class.inactive-status]="!user.isActive">
+                {{ user.isActive ? 'Aktif' : 'Pasif' }}
+              </span>
+            </ng-container>
+            <ng-container *ngIf="editingUser?.id === user.id">
+              <select [(ngModel)]="editingUser!.isActive">
+                <option [ngValue]="true">Aktif</option>
+                <option [ngValue]="false">Pasif</option>
+              </select>
+            </ng-container>
+          </td>
+          <td>{{ user.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
+          <td>{{ user.lastLoginAt | date:'dd.MM.yyyy HH:mm' }}</td>
+          <td class="actions-cell">
+            <ng-container *ngIf="editingUser?.id !== user.id">
+              <button class="btn-edit" (click)="startEdit(user)" title="Düzenle">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-delete" (click)="deleteUser(user.email)" title="Sil">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </ng-container>
+            <ng-container *ngIf="editingUser?.id === user.id">
+              <button class="btn-save" (click)="saveUser()" title="Kaydet">
+                <i class="fas fa-save"></i>
+              </button>
+              <button class="btn-cancel" (click)="cancelEdit()" title="İptal">
+                <i class="fas fa-times"></i>
+              </button>
+            </ng-container>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0 && !loading">
+          <td colspan="10" class="no-data">Kullanıcı bulunamadı.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="totalUsers > pageSize">
+    <button
+      [disabled]="currentPage === 1"
+      (click)="onPageChange(currentPage - 1)"
+      class="pagination-btn">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <span class="page-info">
+      Sayfa {{ currentPage }} / {{ Math.ceil(totalUsers / pageSize) }}
+    </span>
+
+    <button
+      [disabled]="currentPage >= Math.ceil(totalUsers / pageSize)"
+      (click)="onPageChange(currentPage + 1)"
+      class="pagination-btn">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</div>

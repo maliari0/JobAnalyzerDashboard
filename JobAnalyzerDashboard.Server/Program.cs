@@ -170,4 +170,20 @@ app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
 
+// Veritabanını başlat ve admin kullanıcısını oluştur
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        await DbInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Veritabanı başlatılırken bir hata oluştu.");
+    }
+}
+
 app.Run();

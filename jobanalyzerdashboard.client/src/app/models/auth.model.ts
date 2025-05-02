@@ -7,6 +7,9 @@ export interface User {
   role: string;
   emailConfirmed: boolean;
   profileId?: number;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt?: string;
 }
 
 export interface AuthResponse {

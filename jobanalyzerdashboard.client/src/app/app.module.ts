@@ -31,6 +31,8 @@ import { AuthService } from './services/auth.service';
 
 // Interceptors
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { AdminPanelComponent } from './admin-panel/admin-panel.component';
+import { UserManagementComponent } from './admin-panel/user-management/user-management.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     ConfirmEmailComponentComponent,
     UnauthorizedComponentComponent,
     UserMenuComponentComponent,
-    ChangePasswordComponentComponent
+    ChangePasswordComponentComponent,
+    AdminPanelComponent,
+    UserManagementComponent
   ],
   imports: [
     BrowserModule,

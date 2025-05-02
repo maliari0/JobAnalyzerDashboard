@@ -1,0 +1,160 @@
+.user-management-container {
+  padding: 10px 0;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.user-table th,
+.user-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.user-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #495057;
+}
+
+.user-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.user-table tr.editing {
+  background-color: #fff3cd;
+}
+
+.admin-role {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.active-status {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.inactive-status {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.actions-cell {
+  white-space: nowrap;
+  text-align: center;
+}
+
+.btn-edit,
+.btn-delete,
+.btn-save,
+.btn-cancel {
+  padding: 5px 10px;
+  margin: 0 2px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-edit {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-save {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #138496;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+}
+
+.btn-save:hover {
+  background-color: #218838;
+}
+
+.btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination-btn {
+  padding: 5px 10px;
+  margin: 0 5px;
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not([disabled]) {
+  background-color: #e9ecef;
+}
+
+.pagination-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  margin: 0 10px;
+  color: #6c757d;
+}
+
+select {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+}

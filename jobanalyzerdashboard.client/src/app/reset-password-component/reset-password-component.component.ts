@@ -86,7 +86,7 @@ export class ResetPasswordComponentComponent implements OnInit {
         next: (response) => {
           // Başarılı istek
           this.success = 'Şifreniz başarıyla sıfırlandı.';
-          
+
           // 3 saniye sonra giriş sayfasına yönlendir
           setTimeout(() => {
             this.router.navigate(['/login']);

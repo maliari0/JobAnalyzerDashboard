@@ -18,7 +18,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://localhost:5267/api/user';
+  private apiUrl = '/api/user';
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
   private tokenExpirationTimer: any;

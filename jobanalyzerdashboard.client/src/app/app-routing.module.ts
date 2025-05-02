@@ -15,6 +15,9 @@ import { ConfirmEmailComponentComponent } from './confirm-email-component/confir
 import { UnauthorizedComponentComponent } from './unauthorized-component/unauthorized-component.component';
 import { ChangePasswordComponentComponent } from './change-password-component/change-password-component.component';
 
+// Admin Bileşenleri
+import { AdminPanelComponent } from './admin-panel/admin-panel.component';
+
 // Guards
 import { AuthGuard } from './guards/auth.guard';
 
@@ -46,6 +49,14 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponentComponent },
   { path: 'reset-password', component: ResetPasswordComponentComponent },
   { path: 'confirm-email', component: ConfirmEmailComponentComponent },
+
+  // Admin Paneli
+  {
+    path: 'admin',
+    component: AdminPanelComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['Admin'] }
+  },
 
   // Diğer Sayfalar
   { path: 'unauthorized', component: UnauthorizedComponentComponent },

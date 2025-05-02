@@ -1,0 +1,116 @@
+<div class="admin-panel-container">
+  <h1 class="admin-title">Admin Paneli</h1>
+
+  <div class="admin-tabs">
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'dashboard'"
+      (click)="setActiveTab('dashboard')">
+      <i class="fas fa-tachometer-alt"></i> Dashboard
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'users'"
+      (click)="setActiveTab('users')">
+      <i class="fas fa-users"></i> Kullanıcılar
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'jobs'"
+      (click)="setActiveTab('jobs')">
+      <i class="fas fa-briefcase"></i> İş İlanları
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'applications'"
+      (click)="setActiveTab('applications')">
+      <i class="fas fa-file-alt"></i> Başvurular
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'settings'"
+      (click)="setActiveTab('settings')">
+      <i class="fas fa-cog"></i> Ayarlar
+    </button>
+  </div>
+
+  <div class="admin-content">
+    <!-- Dashboard -->
+    <div *ngIf="activeTab === 'dashboard'" class="dashboard-container">
+      <h2>Dashboard</h2>
+
+      <div *ngIf="loading" class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i> Yükleniyor...
+      </div>
+
+      <div *ngIf="error" class="error-message">
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.totalUsers }}</div>
+            <div class="stat-label">Toplam Kullanıcı</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.activeUsers }}</div>
+            <div class="stat-label">Aktif Kullanıcı</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-briefcase"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.totalJobs }}</div>
+            <div class="stat-label">Toplam İş İlanı</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.totalApplications }}</div>
+            <div class="stat-label">Toplam Başvuru</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kullanıcılar -->
+    <div *ngIf="activeTab === 'users'">
+      <app-user-management></app-user-management>
+    </div>
+
+    <!-- İş İlanları -->
+    <div *ngIf="activeTab === 'jobs'">
+      <h2>İş İlanları Yönetimi</h2>
+      <p>Bu özellik henüz geliştirme aşamasındadır.</p>
+    </div>
+
+    <!-- Başvurular -->
+    <div *ngIf="activeTab === 'applications'">
+      <h2>Başvurular Yönetimi</h2>
+      <p>Bu özellik henüz geliştirme aşamasındadır.</p>
+    </div>
+
+    <!-- Ayarlar -->
+    <div *ngIf="activeTab === 'settings'">
+      <h2>Sistem Ayarları</h2>
+      <p>Bu özellik henüz geliştirme aşamasındadır.</p>
+    </div>
+  </div>
+</div>
