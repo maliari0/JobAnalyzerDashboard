@@ -9,6 +9,8 @@ using System.Text;
 using System.Globalization;
 using JobAnalyzerDashboard.Server.Models;
 using JobAnalyzerDashboard.Server.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +57,28 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // JWT ayarlarını yapılandır
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+// Kimlik doğrulama servislerini ekle
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
+            builder.Configuration["JwtSettings:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured"))),
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 // CORS politikalarını yapılandır
 builder.Services.AddCors(options =>
@@ -169,6 +193,8 @@ app.UseCors("AllowAll");
 // JWT middleware'i ekle
 app.UseMiddleware<JobAnalyzerDashboard.Server.Middleware.JwtMiddleware>();
 
+// Kimlik doğrulama ve yetkilendirme middleware'lerini ekle
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

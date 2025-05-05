@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace JobAnalyzerDashboard.Server.Middleware
 {
@@ -38,7 +39,7 @@ namespace JobAnalyzerDashboard.Server.Middleware
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured"));
-                
+
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -51,11 +52,15 @@ namespace JobAnalyzerDashboard.Server.Middleware
                 }, out var validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "nameid").Value);
+                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
 
                 // Kullanıcıyı veritabanından al ve context'e ekle
                 var user = await dbContext.Users.FindAsync(userId);
                 context.Items["User"] = user;
+
+                // Kullanıcı kimliğini HttpContext.User'a ekle
+                var identity = new System.Security.Claims.ClaimsIdentity(jwtToken.Claims, "Bearer");
+                context.User = new System.Security.Claims.ClaimsPrincipal(identity);
             }
             catch
             {

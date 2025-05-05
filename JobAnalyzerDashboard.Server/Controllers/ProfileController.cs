@@ -9,11 +9,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProfileController : ControllerBase
     {
         private readonly ILogger<ProfileController> _logger;
@@ -41,19 +45,34 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                // Varsayılan profil ID'si 1
-                var profile = await _profileRepository.GetProfileWithResumesAsync(1);
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profilini bul
+                var profile = user.ProfileId.HasValue
+                    ? await _profileRepository.GetProfileWithResumesAsync(user.ProfileId.Value)
+                    : null;
 
                 // Profil bulunamadıysa, yeni bir profil oluştur
                 if (profile == null)
                 {
-                    _logger.LogInformation("Profil bulunamadı, yeni bir profil oluşturuluyor");
+                    _logger.LogInformation("Kullanıcı {UserId} için profil bulunamadı, yeni bir profil oluşturuluyor", userId);
 
                     profile = new Profile
                     {
-                        Id = 1,
-                        FullName = "Kullanıcı",
-                        Email = "kullanici@example.com",
+                        FullName = $"{user.FirstName} {user.LastName}".Trim(),
+                        Email = user.Email,
                         Phone = "",
                         LinkedInUrl = "",
                         GithubUrl = "",
@@ -72,14 +91,20 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         Position = "",
                         PreferredCategories = "[]",
                         MinQualityScore = 3,
-                        AutoApplyEnabled = false
+                        AutoApplyEnabled = false,
+                        UserId = userId
                     };
 
                     await _profileRepository.AddAsync(profile);
                     await _profileRepository.SaveChangesAsync();
 
+                    // Kullanıcı ve profil ilişkisini güncelle
+                    user.ProfileId = profile.Id;
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+
                     // Yeni oluşturulan profili tekrar yükle (Resumes koleksiyonu ile birlikte)
-                    profile = await _profileRepository.GetProfileWithResumesAsync(1);
+                    profile = await _profileRepository.GetProfileWithResumesAsync(profile.Id);
                 }
 
                 return Ok(profile);
@@ -89,6 +114,16 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 _logger.LogError(ex, "Profil alınırken hata oluştu");
                 return StatusCode(500, new { message = "Profil alınırken bir hata oluştu" });
             }
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return userId;
+            }
+            return 0;
         }
 
         [HttpPut]
@@ -101,10 +136,42 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return BadRequest(new { message = "Geçersiz profil verisi" });
                 }
 
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profilini bul
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                var existingProfile = await _profileRepository.GetByIdAsync(user.ProfileId.Value);
+                if (existingProfile == null)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                // Profil ID'sinin kullanıcıya ait olduğunu doğrula
+                if (existingProfile.UserId != userId)
+                {
+                    return Unauthorized(new { message = "Bu profili düzenleme yetkiniz yok" });
+                }
+
                 // Yeni bir profil nesnesi oluştur
                 var newProfile = new Profile
                 {
-                    Id = 1,
+                    Id = existingProfile.Id,
                     FullName = profile.FullName ?? "",
                     Email = profile.Email ?? "",
                     Phone = profile.Phone ?? "",
@@ -125,7 +192,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     Position = profile.Position ?? "",
                     PreferredCategories = profile.PreferredCategories ?? "[]",
                     MinQualityScore = profile.MinQualityScore,
-                    AutoApplyEnabled = profile.AutoApplyEnabled
+                    AutoApplyEnabled = profile.AutoApplyEnabled,
+                    UserId = userId
                 };
 
                 // DbContext'i temizle
@@ -135,10 +203,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 _context.Profiles.Update(newProfile);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Profil güncellendi");
+                _logger.LogInformation("Profil güncellendi: {ProfileId}", newProfile.Id);
 
                 // Güncellenmiş profili getir
-                var updatedProfile = await _profileRepository.GetProfileWithResumesAsync(1);
+                var updatedProfile = await _profileRepository.GetProfileWithResumesAsync(newProfile.Id);
                 return Ok(updatedProfile);
             }
             catch (Exception ex)
@@ -153,8 +221,28 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                // Varsayılan profil ID'si 1
-                var resumes = await _profileRepository.GetResumesAsync(1);
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                // Kullanıcının özgeçmişlerini getir
+                var resumes = await _profileRepository.GetResumesAsync(user.ProfileId.Value);
                 return Ok(resumes);
             }
             catch (Exception ex)
@@ -169,6 +257,26 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
                 if (model.File == null || model.File.Length == 0)
                 {
                     return BadRequest(new { message = "Dosya yüklenmedi" });
@@ -208,13 +316,13 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     FileType = model.File.ContentType,
                     UploadDate = DateTime.UtcNow,
                     IsDefault = model.IsDefault,
-                    ProfileId = 1 // Varsayılan profil ID'si
+                    ProfileId = user.ProfileId.Value
                 };
 
                 // Eğer varsayılan olarak işaretlendiyse, diğer özgeçmişlerin varsayılan durumunu kaldır
                 if (model.IsDefault)
                 {
-                    await _profileRepository.SetDefaultResumeAsync(0, 1); // 0 ID'si geçici olarak kullanılıyor
+                    await _profileRepository.SetDefaultResumeAsync(0, user.ProfileId.Value); // 0 ID'si geçici olarak kullanılıyor
                 }
 
                 // Özgeçmişi veritabanına kaydet
@@ -224,10 +332,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 // Eğer varsayılan olarak işaretlendiyse, yeni eklenen özgeçmişi varsayılan yap
                 if (model.IsDefault)
                 {
-                    await _profileRepository.SetDefaultResumeAsync(resume.Id, 1);
+                    await _profileRepository.SetDefaultResumeAsync(resume.Id, user.ProfileId.Value);
                 }
 
-                _logger.LogInformation("Yeni özgeçmiş yüklendi: {FileName}", resume.FileName);
+                _logger.LogInformation("Kullanıcı {UserId} için yeni özgeçmiş yüklendi: {FileName}", userId, resume.FileName);
 
                 return Ok(resume);
             }
@@ -243,14 +351,40 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
                 var resume = await _profileRepository.GetResumeByIdAsync(id);
                 if (resume == null)
                 {
                     return NotFound(new { message = "Özgeçmiş bulunamadı" });
                 }
 
-                await _profileRepository.SetDefaultResumeAsync(id, 1); // Varsayılan profil ID'si 1
-                _logger.LogInformation("Varsayılan özgeçmiş güncellendi: {Id}", id);
+                // Özgeçmişin kullanıcıya ait olduğunu doğrula
+                if (resume.ProfileId != user.ProfileId.Value)
+                {
+                    return Unauthorized(new { message = "Bu özgeçmişi düzenleme yetkiniz yok" });
+                }
+
+                await _profileRepository.SetDefaultResumeAsync(id, user.ProfileId.Value);
+                _logger.LogInformation("Kullanıcı {UserId} için varsayılan özgeçmiş güncellendi: {Id}", userId, id);
 
                 return Ok(new { message = "Varsayılan özgeçmiş güncellendi" });
             }
@@ -266,10 +400,36 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
                 var resume = await _profileRepository.GetResumeByIdAsync(id);
                 if (resume == null)
                 {
                     return NotFound(new { message = "Özgeçmiş bulunamadı" });
+                }
+
+                // Özgeçmişin kullanıcıya ait olduğunu doğrula
+                if (resume.ProfileId != user.ProfileId.Value)
+                {
+                    return Unauthorized(new { message = "Bu özgeçmişi silme yetkiniz yok" });
                 }
 
                 // Dosyayı sil
@@ -280,8 +440,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 }
 
                 // Veritabanından kaydı sil
-                await _profileRepository.DeleteResumeAsync(id, 1); // Varsayılan profil ID'si 1
-                _logger.LogInformation("Özgeçmiş silindi: {Id}", id);
+                await _profileRepository.DeleteResumeAsync(id, user.ProfileId.Value);
+                _logger.LogInformation("Kullanıcı {UserId} için özgeçmiş silindi: {Id}", userId, id);
 
                 return Ok(new { message = "Özgeçmiş başarıyla silindi" });
             }
@@ -297,11 +457,31 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                // Varsayılan profil ID'si 1
-                var defaultResume = await _profileRepository.GetDefaultResumeAsync(1);
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                // Kullanıcının varsayılan özgeçmişini getir
+                var defaultResume = await _profileRepository.GetDefaultResumeAsync(user.ProfileId.Value);
                 if (defaultResume == null)
                 {
-                    _logger.LogWarning("Varsayılan özgeçmiş bulunamadı");
+                    _logger.LogWarning("Kullanıcı {UserId} için varsayılan özgeçmiş bulunamadı", userId);
                     return NotFound(new { message = "Varsayılan özgeçmiş bulunamadı" });
                 }
 
@@ -311,7 +491,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 // Dosyanın varlığını kontrol et
                 if (!System.IO.File.Exists(filePath))
                 {
-                    _logger.LogWarning("Varsayılan özgeçmiş dosyası bulunamadı: {FilePath}", filePath);
+                    _logger.LogWarning("Kullanıcı {UserId} için varsayılan özgeçmiş dosyası bulunamadı: {FilePath}", userId, filePath);
                     return NotFound(new { message = "Varsayılan özgeçmiş dosyası bulunamadı" });
                 }
 
@@ -336,7 +516,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     isTruncated = fileBytes.Length > 1000
                 };
 
-                _logger.LogInformation("Varsayılan özgeçmiş alındı: {Id} - {FileName}", defaultResume.Id, defaultResume.FileName);
+                _logger.LogInformation("Kullanıcı {UserId} için varsayılan özgeçmiş alındı: {Id} - {FileName}", userId, defaultResume.Id, defaultResume.FileName);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -351,6 +531,13 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
                 if (string.IsNullOrEmpty(fileName))
                 {
                     return BadRequest(new { message = "Dosya adı belirtilmedi" });
@@ -362,7 +549,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 // Dosyanın varlığını kontrol et
                 if (!System.IO.File.Exists(filePath))
                 {
-                    _logger.LogWarning("Dosya bulunamadı: {FilePath}", filePath);
+                    _logger.LogWarning("Kullanıcı {UserId} için dosya bulunamadı: {FilePath}", userId, filePath);
                     return NotFound(new { message = "Dosya bulunamadı" });
                 }
 
@@ -373,7 +560,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 string contentType = "application/pdf";
 
                 // Dosyayı döndür
-                _logger.LogInformation("Dosya görüntüleniyor: {FileName}", fileName);
+                _logger.LogInformation("Kullanıcı {UserId} için dosya görüntüleniyor: {FileName}", userId, fileName);
                 return File(fileBytes, contentType, fileName);
             }
             catch (Exception ex)
@@ -385,12 +572,32 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
         [HttpGet("oauth-status")]
         [Produces("application/json")]
-        public async Task<IActionResult> GetOAuthStatus([FromQuery] int profileId = 1)
+        public async Task<IActionResult> GetOAuthStatus()
         {
             try
             {
-                _logger.LogInformation("Getting OAuth status for profile {ProfileId}", profileId);
-                var tokens = await _oauthService.GetOAuthTokensAsync(profileId);
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                _logger.LogInformation("Getting OAuth status for user {UserId} with profile {ProfileId}", userId, user.ProfileId.Value);
+                var tokens = await _oauthService.GetOAuthTokensAsync(user.ProfileId.Value);
 
                 var result = tokens.Select(t => new
                 {
@@ -401,22 +608,43 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     t.ExpiresAt
                 }).ToList();
 
-                _logger.LogInformation("Found {Count} OAuth tokens for profile {ProfileId}", result.Count, profileId);
+                _logger.LogInformation("Found {Count} OAuth tokens for user {UserId} with profile {ProfileId}", result.Count, userId, user.ProfileId.Value);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting OAuth status for profile {ProfileId}", profileId);
+                _logger.LogError(ex, "Error getting OAuth status");
                 return StatusCode(500, new { message = "Error getting OAuth status" });
             }
         }
 
         [HttpGet("authorize-google")]
-        public IActionResult AuthorizeGoogle([FromQuery] int profileId = 1)
+        public async Task<IActionResult> AuthorizeGoogle()
         {
             try
             {
-                var authUrl = _oauthService.GetAuthorizationUrl("Google", profileId);
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                var authUrl = _oauthService.GetAuthorizationUrl("Google", user.ProfileId.Value);
+                _logger.LogInformation("Generated Google authorization URL for user {UserId} with profile {ProfileId}", userId, user.ProfileId.Value);
                 return Redirect(authUrl);
             }
             catch (Exception ex)
@@ -428,27 +656,47 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
         [HttpDelete("revoke-oauth/{provider}")]
         [Produces("application/json")]
-        public async Task<IActionResult> RevokeAccess(string provider, [FromQuery] int profileId = 1)
+        public async Task<IActionResult> RevokeAccess(string provider)
         {
             try
             {
-                _logger.LogInformation("Revoking {Provider} access for profile {ProfileId}", provider, profileId);
-                var success = await _oauthService.RevokeTokenAsync(profileId, provider);
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                _logger.LogInformation("Revoking {Provider} access for user {UserId} with profile {ProfileId}", provider, userId, user.ProfileId.Value);
+                var success = await _oauthService.RevokeTokenAsync(user.ProfileId.Value, provider);
 
                 if (success)
                 {
-                    _logger.LogInformation("{Provider} access revoked successfully for profile {ProfileId}", provider, profileId);
+                    _logger.LogInformation("{Provider} access revoked successfully for user {UserId} with profile {ProfileId}", provider, userId, user.ProfileId.Value);
                     return Ok(new { success = true, message = $"{provider} access revoked successfully" });
                 }
                 else
                 {
-                    _logger.LogWarning("No {Provider} token found for profile {ProfileId}", provider, profileId);
+                    _logger.LogWarning("No {Provider} token found for user {UserId} with profile {ProfileId}", provider, userId, user.ProfileId.Value);
                     return NotFound(new { success = false, message = $"No {provider} token found for this profile" });
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error revoking {Provider} access for profile {ProfileId}", provider, profileId);
+                _logger.LogError(ex, "Error revoking {Provider} access", provider);
                 return StatusCode(500, new { message = $"Error revoking {provider} access" });
             }
         }
@@ -456,7 +704,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
     public class ResumeUploadModel
     {
-        public IFormFile File { get; set; }
+        [Required]
+        public IFormFile File { get; set; } = null!;
         public bool IsDefault { get; set; } = false;
     }
 }

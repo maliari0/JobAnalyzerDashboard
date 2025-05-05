@@ -3,12 +3,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using System.Security.Claims;
 using JobAnalyzerDashboard.Server.Data;
 using JobAnalyzerDashboard.Server.Services;
 using JobAnalyzerDashboard.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
@@ -27,12 +29,33 @@ namespace JobAnalyzerDashboard.Server.Controllers
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("google/authorize")]
-        public IActionResult GoogleAuthorize([FromQuery] int profileId = 1)
+        public async Task<IActionResult> GoogleAuthorize()
         {
             try
             {
-                var authUrl = _oauthService.GetAuthorizationUrl("Google", profileId);
+                // Kullanıcı ID'sini al
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                var authUrl = _oauthService.GetAuthorizationUrl("Google", user.ProfileId.Value);
                 return Redirect(authUrl);
             }
             catch (Exception ex)
@@ -67,14 +90,35 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("oauth-status")]
         [Produces("application/json")]
-        public async Task<IActionResult> GetOAuthStatus([FromQuery] int profileId = 1)
+        public async Task<IActionResult> GetOAuthStatus()
         {
             try
             {
-                _logger.LogInformation("Getting OAuth status for profile {ProfileId}", profileId);
-                var tokens = await _oauthService.GetOAuthTokensAsync(profileId);
+                // Kullanıcı ID'sini al
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                _logger.LogInformation("Getting OAuth status for user {UserId} with profile {ProfileId}", userId, user.ProfileId.Value);
+                var tokens = await _oauthService.GetOAuthTokensAsync(user.ProfileId.Value);
 
                 var result = tokens.Select(t => new
                 {
@@ -85,39 +129,60 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     t.ExpiresAt
                 }).ToList();
 
-                _logger.LogInformation("Found {Count} OAuth tokens for profile {ProfileId}", result.Count, profileId);
+                _logger.LogInformation("Found {Count} OAuth tokens for user {UserId} with profile {ProfileId}", result.Count, userId, user.ProfileId.Value);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting OAuth status for profile {ProfileId}", profileId);
+                _logger.LogError(ex, "Error getting OAuth status");
                 return StatusCode(500, new { message = "Error getting OAuth status" });
             }
         }
 
+        [Authorize]
         [HttpDelete("revoke/{provider}")]
         [Produces("application/json")]
-        public async Task<IActionResult> RevokeAccess(string provider, [FromQuery] int profileId = 1)
+        public async Task<IActionResult> RevokeAccess(string provider)
         {
             try
             {
-                _logger.LogInformation("Revoking {Provider} access for profile {ProfileId}", provider, profileId);
-                var success = await _oauthService.RevokeTokenAsync(profileId, provider);
+                // Kullanıcı ID'sini al
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return NotFound(new { message = "Kullanıcı profili bulunamadı" });
+                }
+
+                _logger.LogInformation("Revoking {Provider} access for user {UserId} with profile {ProfileId}", provider, userId, user.ProfileId.Value);
+                var success = await _oauthService.RevokeTokenAsync(user.ProfileId.Value, provider);
 
                 if (success)
                 {
-                    _logger.LogInformation("{Provider} access revoked successfully for profile {ProfileId}", provider, profileId);
+                    _logger.LogInformation("{Provider} access revoked successfully for user {UserId} with profile {ProfileId}", provider, userId, user.ProfileId.Value);
                     return Ok(new { success = true, message = $"{provider} access revoked successfully" });
                 }
                 else
                 {
-                    _logger.LogWarning("No {Provider} token found for profile {ProfileId}", provider, profileId);
+                    _logger.LogWarning("No {Provider} token found for user {UserId} with profile {ProfileId}", provider, userId, user.ProfileId.Value);
                     return NotFound(new { success = false, message = $"No {provider} token found for this profile" });
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error revoking {Provider} access for profile {ProfileId}", provider, profileId);
+                _logger.LogError(ex, "Error revoking {Provider} access", provider);
                 return StatusCode(500, new { message = $"Error revoking {provider} access" });
             }
         }

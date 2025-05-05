@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
-using JobAnalyzerDashboard.Server.Attributes;
+using System.Security.Claims;
 using JobAnalyzerDashboard.Server.Models;
 using JobAnalyzerDashboard.Server.Models.DTOs;
 using JobAnalyzerDashboard.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
@@ -116,8 +117,14 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = (User)HttpContext.Items["User"]!;
-            var result = await _authService.ChangePasswordAsync(user.Id, model);
+            // Kullanıcı ID'sini al
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+            }
+
+            var result = await _authService.ChangePasswordAsync(userId, model);
 
             if (result)
             {
@@ -131,8 +138,14 @@ namespace JobAnalyzerDashboard.Server.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var user = (User)HttpContext.Items["User"]!;
-            var userDto = await _authService.GetUserByIdAsync(user.Id);
+            // Kullanıcı ID'sini al
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+            }
+
+            var userDto = await _authService.GetUserByIdAsync(userId);
 
             if (userDto != null)
             {
