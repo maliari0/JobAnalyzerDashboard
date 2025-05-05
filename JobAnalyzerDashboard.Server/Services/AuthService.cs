@@ -160,14 +160,23 @@ namespace JobAnalyzerDashboard.Server.Services
                     };
                 }
 
-                // E-posta doğrulaması kontrolü
-                if (!user.EmailConfirmed)
+                // E-posta doğrulaması kontrolü (admin kullanıcısı için atla)
+                if (!user.EmailConfirmed && user.Email != "admin@admin.com")
                 {
                     return new AuthResponseDTO
                     {
                         Success = false,
                         Message = "Lütfen önce e-posta adresinizi doğrulayın."
                     };
+                }
+
+                // Admin kullanıcısı için e-posta doğrulamasını otomatik olarak yap
+                if (user.Email == "admin@admin.com" && !user.EmailConfirmed)
+                {
+                    user.EmailConfirmed = true;
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Admin kullanıcısı için e-posta doğrulaması otomatik olarak yapıldı");
                 }
 
                 // Son giriş tarihini güncelle
@@ -393,17 +402,23 @@ namespace JobAnalyzerDashboard.Server.Services
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured"));
 
+            _logger.LogInformation("Generating JWT token for user: {UserId}, {Username}, {Role}", user.Id, user.Username, user.Role);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("ProfileId", user.ProfileId?.ToString() ?? "0")
+            };
+
+            _logger.LogInformation("JWT claims: {Claims}", string.Join(", ", claims.Select(c => $"{c.Type}={c.Value}")));
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, user.Role),
-                    new Claim("ProfileId", user.ProfileId?.ToString() ?? "0")
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(int.Parse(jwtSettings["ExpirationInMinutes"] ?? "60")),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = jwtSettings["Issuer"],
@@ -411,7 +426,11 @@ namespace JobAnalyzerDashboard.Server.Services
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            _logger.LogInformation("JWT token generated successfully");
+
+            return tokenString;
         }
 
         private string GenerateRandomToken()

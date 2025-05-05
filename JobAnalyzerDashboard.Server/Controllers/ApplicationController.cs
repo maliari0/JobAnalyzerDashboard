@@ -36,6 +36,9 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
+                _logger.LogInformation("Başvurular alınıyor. Filtreler: JobId={JobId}, Status={Status}, AppliedMethod={AppliedMethod}, IsAutoApplied={IsAutoApplied}",
+                    filter.JobId, filter.Status, filter.AppliedMethod, filter.IsAutoApplied);
+
                 var applications = await _applicationRepository.GetApplicationsWithFiltersAsync(
                     filter.JobId,
                     filter.Status,
@@ -46,12 +49,24 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     filter.SortBy,
                     filter.SortDirection);
 
+                _logger.LogInformation("Başvurular başarıyla alındı. Toplam: {Count}", applications?.Count() ?? 0);
+
                 return Ok(applications);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Başvurular alınırken hata oluştu");
-                return StatusCode(500, new { message = "Başvurular alınırken bir hata oluştu" });
+                _logger.LogError(ex, "Başvurular alınırken hata oluştu: {ErrorMessage}, StackTrace: {StackTrace}", ex.Message, ex.StackTrace);
+
+                // İç içe istisnalar varsa onları da logla
+                var innerException = ex.InnerException;
+                while (innerException != null)
+                {
+                    _logger.LogError(innerException, "İç istisna: {ErrorMessage}, StackTrace: {StackTrace}",
+                        innerException.Message, innerException.StackTrace);
+                    innerException = innerException.InnerException;
+                }
+
+                return StatusCode(500, new { message = "Başvurular alınırken bir hata oluştu", error = ex.Message });
             }
         }
 

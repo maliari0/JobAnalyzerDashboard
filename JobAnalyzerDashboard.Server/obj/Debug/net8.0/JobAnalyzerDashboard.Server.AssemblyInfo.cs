@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("JobAnalyzerDashboard.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f05567b28541c73bc5bea3a310583a76a50b7986")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12342e158cba542112b99ea7db992800d547ba14")]
 [assembly: System.Reflection.AssemblyProductAttribute("JobAnalyzerDashboard.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JobAnalyzerDashboard.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

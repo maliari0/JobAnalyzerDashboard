@@ -80,4 +80,36 @@ export class LoginComponentComponent implements OnInit {
         }
       });
   }
+
+  // Admin olarak giriş yap
+  loginAsAdmin(): void {
+    this.loading = true;
+    this.error = '';
+
+    // Admin giriş bilgilerini kullan
+    const loginRequest: LoginRequest = {
+      email: 'admin@admin.com',
+      password: 'admin123'
+    };
+
+    // Giriş yap
+    this.authService.login(loginRequest)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Başarılı giriş, admin paneline yönlendir
+            this.router.navigate(['/admin']);
+          } else {
+            // Başarısız giriş
+            this.error = response.message;
+            this.loading = false;
+          }
+        },
+        error: (error) => {
+          // Hata durumu
+          this.error = error.error?.message || 'Admin girişi sırasında bir hata oluştu.';
+          this.loading = false;
+        }
+      });
+  }
 }
