@@ -16,9 +16,7 @@ const PROXY_CONFIG = [
       "/api/admin"
     ],
     target,
-    secure: false,
-    changeOrigin: true,
-    logLevel: "debug"
+    secure: false
   }
 ]
 

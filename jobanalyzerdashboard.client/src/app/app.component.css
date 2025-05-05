@@ -3,22 +3,26 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
 }
 
 /* Header */
 .app-header {
-  background-color: #343a40;
-  color: white;
-  padding: 1rem 2rem;
+  background-color: var(--card-color);
+  color: var(--text-color);
+  padding: var(--spacing-md) var(--spacing-xl);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .user-menu-container {
-  margin-left: 1rem;
+  margin-left: var(--spacing-md);
 }
 
 .logo-container {
@@ -28,8 +32,10 @@
 
 .app-title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   font-weight: 600;
+  color: var(--primary-color);
+  letter-spacing: -0.5px;
 }
 
 /* Navigasyon */
@@ -46,31 +52,43 @@
 }
 
 .nav-item {
-  margin-left: 1.5rem;
+  margin-left: var(--spacing-lg);
+  position: relative;
 }
 
 .nav-link {
-  color: rgba(255,255,255,0.8);
+  color: var(--text-light);
   text-decoration: none;
-  font-size: 1rem;
-  padding: 0.5rem 0;
-  transition: color 0.2s;
+  font-size: var(--font-size-base);
+  padding: var(--spacing-sm) var(--spacing-xs);
+  transition: color var(--transition-fast);
+  font-weight: 500;
 }
 
 .nav-link:hover {
-  color: white;
+  color: var(--primary-color);
 }
 
 .nav-item.active .nav-link {
-  color: white;
+  color: var(--primary-color);
   font-weight: 600;
-  border-bottom: 2px solid #007bff;
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 3px 3px 0 0;
 }
 
 /* Ana İçerik */
 .app-content {
   flex: 1;
-  padding: 2rem;
+  padding: var(--spacing-xl);
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -78,31 +96,40 @@
 
 /* Footer */
 .app-footer {
-  background-color: #343a40;
-  color: rgba(255,255,255,0.6);
+  background-color: var(--card-color);
+  color: var(--text-light);
   text-align: center;
-  padding: 1rem;
-  font-size: 0.9rem;
+  padding: var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  border-top: 1px solid var(--border-color);
+}
+
+.app-footer p {
+  margin: var(--spacing-xs) 0;
 }
 
 /* Responsive Tasarım */
 @media (max-width: 768px) {
   .app-header {
     flex-direction: column;
-    padding: 1rem;
+    padding: var(--spacing-md);
   }
 
   .logo-container {
-    margin-bottom: 1rem;
+    margin-bottom: var(--spacing-md);
   }
 
   .nav-item {
-    margin-left: 1rem;
-    margin-right: 1rem;
+    margin-left: var(--spacing-md);
+    margin-right: var(--spacing-md);
+  }
+
+  .nav-item.active::after {
+    bottom: -5px;
   }
 
   .app-content {
-    padding: 1rem;
+    padding: var(--spacing-md);
   }
 }
 
@@ -113,6 +140,10 @@
   }
 
   .nav-item {
-    margin: 0.5rem 0;
+    margin: var(--spacing-xs) 0;
+  }
+
+  .nav-item.active::after {
+    bottom: -2px;
   }
 }

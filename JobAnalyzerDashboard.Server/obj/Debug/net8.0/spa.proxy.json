@@ -1,6 +1,6 @@
 {
 "SpaProxyServer": {
-"ServerUrl": "https://0.0.0.0:52545",
+"ServerUrl": "https://localhost:52545",
 "RedirectUrl": "",
 "LaunchCommand": "npm start",
 "WorkingDirectory": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\..\\jobanalyzerdashboard.client",

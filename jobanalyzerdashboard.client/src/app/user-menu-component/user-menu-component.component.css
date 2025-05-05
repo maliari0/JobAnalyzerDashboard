@@ -7,46 +7,7 @@
 /* Giriş yapmamış kullanıcı için butonlar */
 .auth-buttons {
   display: flex;
-  gap: 10px;
-}
-
-.btn {
-  display: inline-block;
-  font-weight: 500;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: 8px 16px;
-  font-size: 14px;
-  line-height: 1.5;
-  border-radius: 4px;
-  transition: all 0.15s ease-in-out;
-  cursor: pointer;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-primary:hover {
-  background-color: #0069d9;
-  border-color: #0062cc;
-}
-
-.btn-outline-primary {
-  color: #007bff;
-  background-color: transparent;
-  border-color: #007bff;
-}
-
-.btn-outline-primary:hover {
-  color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
+  gap: var(--spacing-sm);
 }
 
 /* Giriş yapmış kullanıcı için menü */
@@ -54,67 +15,88 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.user-menu:hover {
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #007bff;
+  background-color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
+  margin-right: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
 }
 
 .avatar-text {
   color: white;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-base);
 }
 
 .user-name {
   display: flex;
   align-items: center;
   font-weight: 500;
+  color: var(--text-color);
 }
 
 .user-name i {
-  margin-left: 5px;
-  font-size: 12px;
+  margin-left: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  transition: transform var(--transition-fast);
+}
+
+.user-menu.show .user-name i {
+  transform: rotate(180deg);
 }
 
 /* Dropdown menü */
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   right: 0;
   z-index: 1000;
   display: none;
-  min-width: 240px;
+  min-width: 260px;
   padding: 0;
-  margin: 8px 0 0;
-  font-size: 14px;
-  color: #212529;
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--text-color);
   text-align: left;
   list-style: none;
-  background-color: #fff;
+  background-color: var(--card-color);
   background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 .dropdown-menu.show {
   display: block;
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .dropdown-header {
   display: block;
-  padding: 16px;
+  padding: var(--spacing-md) var(--spacing-lg);
   margin-bottom: 0;
-  color: #6c757d;
+  color: var(--text-light);
   white-space: nowrap;
+  background-color: rgba(0, 0, 0, 0.01);
 }
 
 .user-info {
@@ -123,20 +105,21 @@
 }
 
 .user-avatar-small {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background-color: #007bff;
+  background-color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
+  margin-right: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
 }
 
 .avatar-text-small {
   color: white;
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
 }
 
 .user-details {
@@ -144,16 +127,16 @@
 }
 
 .user-fullname {
-  font-weight: 500;
-  color: #212529;
+  font-weight: 600;
+  color: var(--text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .user-email {
-  font-size: 12px;
-  color: #6c757d;
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -163,41 +146,52 @@
   height: 0;
   margin: 0;
   overflow: hidden;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--border-color);
 }
 
 .dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 12px 16px;
+  padding: var(--spacing-md) var(--spacing-lg);
   clear: both;
-  font-weight: 400;
-  color: #212529;
+  font-weight: 500;
+  color: var(--text-color);
   text-align: inherit;
   white-space: nowrap;
   background-color: transparent;
   border: 0;
   cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .dropdown-item:hover, .dropdown-item:focus {
-  color: #16181b;
+  color: var(--primary-color);
   text-decoration: none;
-  background-color: #f8f9fa;
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 .dropdown-item i {
-  margin-right: 10px;
+  margin-right: var(--spacing-md);
   width: 16px;
   text-align: center;
+  color: var(--text-light);
+}
+
+.dropdown-item:hover i {
+  color: var(--primary-color);
 }
 
 .dropdown-item.logout {
-  color: #dc3545;
+  color: var(--danger-color);
 }
 
 .dropdown-item.logout:hover {
-  background-color: #f8d7da;
+  background-color: rgba(229, 115, 115, 0.1);
+}
+
+.dropdown-item.logout i {
+  color: var(--danger-color);
 }
 
 /* Arka plan örtüsü */
