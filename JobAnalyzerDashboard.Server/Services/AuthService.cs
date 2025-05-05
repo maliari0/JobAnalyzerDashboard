@@ -211,8 +211,8 @@ namespace JobAnalyzerDashboard.Server.Services
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => 
-                    u.Email == model.Email && 
+                var user = await _context.Users.FirstOrDefaultAsync(u =>
+                    u.Email == model.Email &&
                     u.EmailConfirmationToken == model.Token &&
                     u.EmailConfirmationTokenExpiry > DateTime.UtcNow);
 
@@ -272,8 +272,8 @@ namespace JobAnalyzerDashboard.Server.Services
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => 
-                    u.Email == model.Email && 
+                var user = await _context.Users.FirstOrDefaultAsync(u =>
+                    u.Email == model.Email &&
                     u.PasswordResetToken == model.Token &&
                     u.PasswordResetTokenExpiry > DateTime.UtcNow);
 
@@ -392,7 +392,7 @@ namespace JobAnalyzerDashboard.Server.Services
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured"));
-            
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -430,11 +430,14 @@ namespace JobAnalyzerDashboard.Server.Services
             {
                 if (string.IsNullOrEmpty(user.EmailConfirmationToken))
                 {
+                    _logger.LogWarning("E-posta doğrulama token'ı boş olduğu için e-posta gönderilemiyor");
                     return;
                 }
 
                 var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:52545";
                 var confirmationLink = $"{baseUrl}/confirm-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(user.Email)}";
+
+                _logger.LogInformation("E-posta doğrulama bağlantısı oluşturuldu: {ConfirmationLink}", confirmationLink);
 
                 var subject = "E-posta Adresinizi Doğrulayın - Job Analyzer Dashboard";
                 var body = $@"
@@ -447,11 +450,29 @@ namespace JobAnalyzerDashboard.Server.Services
                     <p>Saygılarımızla,<br>Job Analyzer Dashboard Ekibi</p>
                 ";
 
-                await _emailService.SendEmailAsync(user.Email, subject, body);
+                _logger.LogInformation("E-posta doğrulama e-postası gönderiliyor: {Email}", user.Email);
+                var result = await _emailService.SendEmailAsync(user.Email, subject, body);
+
+                if (result)
+                {
+                    _logger.LogInformation("E-posta doğrulama e-postası başarıyla gönderildi: {Email}", user.Email);
+                }
+                else
+                {
+                    _logger.LogWarning("E-posta doğrulama e-postası gönderilemedi: {Email}", user.Email);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "E-posta doğrulama e-postası gönderilirken bir hata oluştu");
+                _logger.LogError(ex, "E-posta doğrulama e-postası gönderilirken bir hata oluştu: {ErrorMessage}", ex.Message);
+
+                // İç içe istisnalar varsa onları da logla
+                var innerException = ex.InnerException;
+                while (innerException != null)
+                {
+                    _logger.LogError(innerException, "İç istisna: {ErrorMessage}", innerException.Message);
+                    innerException = innerException.InnerException;
+                }
             }
         }
 

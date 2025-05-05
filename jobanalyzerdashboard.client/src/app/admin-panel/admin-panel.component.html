@@ -97,20 +97,17 @@
 
     <!-- İş İlanları -->
     <div *ngIf="activeTab === 'jobs'">
-      <h2>İş İlanları Yönetimi</h2>
-      <p>Bu özellik henüz geliştirme aşamasındadır.</p>
+      <app-job-management></app-job-management>
     </div>
 
     <!-- Başvurular -->
     <div *ngIf="activeTab === 'applications'">
-      <h2>Başvurular Yönetimi</h2>
-      <p>Bu özellik henüz geliştirme aşamasındadır.</p>
+      <app-application-management></app-application-management>
     </div>
 
     <!-- Ayarlar -->
     <div *ngIf="activeTab === 'settings'">
-      <h2>Sistem Ayarları</h2>
-      <p>Bu özellik henüz geliştirme aşamasındadır.</p>
+      <app-settings-management></app-settings-management>
     </div>
   </div>
 </div>

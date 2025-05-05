@@ -100,5 +100,123 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 return StatusCode(500, new { message = $"Error deleting user: {ex.Message}" });
             }
         }
+
+        [HttpGet("dashboard/stats")]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            try
+            {
+                // İstatistikleri hesapla
+                var totalUsers = await _context.Users.CountAsync();
+                var activeUsers = await _context.Users.CountAsync(u => u.IsActive);
+                var totalJobs = await _context.Jobs.CountAsync();
+                var totalApplications = await _context.Applications.CountAsync();
+
+                return Ok(new
+                {
+                    totalUsers,
+                    activeUsers,
+                    totalJobs,
+                    totalApplications
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting dashboard stats");
+                return StatusCode(500, new { message = "Error getting dashboard stats" });
+            }
+        }
+
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                // Toplam kullanıcı sayısını al
+                var totalCount = await _context.Users.CountAsync();
+
+                // Sayfalama ile kullanıcıları al
+                var users = await _context.Users
+                    .OrderByDescending(u => u.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.Email,
+                        u.Username,
+                        u.FirstName,
+                        u.LastName,
+                        u.Role,
+                        u.EmailConfirmed,
+                        u.ProfileId,
+                        u.IsActive,
+                        CreatedAt = u.CreatedAt.ToString("o"),
+                        LastLoginAt = u.LastLoginAt.HasValue ? u.LastLoginAt.Value.ToString("o") : null
+                    })
+                    .ToListAsync();
+
+                return Ok(new { users, totalCount });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting users list");
+                return StatusCode(500, new { message = "Error getting users list" });
+            }
+        }
+
+        [HttpPut("users/{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateRequest model)
+        {
+            try
+            {
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(id);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User with ID {UserId} not found", id);
+                    return NotFound(new { message = "User not found" });
+                }
+
+                // Kullanıcı bilgilerini güncelle
+                user.IsActive = model.IsActive;
+                user.Role = model.Role;
+
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "User updated successfully",
+                    user = new
+                    {
+                        user.Id,
+                        user.Email,
+                        user.Username,
+                        user.FirstName,
+                        user.LastName,
+                        user.Role,
+                        user.EmailConfirmed,
+                        user.ProfileId,
+                        user.IsActive,
+                        CreatedAt = user.CreatedAt.ToString("o"),
+                        LastLoginAt = user.LastLoginAt.HasValue ? user.LastLoginAt.Value.ToString("o") : null
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user with ID {UserId}", id);
+                return StatusCode(500, new { message = "Error updating user" });
+            }
+        }
+    }
+
+    public class UserUpdateRequest
+    {
+        public bool IsActive { get; set; }
+        public string Role { get; set; } = "User";
     }
 }

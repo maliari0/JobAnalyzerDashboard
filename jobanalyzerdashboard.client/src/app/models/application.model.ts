@@ -10,6 +10,11 @@ export interface Application {
   appliedMethod: string; // Email, Form, API, n8n
   job?: Job;
 
+  // Admin paneli için eklenen alanlar
+  jobTitle?: string; // İş ilanı başlığı
+  company?: string; // Şirket adı
+  notes?: string; // Başvuru notları
+
   // N8n entegrasyonu için eklenen alanlar
   sentMessage?: string; // Gönderilen başvuru mesajı
   isAutoApplied?: boolean; // Otomatik başvuru yapıldı mı?

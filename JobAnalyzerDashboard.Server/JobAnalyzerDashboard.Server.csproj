@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <SpaRoot>..\jobanalyzerdashboard.client</SpaRoot>
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
-    <SpaProxyServerUrl>https://localhost:52545</SpaProxyServerUrl>
+    <SpaProxyServerUrl>https://0.0.0.0:52545</SpaProxyServerUrl>
     <UserSecretsId>JobAnalyzerDashboard-8F3E9ADB-7307-4739-9E69-2ED31A08F77D</UserSecretsId>
   </PropertyGroup>
 

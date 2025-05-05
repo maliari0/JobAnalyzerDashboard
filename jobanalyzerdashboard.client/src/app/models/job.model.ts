@@ -12,6 +12,7 @@ export interface Job {
   source: string; // Email, Webhook, n8n
   isApplied: boolean;
   appliedDate?: string;
+  createdAt: string; // Veritabanında oluşturulma tarihi
 
   // N8n entegrasyonu için eklenen alanlar
   actionSuggestion: string; // sakla, bildir, ilgisiz

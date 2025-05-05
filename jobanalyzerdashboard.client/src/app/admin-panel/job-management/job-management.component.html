@@ -1,0 +1,173 @@
+<div class="job-management-container">
+  <h2>İş İlanları Yönetimi</h2>
+
+  <div class="filters-container">
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="İş ilanı ara..."
+        (keyup.enter)="loadJobs()"
+      >
+      <button (click)="loadJobs()">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <div class="filter-options">
+      <select [(ngModel)]="categoryFilter" (change)="loadJobs()">
+        <option value="">Tüm Kategoriler</option>
+        <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+      </select>
+
+      <select [(ngModel)]="sortBy" (change)="loadJobs()">
+        <option value="createdAt">Tarih</option>
+        <option value="title">Başlık</option>
+        <option value="company">Şirket</option>
+        <option value="qualityScore">Kalite Puanı</option>
+      </select>
+
+      <select [(ngModel)]="sortDirection" (change)="loadJobs()">
+        <option value="desc">Azalan</option>
+        <option value="asc">Artan</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Yükleniyor...
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <div class="jobs-table-container">
+    <table class="jobs-table" *ngIf="jobs.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Başlık</th>
+          <th>Şirket</th>
+          <th>Kategori</th>
+          <th>Kalite Puanı</th>
+          <th>Oluşturulma Tarihi</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let job of jobs">
+          <td>{{ job.id }}</td>
+          <td>{{ job.title }}</td>
+          <td>{{ job.company }}</td>
+          <td>{{ job.category }}</td>
+          <td>
+            <span [class.high-score]="job.qualityScore >= 80"
+                  [class.medium-score]="job.qualityScore >= 50 && job.qualityScore < 80"
+                  [class.low-score]="job.qualityScore < 50">
+              {{ job.qualityScore }}
+            </span>
+          </td>
+          <td>{{ job.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
+          <td class="actions">
+            <button class="view-btn" (click)="viewJobDetails(job.id)">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="delete-btn" (click)="confirmDeleteJob(job)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="jobs.length === 0 && !loading" class="no-data">
+      <i class="fas fa-info-circle"></i> Hiç iş ilanı bulunamadı.
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="totalItems > 0">
+    <button
+      [disabled]="currentPage === 1"
+      (click)="changePage(currentPage - 1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <span>Sayfa {{ currentPage }} / {{ totalPages }}</span>
+    <button
+      [disabled]="currentPage === totalPages"
+      (click)="changePage(currentPage + 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- İş İlanı Detay Modal -->
+  <div class="modal" *ngIf="selectedJob">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>{{ selectedJob.title }}</h3>
+        <button class="close-btn" (click)="selectedJob = null">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="job-detail-item">
+          <strong>Şirket:</strong> {{ selectedJob.company }}
+        </div>
+        <div class="job-detail-item">
+          <strong>Kategori:</strong> {{ selectedJob.category }}
+        </div>
+        <div class="job-detail-item">
+          <strong>Konum:</strong> {{ selectedJob.location }}
+        </div>
+        <div class="job-detail-item">
+          <strong>Kalite Puanı:</strong> {{ selectedJob.qualityScore }}
+        </div>
+        <div class="job-detail-item">
+          <strong>Oluşturulma Tarihi:</strong> {{ selectedJob.createdAt | date:'dd.MM.yyyy HH:mm' }}
+        </div>
+        <div class="job-detail-item">
+          <strong>Açıklama:</strong>
+          <div class="job-description">{{ selectedJob.description }}</div>
+        </div>
+        <div class="job-detail-item">
+          <strong>İlan URL:</strong>
+          <a [href]="selectedJob.url" target="_blank">{{ selectedJob.url }}</a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="delete-btn" (click)="confirmDeleteJob(selectedJob)">
+          <i class="fas fa-trash"></i> Sil
+        </button>
+        <button class="close-btn" (click)="selectedJob = null">
+          Kapat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Silme Onay Modal -->
+  <div class="modal" *ngIf="jobToDelete">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>İş İlanını Sil</h3>
+        <button class="close-btn" (click)="jobToDelete = null">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          <strong>{{ jobToDelete.title }}</strong> başlıklı iş ilanını silmek istediğinizden emin misiniz?
+        </p>
+        <p class="warning">Bu işlem geri alınamaz!</p>
+      </div>
+      <div class="modal-footer">
+        <button class="delete-btn" (click)="deleteJob()">
+          <i class="fas fa-trash"></i> Evet, Sil
+        </button>
+        <button class="cancel-btn" (click)="jobToDelete = null">
+          İptal
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

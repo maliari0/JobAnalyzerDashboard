@@ -12,10 +12,13 @@ const PROXY_CONFIG = [
       "/api/application",
       "/api/webhook",
       "/api/user",
-      "/api/auth"
+      "/api/auth",
+      "/api/admin"
     ],
     target,
-    secure: false
+    secure: false,
+    changeOrigin: true,
+    logLevel: "debug"
   }
 ]
 

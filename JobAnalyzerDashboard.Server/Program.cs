@@ -18,6 +18,11 @@ if (builder.Environment.IsDevelopment())
     builder.Configuration.AddUserSecrets<Program>();
 }
 
+// Loglama yapılandırması
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 // UTF-8 kodlamasını varsayılan olarak ayarla
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);

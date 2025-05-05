@@ -1,0 +1,202 @@
+<div class="application-management-container">
+  <h2>Başvurular Yönetimi</h2>
+
+  <div class="filters-container">
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Başvuru ara..."
+        (keyup.enter)="loadApplications()"
+      >
+      <button (click)="loadApplications()">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <div class="filter-options">
+      <select [(ngModel)]="statusFilter" (change)="loadApplications()">
+        <option value="">Tüm Durumlar</option>
+        <option value="Pending">Beklemede</option>
+        <option value="Applied">Başvuruldu</option>
+        <option value="Rejected">Reddedildi</option>
+        <option value="Interview">Mülakat</option>
+        <option value="Offer">Teklif</option>
+        <option value="Accepted">Kabul Edildi</option>
+      </select>
+
+      <select [(ngModel)]="methodFilter" (change)="loadApplications()">
+        <option value="">Tüm Yöntemler</option>
+        <option value="Manual">Manuel</option>
+        <option value="Auto">Otomatik</option>
+      </select>
+
+      <select [(ngModel)]="sortBy" (change)="loadApplications()">
+        <option value="appliedDate">Başvuru Tarihi</option>
+        <option value="status">Durum</option>
+        <option value="jobTitle">İş İlanı</option>
+      </select>
+
+      <select [(ngModel)]="sortDirection" (change)="loadApplications()">
+        <option value="desc">Azalan</option>
+        <option value="asc">Artan</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Yükleniyor...
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <div class="applications-table-container">
+    <table class="applications-table" *ngIf="applications.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>İş İlanı</th>
+          <th>Şirket</th>
+          <th>Durum</th>
+          <th>Başvuru Yöntemi</th>
+          <th>Başvuru Tarihi</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let application of applications">
+          <td>{{ application.id }}</td>
+          <td>{{ application.jobTitle }}</td>
+          <td>{{ application.company }}</td>
+          <td>
+            <span [class.status-pending]="application.status === 'Pending'"
+                  [class.status-applied]="application.status === 'Applied'"
+                  [class.status-rejected]="application.status === 'Rejected'"
+                  [class.status-interview]="application.status === 'Interview'"
+                  [class.status-offer]="application.status === 'Offer'"
+                  [class.status-accepted]="application.status === 'Accepted'">
+              {{ application.status }}
+            </span>
+          </td>
+          <td>
+            <span [class.auto-applied]="application.isAutoApplied">
+              {{ application.isAutoApplied ? 'Otomatik' : 'Manuel' }}
+            </span>
+          </td>
+          <td>{{ application.appliedDate | date:'dd.MM.yyyy HH:mm' }}</td>
+          <td class="actions">
+            <button class="view-btn" (click)="viewApplicationDetails(application.id)">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="edit-btn" (click)="editApplication(application)">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="applications.length === 0 && !loading" class="no-data">
+      <i class="fas fa-info-circle"></i> Hiç başvuru bulunamadı.
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="totalItems > 0">
+    <button
+      [disabled]="currentPage === 1"
+      (click)="changePage(currentPage - 1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <span>Sayfa {{ currentPage }} / {{ totalPages }}</span>
+    <button
+      [disabled]="currentPage === totalPages"
+      (click)="changePage(currentPage + 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Başvuru Detay Modal -->
+  <div class="modal" *ngIf="selectedApplication">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Başvuru Detayları</h3>
+        <button class="close-btn" (click)="selectedApplication = null">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="application-detail-item">
+          <strong>İş İlanı:</strong> {{ selectedApplication.jobTitle }}
+        </div>
+        <div class="application-detail-item">
+          <strong>Şirket:</strong> {{ selectedApplication.company }}
+        </div>
+        <div class="application-detail-item">
+          <strong>Durum:</strong> {{ selectedApplication.status }}
+        </div>
+        <div class="application-detail-item">
+          <strong>Başvuru Yöntemi:</strong> {{ selectedApplication.isAutoApplied ? 'Otomatik' : 'Manuel' }}
+        </div>
+        <div class="application-detail-item">
+          <strong>Başvuru Tarihi:</strong> {{ selectedApplication.appliedDate | date:'dd.MM.yyyy HH:mm' }}
+        </div>
+        <div class="application-detail-item">
+          <strong>Notlar:</strong>
+          <div class="application-notes">{{ selectedApplication.notes || 'Not bulunmuyor' }}</div>
+        </div>
+        <div class="application-detail-item" *ngIf="selectedApplication.emailContent">
+          <strong>E-posta İçeriği:</strong>
+          <div class="email-content">{{ selectedApplication.emailContent }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="edit-btn" (click)="editApplication(selectedApplication)">
+          <i class="fas fa-edit"></i> Düzenle
+        </button>
+        <button class="close-btn" (click)="selectedApplication = null">
+          Kapat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Başvuru Düzenleme Modal -->
+  <div class="modal" *ngIf="editingApplication">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Başvuru Düzenle</h3>
+        <button class="close-btn" (click)="cancelEdit()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="status">Durum:</label>
+          <select id="status" [(ngModel)]="editingApplication.status">
+            <option value="Pending">Beklemede</option>
+            <option value="Applied">Başvuruldu</option>
+            <option value="Rejected">Reddedildi</option>
+            <option value="Interview">Mülakat</option>
+            <option value="Offer">Teklif</option>
+            <option value="Accepted">Kabul Edildi</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notlar:</label>
+          <textarea id="notes" [(ngModel)]="editingApplication.notes" rows="4"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="save-btn" (click)="saveApplication()">
+          <i class="fas fa-save"></i> Kaydet
+        </button>
+        <button class="cancel-btn" (click)="cancelEdit()">
+          İptal
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

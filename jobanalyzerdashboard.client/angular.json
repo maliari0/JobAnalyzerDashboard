@@ -79,7 +79,9 @@
           "defaultConfiguration": "development",
           "options": {
             "proxyConfig": "src/proxy.conf.js",
-            "port": 52545
+            "port": 52545,
+            "host": "0.0.0.0",
+            "allowedHosts": ["all"]
           }
         },
         "extract-i18n": {

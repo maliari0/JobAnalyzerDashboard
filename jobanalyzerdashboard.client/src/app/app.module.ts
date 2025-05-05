@@ -33,6 +33,9 @@ import { AuthService } from './services/auth.service';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 import { UserManagementComponent } from './admin-panel/user-management/user-management.component';
+import { JobManagementComponent } from './admin-panel/job-management/job-management.component';
+import { ApplicationManagementComponent } from './admin-panel/application-management/application-management.component';
+import { SettingsManagementComponent } from './admin-panel/settings-management/settings-management.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +54,10 @@ import { UserManagementComponent } from './admin-panel/user-management/user-mana
     UserMenuComponentComponent,
     ChangePasswordComponentComponent,
     AdminPanelComponent,
-    UserManagementComponent
+    UserManagementComponent,
+    JobManagementComponent,
+    ApplicationManagementComponent,
+    SettingsManagementComponent
   ],
   imports: [
     BrowserModule,

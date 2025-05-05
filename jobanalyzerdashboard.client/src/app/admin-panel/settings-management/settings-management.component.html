@@ -1,0 +1,191 @@
+<div class="settings-management-container">
+  <h2>Sistem Ayarları</h2>
+
+  <div class="settings-tabs">
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'general'"
+      (click)="setActiveTab('general')">
+      <i class="fas fa-cog"></i> Genel Ayarlar
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'email'"
+      (click)="setActiveTab('email')">
+      <i class="fas fa-envelope"></i> E-posta Şablonları
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'integration'"
+      (click)="setActiveTab('integration')">
+      <i class="fas fa-plug"></i> Entegrasyonlar
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Yükleniyor...
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <div *ngIf="successMessage" class="success-message">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <!-- Genel Ayarlar -->
+  <div *ngIf="activeTab === 'general'" class="settings-content">
+    <h3>Genel Sistem Ayarları</h3>
+
+    <form [formGroup]="generalSettingsForm" (ngSubmit)="saveGeneralSettings()">
+      <div class="form-group">
+        <label for="appName">Uygulama Adı:</label>
+        <input type="text" id="appName" formControlName="appName">
+      </div>
+
+      <div class="form-group">
+        <label for="baseUrl">Temel URL:</label>
+        <input type="text" id="baseUrl" formControlName="baseUrl">
+        <small>Örnek: https://dory-assuring-rattler.ngrok-free.app</small>
+      </div>
+
+      <div class="form-group">
+        <label for="defaultPageSize">Varsayılan Sayfa Boyutu:</label>
+        <input type="number" id="defaultPageSize" formControlName="defaultPageSize" min="5" max="100">
+      </div>
+
+      <div class="form-group">
+        <label for="autoApplyEnabled">Otomatik Başvuru:</label>
+        <select id="autoApplyEnabled" formControlName="autoApplyEnabled">
+          <option [ngValue]="true">Etkin</option>
+          <option [ngValue]="false">Devre Dışı</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="minQualityScore">Minimum Kalite Puanı:</label>
+        <input type="number" id="minQualityScore" formControlName="minQualityScore" min="0" max="100">
+        <small>Otomatik başvuru için minimum kalite puanı</small>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn" [disabled]="generalSettingsForm.invalid || !generalSettingsForm.dirty">
+          <i class="fas fa-save"></i> Kaydet
+        </button>
+        <button type="button" class="cancel-btn" (click)="resetGeneralSettings()">
+          <i class="fas fa-undo"></i> Sıfırla
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- E-posta Şablonları -->
+  <div *ngIf="activeTab === 'email'" class="settings-content">
+    <h3>E-posta Şablonları</h3>
+
+    <div class="email-template-selector">
+      <label for="templateType">Şablon Türü:</label>
+      <select id="templateType" [(ngModel)]="selectedTemplateType" (change)="loadEmailTemplate()">
+        <option value="application">Başvuru E-postası</option>
+        <option value="confirmation">Onay E-postası</option>
+        <option value="password-reset">Şifre Sıfırlama</option>
+      </select>
+    </div>
+
+    <form [formGroup]="emailTemplateForm" (ngSubmit)="saveEmailTemplate()">
+      <div class="form-group">
+        <label for="subject">Konu:</label>
+        <input type="text" id="subject" formControlName="subject">
+      </div>
+
+      <div class="form-group">
+        <label for="body">İçerik:</label>
+        <textarea id="body" formControlName="body" rows="10"></textarea>
+        <small>Kullanılabilir değişkenler: {{ '{name}' }}, {{ '{company}' }}, {{ '{position}' }}, {{ '{date}' }}</small>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn" [disabled]="emailTemplateForm.invalid || !emailTemplateForm.dirty">
+          <i class="fas fa-save"></i> Kaydet
+        </button>
+        <button type="button" class="cancel-btn" (click)="resetEmailTemplate()">
+          <i class="fas fa-undo"></i> Sıfırla
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Entegrasyonlar -->
+  <div *ngIf="activeTab === 'integration'" class="settings-content">
+    <h3>Entegrasyon Ayarları</h3>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <h4><i class="fas fa-robot"></i> n8n Otomasyonu</h4>
+        <span class="status" [class.active]="integrations.n8n.active">
+          {{ integrations.n8n.active ? 'Aktif' : 'Devre Dışı' }}
+        </span>
+      </div>
+      <div class="integration-body">
+        <p>n8n otomasyonu ile iş ilanlarına otomatik başvuru yapabilirsiniz.</p>
+
+        <div class="form-group">
+          <label for="n8nWebhookUrl">Webhook URL:</label>
+          <input type="text" id="n8nWebhookUrl" [(ngModel)]="integrations.n8n.webhookUrl">
+        </div>
+
+        <div class="form-group">
+          <label for="n8nApiKey">API Anahtarı:</label>
+          <input type="password" id="n8nApiKey" [(ngModel)]="integrations.n8n.apiKey">
+        </div>
+
+        <div class="form-actions">
+          <button class="save-btn" (click)="saveIntegration('n8n')">
+            <i class="fas fa-save"></i> Kaydet
+          </button>
+          <button class="test-btn" (click)="testIntegration('n8n')">
+            <i class="fas fa-vial"></i> Test Et
+          </button>
+          <button class="toggle-btn" (click)="toggleIntegration('n8n')">
+            {{ integrations.n8n.active ? 'Devre Dışı Bırak' : 'Etkinleştir' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <h4><i class="fab fa-telegram"></i> Telegram Bildirimleri</h4>
+        <span class="status" [class.active]="integrations.telegram.active">
+          {{ integrations.telegram.active ? 'Aktif' : 'Devre Dışı' }}
+        </span>
+      </div>
+      <div class="integration-body">
+        <p>Telegram bildirimleri ile iş ilanları ve başvurular hakkında anında bilgi alabilirsiniz.</p>
+
+        <div class="form-group">
+          <label for="telegramBotToken">Bot Token:</label>
+          <input type="password" id="telegramBotToken" [(ngModel)]="integrations.telegram.botToken">
+        </div>
+
+        <div class="form-group">
+          <label for="telegramChatId">Chat ID:</label>
+          <input type="text" id="telegramChatId" [(ngModel)]="integrations.telegram.chatId">
+        </div>
+
+        <div class="form-actions">
+          <button class="save-btn" (click)="saveIntegration('telegram')">
+            <i class="fas fa-save"></i> Kaydet
+          </button>
+          <button class="test-btn" (click)="testIntegration('telegram')">
+            <i class="fas fa-vial"></i> Test Et
+          </button>
+          <button class="toggle-btn" (click)="toggleIntegration('telegram')">
+            {{ integrations.telegram.active ? 'Devre Dışı Bırak' : 'Etkinleştir' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
