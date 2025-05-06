@@ -1,11 +1,13 @@
+# Özel proje dosyaları
 /Gonderme.json
+/Gonderme(1).json
+/Gonderme(2).json
 /is_ilani_v0.4.json
 /DeleteUser.cs
 /DeleteUserScript.sql
 /DeleteAdminUser.sql
 /auto-apply.json
 /TestEmailSender.cs
-/Gonderme(1).json
 /DeleteUserApp/
 /TestEmailSender/
 
@@ -36,3 +38,6 @@
 **/*.tmp
 **/*.bak
 **/*.swp
+
+# Yüklenen dosyalar
+**/wwwroot/uploads/
