@@ -1,5 +1,13 @@
 /Gonderme.json
 /is_ilani_v0.4.json
+/DeleteUser.cs
+/DeleteUserScript.sql
+/DeleteAdminUser.sql
+/auto-apply.json
+/TestEmailSender.cs
+/Gonderme(1).json
+/DeleteUserApp/
+/TestEmailSender/
 
 # Hassas bilgiler içeren dosyalar
 **/appsettings.json
