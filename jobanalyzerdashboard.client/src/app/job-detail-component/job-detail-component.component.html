@@ -21,7 +21,7 @@
     <div class="job-header">
       <div class="job-title-container">
         <h1>{{ job.title }}</h1>
-        <button class="delete-button" (click)="deleteJob()" title="İş ilanını sil">
+        <button *ngIf="isAdmin" class="delete-button" (click)="deleteJob()" title="İş ilanını sil">
           <span class="delete-icon">🗑️</span>
         </button>
       </div>

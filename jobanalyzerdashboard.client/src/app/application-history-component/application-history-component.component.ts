@@ -133,6 +133,8 @@ export class ApplicationHistoryComponentComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
       case 'pending': return 'status-pending';
+      case 'applying': return 'status-pending';
+      case 'sent': return 'status-sent';
       case 'accepted': return 'status-accepted';
       case 'rejected': return 'status-rejected';
       case 'interview': return 'status-interview';

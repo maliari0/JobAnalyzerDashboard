@@ -25,6 +25,7 @@ export class JobDetailComponentComponent implements OnInit {
   notifyingInProgress = false;
   applicationMessage = '';
   cvAttached = true;
+  isAdmin = false;
 
   showEmailModal = false;
   emailContent = '';
@@ -45,6 +46,11 @@ export class JobDetailComponentComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
+
+    // Kullanıcının admin olup olmadığını kontrol et
+    const currentUser = this.authService.currentUserValue;
+    this.isAdmin = currentUser?.role === 'Admin';
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.jobService.getJobById(parseInt(id, 10)).subscribe({

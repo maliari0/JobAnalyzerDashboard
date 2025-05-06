@@ -194,15 +194,26 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                var job = await _jobRepository.GetByIdAsync(id);
+                // Doğrudan veritabanından silme işlemi
+                var job = await _context.Jobs.FindAsync(id);
                 if (job == null)
                 {
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
                 }
 
+                // İlgili başvuruları bul
+                var applications = await _context.Applications.Where(a => a.JobId == id).ToListAsync();
+                if (applications.Count > 0)
+                {
+                    // Başvuruları sil
+                    _context.Applications.RemoveRange(applications);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("İş ilanına ait {Count} başvuru silindi: {Id}", applications.Count, id);
+                }
+
                 // İş ilanını sil
-                await _jobRepository.DeleteAsync(job);
-                await _jobRepository.SaveChangesAsync();
+                _context.Jobs.Remove(job);
+                await _context.SaveChangesAsync();
 
                 _logger.LogInformation("İş ilanı silindi: {Id} - {Title}", job.Id, job.Title);
 

@@ -144,7 +144,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 {
                     JobId = model.JobId,
                     AppliedDate = DateTime.UtcNow,
-                    Status = "Pending",
+                    Status = "Applying", // Başvuru durumu "Applying" olarak ayarlandı
                     AppliedMethod = model.AppliedMethod,
                     SentMessage = model.Message,
                     Message = model.Message, // Veritabanı şeması ile uyumlu olması için
@@ -195,6 +195,44 @@ namespace JobAnalyzerDashboard.Server.Controllers
             {
                 _logger.LogError(ex, "Başvuru güncellenirken hata oluştu: {Id}", id);
                 return StatusCode(500, new { message = "Başvuru güncellenirken bir hata oluştu" });
+            }
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] StatusUpdateModel model)
+        {
+            try
+            {
+                if (model == null || string.IsNullOrEmpty(model.Status))
+                {
+                    return BadRequest(new { message = "Geçersiz durum verisi" });
+                }
+
+                var application = await _applicationRepository.GetByIdAsync(id);
+                if (application == null)
+                {
+                    return NotFound(new { message = "Başvuru bulunamadı" });
+                }
+
+                // Durum güncelleme
+                application.Status = model.Status;
+                if (!string.IsNullOrEmpty(model.Details))
+                {
+                    application.ResponseDetails = model.Details;
+                }
+                application.ResponseDate = DateTime.UtcNow;
+
+                await _applicationRepository.UpdateAsync(application);
+                await _applicationRepository.SaveChangesAsync();
+
+                _logger.LogInformation("Başvuru durumu güncellendi: {Id}, Durum: {Status}", id, model.Status);
+
+                return Ok(application);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Başvuru durumu güncellenirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { message = "Başvuru durumu güncellenirken bir hata oluştu" });
             }
         }
 
@@ -259,7 +297,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 {
                     JobId = model.JobId,
                     AppliedDate = DateTime.UtcNow,
-                    Status = "Pending",
+                    Status = "Applying", // Başvuru durumu "Applying" olarak ayarlandı
                     AppliedMethod = "n8n",
                     SentMessage = model.Message ?? string.Empty,
                     Message = model.Message ?? string.Empty, // Veritabanı şeması ile uyumlu olması için
@@ -450,5 +488,11 @@ namespace JobAnalyzerDashboard.Server.Controllers
     {
         public string? CustomEmailContent { get; set; }
         public int? ProfileId { get; set; }
+    }
+
+    public class StatusUpdateModel
+    {
+        public string Status { get; set; } = string.Empty;
+        public string? Details { get; set; }
     }
 }

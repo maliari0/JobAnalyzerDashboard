@@ -28,7 +28,7 @@ namespace JobAnalyzerDashboard.Server.Data
                 .HasOne(a => a.Job)
                 .WithMany()
                 .HasForeignKey(a => a.JobId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Resume>()
                 .HasOne(r => r.Profile)

@@ -133,6 +133,11 @@
   color: #004085;
 }
 
+.status-sent {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
 .action-buttons {
   display: flex;
   gap: 8px;
