@@ -104,6 +104,7 @@
         <p><strong>İş İlanı:</strong> {{ selectedEmailApplication.job?.title || 'Bilinmeyen İlan' }}</p>
         <p><strong>Şirket:</strong> {{ selectedEmailApplication.job?.company || 'Bilinmeyen Şirket' }}</p>
         <p><strong>Başvuru Tarihi:</strong> {{ selectedEmailApplication.appliedDate | date:'dd/MM/yyyy' }}</p>
+        <p *ngIf="selectedEmailApplication.job?.contactEmail"><strong>Alıcı E-posta:</strong> {{ selectedEmailApplication.job?.contactEmail }}</p>
 
         <div class="email-content">
           <h4>E-posta İçeriği:</h4>
@@ -114,6 +115,10 @@
       </div>
 
       <div class="modal-footer">
+        <button class="send-email-button" [disabled]="sendingEmail" (click)="sendEmail()" *ngIf="!selectedEmailApplication.isJobDeleted">
+          <span *ngIf="!sendingEmail">E-posta Gönder</span>
+          <span *ngIf="sendingEmail">Gönderiliyor...</span>
+        </button>
         <button class="cancel-button" (click)="selectedEmailApplication = null">Kapat</button>
       </div>
     </div>

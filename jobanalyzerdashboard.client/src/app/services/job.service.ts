@@ -231,8 +231,12 @@ export class JobService {
     return this.http.post<any>(`${this.apiUrl}/webhook-notify/${id}`, {});
   }
 
-  autoApply(id: number): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auto-apply/${id}`, {});
+  autoApply(id: number, userId?: number): Observable<any> {
+    let url = `${this.apiUrl}/auto-apply/${id}`;
+    if (userId) {
+      url += `?userId=${userId}`;
+    }
+    return this.http.post<any>(url, {});
   }
 
   deleteJob(id: number): Observable<any> {

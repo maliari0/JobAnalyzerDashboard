@@ -17,6 +17,18 @@
       "PackagePath": "staticwebassets\\uploads\\resumes\\cv_1_ornek-3_20250429074745.pdf"
     },
     {
+      "Id": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek-3_20250506115542.pdf",
+      "PackagePath": "staticwebassets\\uploads\\resumes\\cv_1_ornek-3_20250506115542.pdf"
+    },
+    {
+      "Id": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250506072820.pdf",
+      "PackagePath": "staticwebassets\\uploads\\resumes\\cv_1_ornek_20250506072820.pdf"
+    },
+    {
+      "Id": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250506120311.pdf",
+      "PackagePath": "staticwebassets\\uploads\\resumes\\cv_1_ornek_20250506120311.pdf"
+    },
+    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.JobAnalyzerDashboard.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
     },

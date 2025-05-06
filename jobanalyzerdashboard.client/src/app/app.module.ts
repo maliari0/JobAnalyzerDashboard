@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -41,7 +42,6 @@ import { SettingsManagementComponent } from './admin-panel/settings-management/s
   declarations: [
     AppComponent,
     JobListComponentComponent,
-    JobDetailComponentComponent,
     ProfileComponentComponent,
     ApplicationHistoryComponentComponent,
     N8nTestComponent,
@@ -61,10 +61,12 @@ import { SettingsManagementComponent } from './admin-panel/settings-management/s
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     NgSelectModule,
+    JobDetailComponentComponent,
     AppRoutingModule
   ],
   providers: [

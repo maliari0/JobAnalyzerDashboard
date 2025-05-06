@@ -200,6 +200,12 @@ namespace JobAnalyzerDashboard.Server.Services
                 .ToListAsync();
         }
 
+        public async Task<OAuthToken?> GetOAuthTokenByProfileIdAndProvider(int profileId, string provider)
+        {
+            return await _context.OAuthTokens
+                .FirstOrDefaultAsync(t => t.ProfileId == profileId && t.Provider == provider);
+        }
+
         public async Task<bool> RevokeTokenAsync(int profileId, string provider)
         {
             var token = await _context.OAuthTokens

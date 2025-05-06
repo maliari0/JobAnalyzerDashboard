@@ -17,6 +17,7 @@ export class ApplicationHistoryComponentComponent implements OnInit {
   selectedApplication: Application | null = null;
   selectedEmailApplication: Application | null = null;
   updatingStatus = false;
+  sendingEmail = false;
 
   constructor(
     private applicationService: ApplicationService,
@@ -97,6 +98,36 @@ export class ApplicationHistoryComponentComponent implements OnInit {
   closeAllModals(): void {
     this.selectedApplication = null;
     this.selectedEmailApplication = null;
+  }
+
+  sendEmail(): void {
+    if (!this.selectedEmailApplication || this.sendingEmail) {
+      return;
+    }
+
+    this.sendingEmail = true;
+
+    this.applicationService.sendEmail(
+      this.selectedEmailApplication.id,
+      this.selectedEmailApplication.emailContent
+    ).subscribe({
+      next: (response) => {
+        this.sendingEmail = false;
+        alert('E-posta başarıyla gönderildi!');
+
+        // Başvuru durumunu güncelle
+        const index = this.applications.findIndex(a => a.id === this.selectedEmailApplication?.id);
+        if (index !== -1 && response && response.success) {
+          this.applications[index].status = 'Sent';
+          this.selectedEmailApplication = null;
+        }
+      },
+      error: (err) => {
+        this.sendingEmail = false;
+        alert('E-posta gönderilirken bir hata oluştu: ' + (err.error?.message || err.message));
+        console.error('E-posta gönderme hatası:', err);
+      }
+    });
   }
 
   getStatusClass(status: string): string {

@@ -4,13 +4,11 @@
   align-items: center;
 }
 
-/* Giriş yapmamış kullanıcı için butonlar */
 .auth-buttons {
   display: flex;
   gap: var(--spacing-sm);
 }
 
-/* Giriş yapmış kullanıcı için menü */
 .user-menu {
   display: flex;
   align-items: center;
@@ -60,7 +58,6 @@
   transform: rotate(180deg);
 }
 
-/* Dropdown menü */
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
@@ -194,7 +191,6 @@
   color: var(--danger-color);
 }
 
-/* Arka plan örtüsü */
 .backdrop {
   position: fixed;
   top: 0;

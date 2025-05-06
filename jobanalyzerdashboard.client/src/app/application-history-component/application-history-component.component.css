@@ -166,6 +166,26 @@
   background-color: #218838;
 }
 
+.send-email-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.send-email-button:hover:not(:disabled) {
+  background-color: #0069d9;
+}
+
+.send-email-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 /* Modal Stilleri */
 .modal-backdrop {
   position: fixed;

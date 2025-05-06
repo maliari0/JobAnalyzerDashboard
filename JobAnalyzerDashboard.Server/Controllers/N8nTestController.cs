@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [AllowAnonymous]
     public class N8nTestController : ControllerBase
     {
         private readonly ILogger<N8nTestController> _logger;
@@ -30,7 +32,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
         public IActionResult Echo([FromBody] JsonElement data)
         {
             _logger.LogInformation("Received data from n8n: {data}", data.ToString());
-            
+
             return Ok(new
             {
                 received = true,

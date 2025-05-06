@@ -95,4 +95,16 @@ export class ApplicationService {
   deleteApplication(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
+  
+  sendEmail(id: number, customEmailContent?: string, profileId?: number): Observable<any> {
+    const model = {
+      customEmailContent: customEmailContent,
+      profileId: profileId
+    };
+    return this.http.post<any>(`${this.apiUrl}/send-email/${id}`, model);
+  }
+  
+  getLatestApplicationByJobId(jobId: number): Observable<Application> {
+    return this.http.get<Application>(`${this.apiUrl}/latest-by-job/${jobId}`);
+  }
 }

@@ -81,7 +81,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                 await _oauthService.ExchangeCodeForTokenAsync(provider, code, profileId);
 
-                return Redirect("/profile?oauth=success");
+                // Başarılı olduğunda doğrudan profil sayfasına yönlendir
+                return Redirect("/profile");
             }
             catch (Exception ex)
             {

@@ -1,0 +1,270 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Gelen veriyi işle\nconst output = $input.item.json.output;\n\n// E-posta içeriğini hazırla\nreturn {\n  emailContent: output\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        800
+      ],
+      "id": "a9a9a9a9-a9a9-a9a9-a9a9-a9a9a9a9a9a9",
+      "name": "PrepareEmailContent"
+    },
+    {
+      "parameters": {
+        "url": "=https://dory-assuring-rattler.ngrok-free.app/api/profile/resumes/default/n8n?userId={{$('Webhook').item.json.body.userId}}",
+        "authentication": "none",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        800
+      ],
+      "id": "b9b9b9b9-b9b9-b9b9-b9b9-b9b9b9b9b9b9",
+      "name": "Get CV"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Aşağıda, bir kullanıcı profili ve bir iş ilanı yer almaktadır. Bu bilgilere göre kısa, samimi ve ciddi bir başvuru e-postası yazmanı istiyorum.\n\n🔹 Kurallar:\n- \"Merhaba\" ile başla\n- Tek paragraflık metin yaz\n- CV'yi iletmek istediğini belirt\n- Sonuna adını yaz\n\n📌 Kullanıcı Bilgisi:\nAd: {{ $node[\"Get User\"].json.fullName }}\nEğitim: {{ $('Get User').item.json.education }}\nTecrübe: {{ $('Get User').item.json.experience }}\nTercih Edilen Model: {{ $('Get User').item.json.preferredJobTypes }}\nYetenekler: {{ $('Get User').item.json.skills }}\nTercih Edilen Lokasyon: {{ $('Get User').item.json.preferredLocations }}\n\n📌 İş İlanı Bilgisi:\nPozisyon: {{ $('Webhook').item.json.body.title }}\nLokasyon: {{ $('Webhook').item.json.body.location }} \nAçıklama: {{ $('Webhook').item.json.body.description }}\nBaşvuru ID: {{ $('Webhook').item.json.body.applicationId }}\nİş İlanı ID: {{ $('Webhook').item.json.body.jobId }}\nKullanıcı ID: {{ $('Webhook').item.json.body.userId }}\n\n⛔️ Lütfen sadece aşağıdaki formatta e-posta metnini üret:\n\nMerhaba,\n\n[Paragraf burada]\n\n[Ad] ",
+        "options": {
+          "systemMessage": "Senin görevin, aşağıdaki kullanıcı bilgilerine ve iş ilanı açıklamasına göre, ciddi ve samimi bir başvuru e-postası yazmaktır.\n- Merhaba ile başla\n- Tek paragraflık, samimi bir metin oluştur\n- CV'yi iletmek istediğini belirt\n- Sonuna kullanıcı adını yaz"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -220,
+        800
+      ],
+      "id": "1b6f2e2e-442c-4557-a5ab-ef0ec4b159fe",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "url": "=https://dory-assuring-rattler.ngrok-free.app/api/profile/n8n?userId={{$('Webhook').item.json.body.userId}}",
+        "authentication": "none",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -660,
+        800
+      ],
+      "id": "2e1cdd42-e9fc-41ec-9673-15b62229b4b6",
+      "name": "Get User"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -132,
+        1020
+      ],
+      "id": "5a18ef11-3f9b-43c5-acf9-fdcb5055b56e",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "H3mKelZwTW9frAL1",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "apply-auto",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        800
+      ],
+      "id": "fd29a26e-f2b8-45ba-aaf6-bd3ddf13cea2",
+      "name": "Webhook",
+      "webhookId": "5e853a9f-0068-4549-ba8b-3046cc68f4b6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://dory-assuring-rattler.ngrok-free.app/api/job/n8n-save-email",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "emailContent",
+              "value": "={{ $json.emailContent }}"
+            },
+            {
+              "name": "applicationId",
+              "value": "={{ $('Webhook').item.json.body.applicationId }}"
+            },
+            {
+              "name": "jobId",
+              "value": "={{ $('Webhook').item.json.body.jobId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        380,
+        800
+      ],
+      "id": "b48b7b33-6401-419b-9133-1b896e878bca",
+      "name": "HTTP POST",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "chatId": "1394577495",
+        "text": "=Otomatik Başvuru Yapıldı!\n\nBaşlık: {{ $('Webhook').item.json.body.title }}\nGönderilen mail adresi: {{ $('Webhook').item.json.body.contact_email }}\nLink: {{ $('Webhook').item.json.body.url }}\nGönderilen mesaj:\n{{ $('AI Agent').item.json.output }}\nBaşvuru Tarihi: {{ $now.setZone('Europe/Istanbul').toFormat('dd.MM.yyyy HH:mm') }}\nBaşvuru ID: {{ $('Webhook').item.json.body.applicationId }}\nİş İlanı ID: {{ $('Webhook').item.json.body.jobId }}\nKullanıcı ID: {{ $('Webhook').item.json.body.userId }}\n\n\n📎 CV: ✔️ Eklendi",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        596,
+        800
+      ],
+      "id": "f3879fb7-1015-4a42-a068-554e78afc05a",
+      "name": "Telegram1",
+      "webhookId": "5a8473ea-4c36-4cef-9308-5d48d29e5876",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "eznawNtxcg795IOf",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "PrepareEmailContent": {
+      "main": [
+        [
+          {
+            "node": "HTTP POST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get CV": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "PrepareEmailContent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User": {
+      "main": [
+        [
+          {
+            "node": "Get CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP POST": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

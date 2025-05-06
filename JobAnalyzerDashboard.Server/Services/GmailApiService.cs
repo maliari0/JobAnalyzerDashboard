@@ -33,13 +33,42 @@ namespace JobAnalyzerDashboard.Server.Services
                     ApplicationName = "JobAnalyzerDashboard"
                 });
 
+                // Kullanıcının e-posta adresini al
+                var token = await _oauthService.GetOAuthTokenByProfileIdAndProvider(profileId, "Google");
+                if (token == null)
+                {
+                    _logger.LogWarning("OAuth token bulunamadı: ProfileId={ProfileId}, Provider=Google", profileId);
+                    throw new Exception($"OAuth token bulunamadı: ProfileId={profileId}, Provider=Google");
+                }
+
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("JobAnalyzerDashboard", "me"));
+                message.From.Add(new MailboxAddress("JobAnalyzerDashboard", token.Email));
                 message.To.Add(new MailboxAddress("", to));
                 message.Subject = subject;
 
+                // HTML formatında e-posta gövdesi oluştur
+                // Satır sonlarını <br> etiketlerine dönüştür
+                string htmlBody = body.Replace("\n", "<br>").Replace("\r\n", "<br>");
+
+                // Eğer HTML formatında değilse, HTML formatına çevir
+                if (!htmlBody.Contains("<html>") && !htmlBody.Contains("<body>"))
+                {
+                    htmlBody = $@"
+                    <html>
+                    <head>
+                        <style>
+                            body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
+                            p {{ margin-bottom: 10px; }}
+                        </style>
+                    </head>
+                    <body>
+                        {htmlBody}
+                    </body>
+                    </html>";
+                }
+
                 var builder = new BodyBuilder();
-                builder.HtmlBody = body;
+                builder.HtmlBody = htmlBody;
 
                 if (!string.IsNullOrEmpty(attachmentPath) && File.Exists(attachmentPath))
                 {
@@ -68,6 +97,11 @@ namespace JobAnalyzerDashboard.Server.Services
 
                     return true;
                 }
+            }
+            catch (Google.GoogleApiException gex) when (gex.Error?.Code == 403)
+            {
+                _logger.LogError(gex, "Gmail API is not enabled or authorized: {To}, Subject: {Subject}, Error: {Error}", to, subject, gex.Message);
+                throw new Exception("Gmail API is not enabled or authorized. Please enable Gmail API in Google Cloud Console and try again.", gex);
             }
             catch (Exception ex)
             {

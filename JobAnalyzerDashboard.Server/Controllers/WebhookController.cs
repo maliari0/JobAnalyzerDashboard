@@ -5,11 +5,13 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [AllowAnonymous]
     public class WebhookController : ControllerBase
     {
         private readonly ILogger<WebhookController> _logger;

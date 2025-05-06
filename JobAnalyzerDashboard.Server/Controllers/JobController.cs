@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using JobAnalyzerDashboard.Server.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
@@ -341,6 +342,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
         }
 
         // n8n için özel endpoint - e-posta içeriğini kaydetmek için
+        [AllowAnonymous]
         [HttpPost("n8n-save-email")]
         public async Task<IActionResult> N8nSaveEmail([FromBody] object rawData)
         {
@@ -352,6 +354,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                 // Extract email content from various formats
                 string emailContent = "";
+                int? applicationId = null;
+                int? jobId = null;
 
                 try
                 {
@@ -362,6 +366,16 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     if (dict != null && dict.ContainsKey("emailContent"))
                     {
                         emailContent = dict["emailContent"].GetString() ?? "";
+                    }
+                    // Check for applicationId
+                    if (dict != null && dict.ContainsKey("applicationId") && dict["applicationId"].ValueKind == JsonValueKind.Number)
+                    {
+                        applicationId = dict["applicationId"].GetInt32();
+                    }
+                    // Check for jobId
+                    if (dict != null && dict.ContainsKey("jobId") && dict["jobId"].ValueKind == JsonValueKind.Number)
+                    {
+                        jobId = dict["jobId"].GetInt32();
                     }
                     // Check for body.emailContent
                     else if (dict != null && dict.ContainsKey("body"))
@@ -381,6 +395,18 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             if (bodyDict != null && bodyDict.ContainsKey("emailContent"))
                             {
                                 emailContent = bodyDict["emailContent"].GetString() ?? "";
+                            }
+                            // Check for applicationId in body
+                            if (bodyDict != null && bodyDict.ContainsKey("applicationId") &&
+                                bodyDict["applicationId"].ValueKind == JsonValueKind.Number)
+                            {
+                                applicationId = bodyDict["applicationId"].GetInt32();
+                            }
+                            // Check for jobId in body
+                            if (bodyDict != null && bodyDict.ContainsKey("jobId") &&
+                                bodyDict["jobId"].ValueKind == JsonValueKind.Number)
+                            {
+                                jobId = bodyDict["jobId"].GetInt32();
                             }
                         }
                     }
@@ -402,27 +428,70 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return BadRequest(new { success = false, message = "Could not extract email content from request" });
                 }
 
-                // Find the latest application
-                var latestApplication = await _context.Applications
-                    .OrderByDescending(a => a.AppliedDate)
-                    .FirstOrDefaultAsync();
+                Application application = null;
 
-                if (latestApplication == null)
+                // If applicationId is provided, find that specific application
+                if (applicationId.HasValue)
+                {
+                    application = await _context.Applications.FindAsync(applicationId.Value);
+                    if (application == null)
+                    {
+                        _logger.LogWarning("Application with ID {ApplicationId} not found", applicationId.Value);
+                    }
+                }
+
+                // If application not found by ID but jobId is provided, find the latest application for that job
+                if (application == null && jobId.HasValue)
+                {
+                    application = await _context.Applications
+                        .Where(a => a.JobId == jobId.Value)
+                        .OrderByDescending(a => a.AppliedDate)
+                        .FirstOrDefaultAsync();
+
+                    if (application == null)
+                    {
+                        _logger.LogWarning("No applications found for job ID {JobId}", jobId.Value);
+                    }
+                }
+
+                // If still no application found, get the latest application overall
+                if (application == null)
+                {
+                    application = await _context.Applications
+                        .OrderByDescending(a => a.AppliedDate)
+                        .FirstOrDefaultAsync();
+                }
+
+                if (application == null)
                 {
                     return NotFound(new { success = false, message = "No applications found" });
                 }
 
                 // Save the email content
-                latestApplication.EmailContent = emailContent;
-                _context.Applications.Update(latestApplication);
-                await _context.SaveChangesAsync();
+                application.EmailContent = emailContent;
 
-                _logger.LogInformation("Email content saved for application: {Id}", latestApplication.Id);
+                try {
+                    _context.Applications.Update(application);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Email content saved for application: {Id}, Job: {JobId}",
+                        application.Id, application.JobId);
+                }
+                catch (Exception ex) {
+                    _logger.LogError(ex, "Error updating application with email content: {Id}", application.Id);
+                    return StatusCode(500, new {
+                        success = false,
+                        message = "Error saving email content: " + ex.Message
+                    });
+                }
+
+                _logger.LogInformation("Email content saved for application: {Id}, Job: {JobId}",
+                    application.Id, application.JobId);
 
                 return Ok(new {
                     success = true,
                     message = "Email content saved successfully",
-                    applicationId = latestApplication.Id
+                    applicationId = application.Id,
+                    jobId = application.JobId
                 });
             }
             catch (Exception ex)
@@ -471,8 +540,9 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("auto-apply/{id}")]
-        public async Task<IActionResult> AutoApply(int id)
+        public async Task<IActionResult> AutoApply(int id, [FromQuery] int userId = 0)
         {
             try
             {
@@ -482,18 +552,52 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
                 }
 
+                // Kullanıcı ID'si belirtilmemişse, varsayılan olarak admin kullanıcısını kullan
+                if (userId <= 0)
+                {
+                    // Admin kullanıcısını bul
+                    var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com");
+                    if (adminUser != null && adminUser.ProfileId.HasValue)
+                    {
+                        userId = adminUser.Id;
+                        _logger.LogInformation("Kullanıcı ID belirtilmediği için admin kullanıcısı kullanılıyor: {UserId}", userId);
+                    }
+                    else
+                    {
+                        // Admin kullanıcısı bulunamazsa, herhangi bir kullanıcıyı dene
+                        var anyUser = await _context.Users.FirstOrDefaultAsync(u => u.ProfileId.HasValue);
+                        if (anyUser != null)
+                        {
+                            userId = anyUser.Id;
+                            _logger.LogInformation("Admin kullanıcısı bulunamadığı için başka bir kullanıcı kullanılıyor: {UserId}", userId);
+                        }
+                        else
+                        {
+                            return BadRequest(new { success = false, message = "Sistemde profil bilgisi olan kullanıcı bulunamadı" });
+                        }
+                    }
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null || !user.ProfileId.HasValue)
+                {
+                    return BadRequest(new { success = false, message = "Belirtilen kullanıcı bulunamadı veya profil bilgisi yok" });
+                }
+
                 using (var httpClient = new HttpClient())
                 {
                     var webhookUrl = "https://n8n-service-a2yz.onrender.com/webhook/apply-auto"; // n8n oto başvuru webhook URL'i
 
-                    // Varsayılan özgeçmişi al
+                    // Kullanıcının özgeçmişini al
                     Resume defaultResume = null;
                     string resumeBase64 = null;
+                    Models.Profile? profile = null;
 
                     try
                     {
-                        // Profil servisinden varsayılan özgeçmişi al
-                        var profile = await _profileRepository.GetProfileWithResumesAsync(1);
+                        // Kullanıcının profilini al
+                        profile = await _profileRepository.GetProfileWithResumesAsync(user.ProfileId.Value);
                         if (profile != null)
                         {
                             defaultResume = await _profileRepository.GetDefaultResumeAsync(profile.Id);
@@ -508,26 +612,26 @@ namespace JobAnalyzerDashboard.Server.Controllers
                                     // Dosyayı oku
                                     var fileBytes = System.IO.File.ReadAllBytes(filePath);
                                     resumeBase64 = Convert.ToBase64String(fileBytes);
-                                    _logger.LogInformation("Varsayılan özgeçmiş alındı: {Id} - {FileName}", defaultResume.Id, defaultResume.FileName);
+                                    _logger.LogInformation("Kullanıcı {UserId} için özgeçmiş alındı: {Id} - {FileName}", userId, defaultResume.Id, defaultResume.FileName);
                                 }
                                 else
                                 {
-                                    _logger.LogWarning("Varsayılan özgeçmiş dosyası bulunamadı: {FilePath}", filePath);
+                                    _logger.LogWarning("Kullanıcı {UserId} için özgeçmiş dosyası bulunamadı: {FilePath}", userId, filePath);
                                 }
                             }
                             else
                             {
-                                _logger.LogWarning("Varsayılan özgeçmiş bulunamadı");
+                                _logger.LogWarning("Kullanıcı {UserId} için varsayılan özgeçmiş bulunamadı", userId);
                             }
                         }
                         else
                         {
-                            _logger.LogWarning("Profil bulunamadı");
+                            _logger.LogWarning("Kullanıcı {UserId} için profil bulunamadı", userId);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Varsayılan özgeçmiş alınırken hata oluştu");
+                        _logger.LogError(ex, "Kullanıcı {UserId} için özgeçmiş alınırken hata oluştu", userId);
                     }
 
                     var jobData = new
@@ -540,6 +644,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         url = job.Url,
                         location = job.Location?.ToLower(),
                         company = job.Company,
+                        userId = userId,
                         resume = defaultResume != null ? new
                         {
                             fileContent = resumeBase64,
@@ -548,6 +653,22 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             fileType = defaultResume.FileType,
                             fileSize = defaultResume.FileSize,
                             uploadDate = defaultResume.UploadDate
+                        } : null,
+                        profile = profile != null ? new
+                        {
+                            fullName = profile.FullName,
+                            email = profile.Email,
+                            phone = profile.Phone,
+                            linkedInUrl = profile.LinkedInUrl,
+                            githubUrl = profile.GithubUrl,
+                            portfolioUrl = profile.PortfolioUrl,
+                            skills = profile.Skills,
+                            education = profile.Education,
+                            experience = profile.Experience,
+                            preferredJobTypes = profile.PreferredJobTypes,
+                            preferredLocations = profile.PreferredLocations,
+                            position = profile.Position,
+                            technologyStack = profile.TechnologyStack
                         } : null
                     };
 
@@ -578,28 +699,35 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         await _jobRepository.UpdateAsync(job);
                         await _jobRepository.SaveChangesAsync();
 
+                        // n8n webhook'undan dönen yanıtı parse et ve e-posta içeriğini çıkar
+                        string emailContent = "";
                         try
                         {
-                            // Başvuru geçmişine ekle
-                            var application = new Application
+                            // responseContent'i JSON olarak parse et
+                            var responseJson = JsonSerializer.Deserialize<JsonElement>(responseContent);
+
+                            // Telegram mesajını al
+                            if (responseJson.TryGetProperty("ok", out var okProp) && okProp.GetBoolean() &&
+                                responseJson.TryGetProperty("result", out var resultProp) &&
+                                resultProp.TryGetProperty("text", out var textProp))
                             {
-                                JobId = job.Id,
-                                AppliedDate = DateTime.UtcNow,
-                                Status = "Pending",
-                                AppliedMethod = "n8n",
-                                SentMessage = $"n8n webhook'u ile otomatik başvuru yapıldı: {job.Title}",
-                                IsAutoApplied = true,
-                                CvAttached = true
-                            };
+                                string telegramText = textProp.GetString() ?? "";
 
-                            await _applicationRepository.AddAsync(application);
-                            await _applicationRepository.SaveChangesAsync();
+                                // "Gönderilen mesaj:" ile başlayan ve "Başvuru Tarihi:" ile biten kısmı al
+                                int startIndex = telegramText.IndexOf("Gönderilen mesaj:");
+                                int endIndex = telegramText.IndexOf("Başvuru Tarihi:");
 
-                            _logger.LogInformation("Başvuru geçmişine eklendi: {Id} - {Title}", job.Id, job.Title);
+                                if (startIndex >= 0 && endIndex > startIndex)
+                                {
+                                    startIndex += "Gönderilen mesaj:".Length;
+                                    emailContent = telegramText.Substring(startIndex, endIndex - startIndex).Trim();
+                                    _logger.LogInformation("E-posta içeriği çıkarıldı: {EmailContent}", emailContent);
+                                }
+                            }
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "Başvuru geçmişine eklenirken hata oluştu: {Id}", job.Id);
+                            _logger.LogError(ex, "E-posta içeriği çıkarılırken hata oluştu");
                         }
 
                         _logger.LogInformation("Otomatik başvuru webhook'u tetiklendi: {Id} - {Title}", job.Id, job.Title);
@@ -609,6 +737,9 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             success = true,
                             message = "Otomatik başvuru işlemi başlatıldı",
                             job,
+                            emailContent = emailContent,
+                            jobId = job.Id,
+                            userId = userId,
                             webhookResponse = responseContent
                         });
                     }

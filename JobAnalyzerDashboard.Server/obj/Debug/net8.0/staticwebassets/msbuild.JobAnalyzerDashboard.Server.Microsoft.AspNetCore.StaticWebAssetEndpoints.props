@@ -48,5 +48,41 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"whttvayxuy"},{"Name":"integrity","Value":"sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM="},{"Name":"label","Value":"_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek-3_20250429074745.pdf"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"256052"},{"Name":"Content-Type","Value":"application/pdf"},{"Name":"ETag","Value":"\u0022lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM=\u0022"},{"Name":"Last-Modified","Value":"Tue, 29 Apr 2025 07:47:45 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek-3_20250506115542.pdf">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\resumes\cv_1_ornek-3_20250506115542.pdf'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"256052"},{"Name":"Content-Type","Value":"application/pdf"},{"Name":"ETag","Value":"\u0022lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM=\u0022"},{"Name":"Last-Modified","Value":"Tue, 06 May 2025 11:55:42 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek-3_20250506115542.whttvayxuy.pdf">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\resumes\cv_1_ornek-3_20250506115542.pdf'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"whttvayxuy"},{"Name":"integrity","Value":"sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM="},{"Name":"label","Value":"_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek-3_20250506115542.pdf"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"256052"},{"Name":"Content-Type","Value":"application/pdf"},{"Name":"ETag","Value":"\u0022lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM=\u0022"},{"Name":"Last-Modified","Value":"Tue, 06 May 2025 11:55:42 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek_20250506072820.pdf">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\resumes\cv_1_ornek_20250506072820.pdf'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"256052"},{"Name":"Content-Type","Value":"application/pdf"},{"Name":"ETag","Value":"\u0022lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM=\u0022"},{"Name":"Last-Modified","Value":"Tue, 06 May 2025 07:28:20 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek_20250506072820.whttvayxuy.pdf">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\resumes\cv_1_ornek_20250506072820.pdf'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"whttvayxuy"},{"Name":"integrity","Value":"sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM="},{"Name":"label","Value":"_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek_20250506072820.pdf"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"256052"},{"Name":"Content-Type","Value":"application/pdf"},{"Name":"ETag","Value":"\u0022lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM=\u0022"},{"Name":"Last-Modified","Value":"Tue, 06 May 2025 07:28:20 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek_20250506120311.pdf">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\resumes\cv_1_ornek_20250506120311.pdf'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"256052"},{"Name":"Content-Type","Value":"application/pdf"},{"Name":"ETag","Value":"\u0022lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM=\u0022"},{"Name":"Last-Modified","Value":"Tue, 06 May 2025 12:03:11 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek_20250506120311.whttvayxuy.pdf">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\resumes\cv_1_ornek_20250506120311.pdf'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"whttvayxuy"},{"Name":"integrity","Value":"sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM="},{"Name":"label","Value":"_content/JobAnalyzerDashboard.Server/uploads/resumes/cv_1_ornek_20250506120311.pdf"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"256052"},{"Name":"Content-Type","Value":"application/pdf"},{"Name":"ETag","Value":"\u0022lIF2DqUKnlM76qkE8RQxV3EIidvC\u002BwGwjA4RwIO3nkM=\u0022"},{"Name":"Last-Modified","Value":"Tue, 06 May 2025 12:03:11 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
   </ItemGroup>
 </Project>

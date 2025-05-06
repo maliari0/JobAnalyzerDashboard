@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "mC2CgzyVocKPLAk3AJwsM+GQWY8mfN9TL89hBNTLRsM=",
+  "Hash": "dy3p+Ldhj3x+Va1vvTfoVCDqVq2b3sfSuxoMGIv3i1Y=",
   "Source": "JobAnalyzerDashboard.Server",
   "BasePath": "_content/JobAnalyzerDashboard.Server",
   "Mode": "Default",
@@ -71,6 +71,48 @@
       "OriginalItemSpec": "wwwroot\\uploads\\resumes\\Ali_Yılmaz_20250424113025.pdf"
     },
     {
+      "Identity": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250506072820.pdf",
+      "SourceId": "JobAnalyzerDashboard.Server",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\",
+      "BasePath": "_content/JobAnalyzerDashboard.Server",
+      "RelativePath": "uploads/resumes/cv_1_ornek_20250506072820#[.{fingerprint}]?.pdf",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "whttvayxuy",
+      "Integrity": "lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\resumes\\cv_1_ornek_20250506072820.pdf"
+    },
+    {
+      "Identity": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250506120311.pdf",
+      "SourceId": "JobAnalyzerDashboard.Server",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\",
+      "BasePath": "_content/JobAnalyzerDashboard.Server",
+      "RelativePath": "uploads/resumes/cv_1_ornek_20250506120311#[.{fingerprint}]?.pdf",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "whttvayxuy",
+      "Integrity": "lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\resumes\\cv_1_ornek_20250506120311.pdf"
+    },
+    {
       "Identity": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek-2_20250429072047.pdf",
       "SourceId": "JobAnalyzerDashboard.Server",
       "SourceType": "Discovered",
@@ -111,6 +153,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\resumes\\cv_1_ornek-3_20250429074745.pdf"
+    },
+    {
+      "Identity": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek-3_20250506115542.pdf",
+      "SourceId": "JobAnalyzerDashboard.Server",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\",
+      "BasePath": "_content/JobAnalyzerDashboard.Server",
+      "RelativePath": "uploads/resumes/cv_1_ornek-3_20250506115542#[.{fingerprint}]?.pdf",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "whttvayxuy",
+      "Integrity": "lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\resumes\\cv_1_ornek-3_20250506115542.pdf"
     }
   ],
   "Endpoints": [
@@ -279,6 +342,170 @@
       ]
     },
     {
+      "Route": "uploads/resumes/cv_1_ornek_20250506072820.pdf",
+      "AssetFile": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250506072820.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 06 May 2025 07:28:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek_20250506072820.whttvayxuy.pdf",
+      "AssetFile": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250506072820.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 06 May 2025 07:28:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "whttvayxuy"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/resumes/cv_1_ornek_20250506072820.pdf"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek_20250506120311.pdf",
+      "AssetFile": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250506120311.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 06 May 2025 12:03:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek_20250506120311.whttvayxuy.pdf",
+      "AssetFile": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250506120311.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 06 May 2025 12:03:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "whttvayxuy"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/resumes/cv_1_ornek_20250506120311.pdf"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
       "Route": "uploads/resumes/cv_1_ornek-2_20250429072047.pdf",
       "AssetFile": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek-2_20250429072047.pdf",
       "Selectors": [],
@@ -435,6 +662,88 @@
         {
           "Name": "label",
           "Value": "uploads/resumes/cv_1_ornek-3_20250429074745.pdf"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek-3_20250506115542.pdf",
+      "AssetFile": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek-3_20250506115542.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 06 May 2025 11:55:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/resumes/cv_1_ornek-3_20250506115542.whttvayxuy.pdf",
+      "AssetFile": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek-3_20250506115542.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "256052"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lIF2DqUKnlM76qkE8RQxV3EIidvC+wGwjA4RwIO3nkM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 06 May 2025 11:55:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "whttvayxuy"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/resumes/cv_1_ornek-3_20250506115542.pdf"
         },
         {
           "Name": "integrity",

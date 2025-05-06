@@ -364,7 +364,7 @@
   cursor: not-allowed;
 }
 
-.applied-info {
+.applied-info, .applying-info {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -380,6 +380,36 @@
   font-weight: 600;
   margin-bottom: var(--spacing-xs);
   border: 1px solid rgba(76, 175, 147, 0.2);
+}
+
+.applying-badge {
+  background-color: rgba(100, 181, 246, 0.1);
+  color: var(--info-color);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+  border: 1px solid rgba(100, 181, 246, 0.2);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.applying-message {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  text-align: center;
 }
 
 .applied-date {
@@ -490,6 +520,150 @@
   cursor: not-allowed;
 }
 
+/* E-posta İçeriği Modal */
+.email-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: var(--card-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--primary-color);
+  font-size: var(--font-size-lg);
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color var(--transition-fast);
+}
+
+.close-button:hover {
+  color: var(--danger-color);
+}
+
+.modal-body {
+  padding: var(--spacing-lg);
+}
+
+.loading-email {
+  text-align: center;
+  padding: var(--spacing-md);
+  color: var(--text-light);
+}
+
+.email-text-container {
+  margin-top: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.email-text {
+  margin-top: var(--spacing-sm);
+}
+
+.email-textarea {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--text-color);
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 200px;
+}
+
+.email-textarea:focus {
+  border-color: var(--primary-light);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(74, 111, 165, 0.25);
+}
+
+.email-info {
+  margin-top: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.modal-footer {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close-button-footer {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.close-button-footer:hover {
+  background-color: #4d6a88;
+}
+
+.send-email-button {
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  margin-right: var(--spacing-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.send-email-button:hover:not(:disabled) {
+  background-color: #3d8c76;
+}
+
+.send-email-button:disabled {
+  background-color: var(--text-light);
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .job-header {
     flex-direction: column;
@@ -529,5 +703,10 @@
   .submit-button, .cancel-button {
     width: 100%;
     margin-bottom: var(--spacing-xs);
+  }
+
+  .email-modal {
+    width: 95%;
+    max-height: 80vh;
   }
 }

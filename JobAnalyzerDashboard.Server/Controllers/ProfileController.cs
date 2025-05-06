@@ -526,6 +526,185 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
+        // n8n için özel endpoint - kimlik doğrulaması gerektirmez
+        [AllowAnonymous]
+        [HttpGet("resumes/default/n8n")]
+        public async Task<IActionResult> GetDefaultResumeForN8n([FromQuery] int userId = 0)
+        {
+            try
+            {
+                _logger.LogInformation("n8n için varsayılan özgeçmiş istendi. UserId: {UserId}", userId);
+
+                // Kullanıcı ID'si belirtilmişse, o kullanıcının özgeçmişini getir
+                if (userId > 0)
+                {
+                    var user = await _context.Users.FindAsync(userId);
+                    if (user == null || !user.ProfileId.HasValue)
+                    {
+                        _logger.LogWarning("n8n için belirtilen kullanıcı bulunamadı. UserId: {UserId}", userId);
+                        return NotFound(new { message = $"Kullanıcı bulunamadı (ID: {userId})" });
+                    }
+
+                    // Kullanıcının tüm özgeçmişlerini getir
+                    var resumes = await _profileRepository.GetResumesAsync(user.ProfileId.Value);
+                    if (!resumes.Any())
+                    {
+                        _logger.LogWarning("n8n için kullanıcının hiç özgeçmişi bulunamadı. UserId: {UserId}", userId);
+                        return NotFound(new { message = $"Kullanıcının hiç özgeçmişi bulunamadı (ID: {userId})" });
+                    }
+
+                    // Varsayılan özgeçmişi kontrol et
+                    var defaultResume = resumes.FirstOrDefault(r => r.IsDefault);
+
+                    // Varsayılan özgeçmiş yoksa, ilk özgeçmişi varsayılan olarak ayarla
+                    if (defaultResume == null)
+                    {
+                        _logger.LogWarning("n8n için kullanıcının varsayılan özgeçmişi bulunamadı, ilk özgeçmiş varsayılan olarak ayarlanıyor. UserId: {UserId}", userId);
+                        defaultResume = resumes.First();
+                        await _profileRepository.SetDefaultResumeAsync(defaultResume.Id, user.ProfileId.Value);
+                    }
+
+                    // Dosya yolunu oluştur
+                    string filePath = Path.Combine(_environment.WebRootPath, defaultResume.FilePath.TrimStart('/'));
+
+                    // Dosyanın varlığını kontrol et
+                    if (!System.IO.File.Exists(filePath))
+                    {
+                        _logger.LogWarning("n8n için kullanıcının varsayılan özgeçmiş dosyası bulunamadı. UserId: {UserId}, FilePath: {FilePath}", userId, filePath);
+                        return NotFound(new { message = $"Kullanıcının özgeçmiş dosyası bulunamadı (ID: {userId})" });
+                    }
+
+                    // Dosyayı oku
+                    var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                    // Dosya boyutu çok büyükse, ilk 1000 baytını al
+                    var truncatedBytes = fileBytes.Length > 1000 ? fileBytes.Take(1000).ToArray() : fileBytes;
+                    var base64Content = Convert.ToBase64String(truncatedBytes);
+
+                    // Özgeçmiş bilgilerini ve dosya içeriğini döndür
+                    var result = new
+                    {
+                        fileContent = base64Content,
+                        fileName = defaultResume.FileName,
+                        filePath = defaultResume.FilePath,
+                        fileType = defaultResume.FileType,
+                        fileSize = defaultResume.FileSize,
+                        uploadDate = defaultResume.UploadDate,
+                        id = defaultResume.Id,
+                        isDefault = defaultResume.IsDefault,
+                        isTruncated = fileBytes.Length > 1000
+                    };
+
+                    _logger.LogInformation("n8n için kullanıcının varsayılan özgeçmişi alındı. UserId: {UserId}, ResumeId: {ResumeId}", userId, defaultResume.Id);
+                    return Ok(result);
+                }
+
+                // Varsayılan olarak ilk kullanıcının profilini kullan (admin)
+                var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com");
+                if (adminUser == null || !adminUser.ProfileId.HasValue)
+                {
+                    // Admin kullanıcısı yoksa, herhangi bir kullanıcıyı dene
+                    var anyUser = await _context.Users.FirstOrDefaultAsync(u => u.ProfileId.HasValue);
+                    if (anyUser == null || !anyUser.ProfileId.HasValue)
+                    {
+                        _logger.LogWarning("n8n için varsayılan özgeçmiş alınırken profil bulunamadı");
+                        return NotFound(new { message = "Profil bulunamadı" });
+                    }
+
+                    // Kullanıcının varsayılan özgeçmişini getir
+                    var defaultResume = await _profileRepository.GetDefaultResumeAsync(anyUser.ProfileId.Value);
+                    if (defaultResume == null)
+                    {
+                        _logger.LogWarning("n8n için varsayılan özgeçmiş bulunamadı");
+                        return NotFound(new { message = "Varsayılan özgeçmiş bulunamadı" });
+                    }
+
+                    // Dosya yolunu oluştur
+                    string filePath = Path.Combine(_environment.WebRootPath, defaultResume.FilePath.TrimStart('/'));
+
+                    // Dosyanın varlığını kontrol et
+                    if (!System.IO.File.Exists(filePath))
+                    {
+                        _logger.LogWarning("n8n için varsayılan özgeçmiş dosyası bulunamadı: {FilePath}", filePath);
+                        return NotFound(new { message = "Varsayılan özgeçmiş dosyası bulunamadı" });
+                    }
+
+                    // Dosyayı oku
+                    var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                    // Dosya boyutu çok büyükse, ilk 1000 baytını al
+                    var truncatedBytes = fileBytes.Length > 1000 ? fileBytes.Take(1000).ToArray() : fileBytes;
+                    var base64Content = Convert.ToBase64String(truncatedBytes);
+
+                    // Özgeçmiş bilgilerini ve dosya içeriğini döndür
+                    var result = new
+                    {
+                        fileContent = base64Content,
+                        fileName = defaultResume.FileName,
+                        filePath = defaultResume.FilePath,
+                        fileType = defaultResume.FileType,
+                        fileSize = defaultResume.FileSize,
+                        uploadDate = defaultResume.UploadDate,
+                        id = defaultResume.Id,
+                        isDefault = defaultResume.IsDefault,
+                        isTruncated = fileBytes.Length > 1000
+                    };
+
+                    _logger.LogInformation("n8n için varsayılan özgeçmiş alındı: {Id} - {FileName}", defaultResume.Id, defaultResume.FileName);
+                    return Ok(result);
+                }
+                else
+                {
+                    // Admin kullanıcısının varsayılan özgeçmişini getir
+                    var defaultResume = await _profileRepository.GetDefaultResumeAsync(adminUser.ProfileId.Value);
+                    if (defaultResume == null)
+                    {
+                        _logger.LogWarning("n8n için admin kullanıcısının varsayılan özgeçmişi bulunamadı");
+                        return NotFound(new { message = "Varsayılan özgeçmiş bulunamadı" });
+                    }
+
+                    // Dosya yolunu oluştur
+                    string filePath = Path.Combine(_environment.WebRootPath, defaultResume.FilePath.TrimStart('/'));
+
+                    // Dosyanın varlığını kontrol et
+                    if (!System.IO.File.Exists(filePath))
+                    {
+                        _logger.LogWarning("n8n için admin kullanıcısının varsayılan özgeçmiş dosyası bulunamadı: {FilePath}", filePath);
+                        return NotFound(new { message = "Varsayılan özgeçmiş dosyası bulunamadı" });
+                    }
+
+                    // Dosyayı oku
+                    var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                    // Dosya boyutu çok büyükse, ilk 1000 baytını al
+                    var truncatedBytes = fileBytes.Length > 1000 ? fileBytes.Take(1000).ToArray() : fileBytes;
+                    var base64Content = Convert.ToBase64String(truncatedBytes);
+
+                    // Özgeçmiş bilgilerini ve dosya içeriğini döndür
+                    var result = new
+                    {
+                        fileContent = base64Content,
+                        fileName = defaultResume.FileName,
+                        filePath = defaultResume.FilePath,
+                        fileType = defaultResume.FileType,
+                        fileSize = defaultResume.FileSize,
+                        uploadDate = defaultResume.UploadDate,
+                        id = defaultResume.Id,
+                        isDefault = defaultResume.IsDefault,
+                        isTruncated = fileBytes.Length > 1000
+                    };
+
+                    _logger.LogInformation("n8n için admin kullanıcısının varsayılan özgeçmişi alındı: {Id} - {FileName}", defaultResume.Id, defaultResume.FileName);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "n8n için varsayılan özgeçmiş alınırken hata oluştu. UserId: {UserId}", userId);
+                return StatusCode(500, new { message = "Varsayılan özgeçmiş alınırken bir hata oluştu" });
+            }
+        }
+
         [HttpGet("resumes/view/{fileName}")]
         public IActionResult ViewResume(string fileName)
         {
@@ -567,6 +746,81 @@ namespace JobAnalyzerDashboard.Server.Controllers
             {
                 _logger.LogError(ex, "Dosya görüntülenirken hata oluştu: {FileName}", fileName);
                 return StatusCode(500, new { message = "Dosya görüntülenirken bir hata oluştu" });
+            }
+        }
+
+        // n8n için özel endpoint - kimlik doğrulaması gerektirmez
+        [AllowAnonymous]
+        [HttpGet("n8n")]
+        public async Task<IActionResult> GetProfileForN8n([FromQuery] int userId = 0)
+        {
+            try
+            {
+                _logger.LogInformation("n8n için profil bilgisi istendi. UserId: {UserId}", userId);
+
+                // Kullanıcı ID'si belirtilmişse, o kullanıcının profilini getir
+                if (userId > 0)
+                {
+                    var user = await _context.Users.FindAsync(userId);
+                    if (user == null || !user.ProfileId.HasValue)
+                    {
+                        _logger.LogWarning("n8n için belirtilen kullanıcı bulunamadı. UserId: {UserId}", userId);
+                        return NotFound(new { message = $"Kullanıcı bulunamadı (ID: {userId})" });
+                    }
+
+                    // Kullanıcının profilini getir
+                    var userProfile = await _profileRepository.GetByIdAsync(user.ProfileId.Value);
+                    if (userProfile == null)
+                    {
+                        _logger.LogWarning("n8n için kullanıcı profili bulunamadı. UserId: {UserId}", userId);
+                        return NotFound(new { message = $"Kullanıcı profili bulunamadı (ID: {userId})" });
+                    }
+
+                    _logger.LogInformation("n8n için kullanıcı profili başarıyla alındı. UserId: {UserId}, ProfileId: {ProfileId}", userId, userProfile.Id);
+                    return Ok(userProfile);
+                }
+
+                // Varsayılan olarak ilk kullanıcının profilini kullan (admin)
+                var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com");
+                if (adminUser == null || !adminUser.ProfileId.HasValue)
+                {
+                    // Admin kullanıcısı yoksa, herhangi bir kullanıcıyı dene
+                    var anyUser = await _context.Users.FirstOrDefaultAsync(u => u.ProfileId.HasValue);
+                    if (anyUser == null || !anyUser.ProfileId.HasValue)
+                    {
+                        _logger.LogWarning("n8n için profil alınırken profil bulunamadı");
+                        return NotFound(new { message = "Profil bulunamadı" });
+                    }
+
+                    // Profili getir
+                    var profile = await _profileRepository.GetByIdAsync(anyUser.ProfileId.Value);
+                    if (profile == null)
+                    {
+                        _logger.LogWarning("n8n için profil bulunamadı");
+                        return NotFound(new { message = "Profil bulunamadı" });
+                    }
+
+                    _logger.LogInformation("n8n için profil alındı: {Id}", profile.Id);
+                    return Ok(profile);
+                }
+                else
+                {
+                    // Admin kullanıcısının profilini getir
+                    var profile = await _profileRepository.GetByIdAsync(adminUser.ProfileId.Value);
+                    if (profile == null)
+                    {
+                        _logger.LogWarning("n8n için admin kullanıcısının profili bulunamadı");
+                        return NotFound(new { message = "Profil bulunamadı" });
+                    }
+
+                    _logger.LogInformation("n8n için admin kullanıcısının profili alındı: {Id}", profile.Id);
+                    return Ok(profile);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "n8n için profil alınırken hata oluştu. UserId: {UserId}", userId);
+                return StatusCode(500, new { message = "Profil alınırken bir hata oluştu" });
             }
         }
 
@@ -618,16 +872,20 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("authorize-google")]
-        public async Task<IActionResult> AuthorizeGoogle()
+        public async Task<IActionResult> AuthorizeGoogle([FromQuery] int userId = 0)
         {
             try
             {
-                // Kullanıcı ID'sini al
-                var userId = GetCurrentUserId();
+                // Kullanıcı ID'si belirtilmemişse, mevcut kullanıcıyı al
                 if (userId <= 0)
                 {
-                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                    userId = GetCurrentUserId();
+                    if (userId <= 0)
+                    {
+                        return Unauthorized(new { message = "Oturum açmanız gerekiyor veya userId parametresi belirtilmelidir" });
+                    }
                 }
 
                 // Kullanıcıyı bul

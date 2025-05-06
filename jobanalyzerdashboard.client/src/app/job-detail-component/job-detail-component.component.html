@@ -12,6 +12,11 @@
     <button *ngIf="job" (click)="clearError()" class="retry-button">Tekrar Dene</button>
   </div>
 
+  <div *ngIf="emailContentError" class="error-message">
+    <p>{{ emailContentError }}</p>
+    <button (click)="emailContentError = ''" class="retry-button">Kapat</button>
+  </div>
+
   <div *ngIf="!loading && !error && job" class="job-detail-card">
     <div class="job-header">
       <div class="job-title-container">
@@ -88,36 +93,29 @@
     </div>
 
     <div class="job-actions">
-      <div *ngIf="!job.isApplied" class="action-buttons">
+      <div *ngIf="!job.isApplied && !applyingInProgress" class="action-buttons">
         <button
-          [disabled]="applyingInProgress"
           (click)="toggleApplicationForm()"
           class="apply-button"
         >
-          <span>Başvur</span>
+          <span>Manuel Başvur</span>
         </button>
 
         <button
-          [disabled]="applyingInProgress"
           (click)="autoApply()"
           class="auto-apply-button"
-          title="n8n webhook'unu tetikleyerek otomatik başvuru yapar"
+          title="n8n webhook'unu tetikleyerek otomatik başvuru e-postası oluşturur"
         >
-          <span *ngIf="!applyingInProgress">n8n ile Başvur</span>
-          <span *ngIf="applyingInProgress">Başvuruluyor...</span>
-        </button>
-
-        <button
-          [disabled]="notifyingInProgress"
-          (click)="notifyWebhook()"
-          class="notify-button"
-        >
-          <span *ngIf="!notifyingInProgress">Webhook Bildir</span>
-          <span *ngIf="notifyingInProgress">Bildiriliyor...</span>
+          <span>Otomatik Oluştur</span>
         </button>
       </div>
 
-      <div *ngIf="job.isApplied" class="applied-info">
+      <div *ngIf="applyingInProgress" class="applying-info">
+        <span class="applying-badge">Başvuruluyor...</span>
+        <p class="applying-message">Lütfen bekleyin, başvuru e-postası oluşturuluyor...</p>
+      </div>
+
+      <div *ngIf="job.isApplied && !applyingInProgress" class="applied-info">
         <span class="applied-badge">Başvuruldu</span>
         <span *ngIf="job.appliedDate" class="applied-date">
           Başvuru Tarihi: {{ job.appliedDate | date:'dd/MM/yyyy' }}
@@ -141,7 +139,7 @@
 
       <div class="form-group checkbox-group">
         <label>
-          <input type="checkbox" [(ngModel)]="attachCV">
+          <input type="checkbox" [(ngModel)]="cvAttached">
           Özgeçmiş Ekle
         </label>
       </div>
@@ -159,4 +157,54 @@
       </div>
     </div>
   </div>
+
+  <!-- E-posta İçeriği Modal -->
+  <div *ngIf="showEmailModal" class="email-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Otomatik Oluşturulan E-posta İçeriği</h3>
+        <button class="close-button" (click)="closeEmailModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="loadingEmailContent" class="loading-email">
+          <p>E-posta içeriği yükleniyor...</p>
+        </div>
+
+        <div *ngIf="!loadingEmailContent && emailContent" class="email-content">
+          <p><strong>İş İlanı:</strong> {{ job?.title }}</p>
+          <p><strong>Şirket:</strong> {{ job?.company }}</p>
+
+          <div class="email-text-container">
+            <h4>E-posta İçeriği:</h4>
+            <div class="email-text">
+              <textarea [(ngModel)]="emailContent" rows="10" class="email-textarea"></textarea>
+            </div>
+          </div>
+
+          <p class="email-info">
+            Bu e-posta içeriği yapay zeka tarafından otomatik olarak oluşturulmuştur.
+            İçeriği düzenleyebilir ve "E-posta Gönder" butonuna tıklayarak gönderebilirsiniz.
+            Ayrıca, bu içeriği Başvuru Geçmişi sayfasından da görüntüleyebilirsiniz.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          class="send-email-button"
+          [disabled]="sendingEmail"
+          (click)="sendEmail()"
+          *ngIf="emailContent"
+        >
+          <span *ngIf="!sendingEmail">E-posta Gönder</span>
+          <span *ngIf="sendingEmail">Gönderiliyor...</span>
+        </button>
+        <button class="close-button-footer" (click)="closeEmailModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Arka Plan -->
+  <div *ngIf="showEmailModal" class="modal-backdrop" (click)="closeEmailModal()"></div>
 </div>

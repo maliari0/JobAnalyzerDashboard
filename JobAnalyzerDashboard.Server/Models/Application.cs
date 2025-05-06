@@ -14,6 +14,8 @@ namespace JobAnalyzerDashboard.Server.Models
 
         // N8n entegrasyonu için eklenen alanlar
         public string SentMessage { get; set; } = string.Empty;
+        // Veritabanı şeması ile uyumlu olması için Message alanı
+        public string Message { get; set; } = string.Empty;
         public bool IsAutoApplied { get; set; } = false;
         public string NotionPageId { get; set; } = string.Empty; // old
         public bool CvAttached { get; set; } = false;

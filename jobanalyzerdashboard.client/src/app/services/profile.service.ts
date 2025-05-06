@@ -77,9 +77,21 @@ export class ProfileService {
     });
   }
 
-  authorizeGoogle(): void {
+  authorizeGoogle(userId?: number): void {
     console.log('Redirecting to Google authorization');
-    window.location.href = `${this.apiUrl}/authorize-google`;
+
+    // Mevcut kullanıcı ID'sini al
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const currentUserId = currentUser?.id || 0;
+
+    // Eğer userId belirtilmemişse, mevcut kullanıcı ID'sini kullan
+    const finalUserId = userId || currentUserId;
+
+    // URL'yi oluştur
+    let url = `${this.apiUrl}/authorize-google?userId=${finalUserId}`;
+
+    console.log('Authorization URL:', url);
+    window.location.href = url;
   }
 
   revokeOAuth(provider: string): Observable<any> {

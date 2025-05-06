@@ -1,163 +1,270 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { finalize, timer } from 'rxjs';
 import { Job } from '../models/job.model';
-import { ApplicationRequest, JobService } from '../services/job.service';
+import { JobService } from '../services/job.service';
 import { ApplicationService } from '../services/application.service';
-import { finalize } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../services/auth.service';
+import { ProfileService } from '../services/profile.service';
 
 @Component({
   selector: 'app-job-detail-component',
-  standalone: false,
   templateUrl: './job-detail-component.component.html',
-  styleUrl: './job-detail-component.component.css'
+  styleUrls: ['./job-detail-component.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule]
 })
 export class JobDetailComponentComponent implements OnInit {
   job: Job | null = null;
   loading = false;
   error = '';
+  showApplicationForm = false;
   applyingInProgress = false;
   notifyingInProgress = false;
   applicationMessage = '';
-  attachCV = true;
-  showApplicationForm = false;
+  cvAttached = true;
+
+  showEmailModal = false;
+  emailContent = '';
+  loadingEmailContent = false;
+  emailContentError = '';
+  applicationId?: number;
+  sendingEmail = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private jobService: JobService,
     private applicationService: ApplicationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const jobId = Number(params.get('id'));
-      if (jobId) {
-        this.loadJobDetails(jobId);
-      } else {
-        this.error = 'Geçersiz iş ilanı ID\'si.';
-      }
-    });
-  }
-
-  loadJobDetails(id: number): void {
     this.loading = true;
-    this.error = '';
-
-    this.jobService.getJobById(id)
-      .pipe(
-        finalize(() => {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.jobService.getJobById(parseInt(id, 10)).subscribe({
+        next: (job) => {
+          this.job = job;
           this.loading = false;
-          // Değişiklikleri manuel olarak tetikle
-          this.cdr.detectChanges();
-        })
-      )
-      .subscribe({
-        next: (data) => {
-          this.job = data;
-
-          // Varsayılan başvuru mesajını oluştur
-          this.generateDefaultMessage();
-
-          // Değişiklikleri manuel olarak tetikle
-          this.cdr.detectChanges();
         },
         error: (err) => {
-          this.error = 'İş ilanı detayları yüklenirken bir hata oluştu.';
+          this.error = 'İş ilanı yüklenirken bir hata oluştu.';
+          this.loading = false;
           console.error(err);
         }
       });
-  }
-
-  generateDefaultMessage(): void {
-    if (!this.job) return;
-
-    this.applicationMessage = `Merhaba,
-
-${this.job.title} pozisyonu için başvurumu yapmak istiyorum. Özgeçmişimi ekte bulabilirsiniz.
-
-Saygılarımla,
-Ali Yılmaz`;
+    } else {
+      this.error = 'Geçersiz iş ilanı ID\'si.';
+      this.loading = false;
+    }
   }
 
   toggleApplicationForm(): void {
     this.showApplicationForm = !this.showApplicationForm;
-    if (this.showApplicationForm && !this.applicationMessage) {
-      this.generateDefaultMessage();
-    }
   }
 
   applyToJob(): void {
-    if (!this.job || this.job.isApplied || this.applyingInProgress) {
+    if (!this.job || this.applyingInProgress) {
       return;
     }
 
     this.applyingInProgress = true;
 
-    const request: ApplicationRequest = {
-      method: 'Manual',
+    const application = {
+      jobId: this.job.id,
       message: this.applicationMessage,
-      attachCV: this.attachCV
+      appliedMethod: 'Manual',
+      isAutoApplied: false,
+      cvAttached: this.cvAttached
     };
 
-    this.jobService.applyToJob(this.job.id, request).subscribe({
+    this.applicationService.createApplication(application).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.job!.isApplied = true;
-          this.job!.appliedDate = new Date().toISOString();
-          this.showApplicationForm = false;
-        }
         this.applyingInProgress = false;
+        this.job!.isApplied = true;
+        this.job!.appliedDate = new Date().toISOString();
+        this.showApplicationForm = false;
+        this.applicationMessage = '';
+        alert('Başvurunuz başarıyla gönderildi!');
       },
       error: (err) => {
-        this.error = 'Başvuru yapılırken bir hata oluştu.';
         this.applyingInProgress = false;
+        this.error = 'Başvuru yapılırken bir hata oluştu.';
         console.error(err);
       }
     });
   }
 
   autoApply(): void {
-    if (!this.job || this.job.isApplied || this.applyingInProgress) {
+    if (!this.job || this.applyingInProgress) {
       return;
     }
 
     this.applyingInProgress = true;
-    this.error = ''; // Önceki hata mesajlarını temizle
 
-    this.jobService.autoApply(this.job.id)
-      .pipe(
-        finalize(() => {
-          this.applyingInProgress = false;
-          this.cdr.detectChanges();
-        })
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.job!.isApplied = true;
-            this.job!.appliedDate = new Date().toISOString();
-            this.showApplicationForm = false;
-            alert('Otomatik başvuru işlemi başlatıldı! n8n webhook\'u tetiklendi.');
+    // Mevcut kullanıcının ID'sini al
+    const currentUser = this.authService.currentUserValue;
+    const userId = currentUser?.id;
+
+    console.log('Otomatik başvuru yapılıyor, kullanıcı ID:', userId);
+
+    this.jobService.autoApply(this.job.id, userId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Başvuru durumunu henüz değiştirme, sadece işaretleme
+          this.showApplicationForm = false;
+
+          // Başvuru işlemi başlatıldı, jobId'yi kullanacağız
+          console.log('Otomatik başvuru başlatıldı:', response);
+
+          // n8n'den gelen e-posta içeriğini doğrudan göster
+          this.loadingEmailContent = true;
+
+          // response içindeki emailContent'i al
+          if (response.emailContent) {
+            this.loadingEmailContent = false;
+            this.emailContent = response.emailContent;
+            this.showEmailModal = true;
+            this.applyingInProgress = false;
+
+            // İlanı henüz başvuruldu olarak işaretleme
+            // Kullanıcı "Gönder" tuşuna bastıktan sonra işaretlenecek
           } else {
-            // Başarısız yanıt durumunda
-            this.error = response.message || 'Otomatik başvuru yapılırken bir hata oluştu.';
-            // İlan başvuruldu olarak işaretlenmediyse, UI'da da gösterme
-            this.job!.isApplied = false;
-            this.job!.appliedDate = undefined;
+            // E-posta içeriği yoksa, varsayılan bir içerik oluştur
+            this.loadingEmailContent = false;
+            this.emailContent = `Merhaba,\n\nİlanınızda belirtilen ${this.job!.title} pozisyonu için başvurmak istiyorum. Özgeçmişimi ekte bulabilirsiniz.\n\nTeşekkürler,\n${this.authService.currentUserValue?.firstName} ${this.authService.currentUserValue?.lastName}`;
+            this.showEmailModal = true;
+            this.applyingInProgress = false;
+
+            // İlanı henüz başvuruldu olarak işaretleme
+            // Kullanıcı "Gönder" tuşuna bastıktan sonra işaretlenecek
           }
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          // HTTP hatası durumunda
-          this.error = 'Otomatik başvuru yapılırken bir hata oluştu: ' +
-                      (err.error?.message || err.message || 'Bilinmeyen hata');
-          // İlan başvuruldu olarak işaretlenmediyse, UI'da da gösterme
+        } else {
+          // Başarısız yanıt durumunda
           this.job!.isApplied = false;
           this.job!.appliedDate = undefined;
-          console.error(err);
+          this.applyingInProgress = false;
+
+          this.error = response.message || 'Otomatik başvuru yapılırken bir hata oluştu.';
         }
-      });
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        // HTTP hatası durumunda
+        this.error = 'Otomatik başvuru yapılırken bir hata oluştu: ' +
+                    (err.error?.message || err.message || 'Bilinmeyen hata');
+        // İlan başvuruldu olarak işaretlenmediyse, UI'da da gösterme
+        this.job!.isApplied = false;
+        this.job!.appliedDate = undefined;
+        this.applyingInProgress = false;
+        console.error(err);
+      }
+    });
+  }
+
+  // E-posta içeriği modalını kapat
+  closeEmailModal(): void {
+    this.showEmailModal = false;
+    this.emailContent = '';
+    this.emailContentError = '';
+  }
+
+  // E-posta gönder
+  sendEmail(): void {
+    if (!this.job || !this.emailContent || this.sendingEmail) {
+      return;
+    }
+
+    this.sendingEmail = true;
+
+    // Önce OAuth durumunu kontrol et
+    this.profileService.getOAuthStatus().subscribe({
+      next: (tokens) => {
+        // Google OAuth token'ı var mı kontrol et
+        const googleToken = tokens.find(t => t.provider === 'Google');
+
+        if (!googleToken) {
+          // OAuth token'ı yoksa, kullanıcıya bildir ve yetkilendirme sayfasına yönlendir
+          this.sendingEmail = false;
+
+          if (confirm('E-posta göndermek için Google hesabınızı yetkilendirmeniz gerekiyor. Yetkilendirme sayfasına yönlendirilmek istiyor musunuz?')) {
+            const currentUser = this.authService.currentUserValue;
+            this.profileService.authorizeGoogle(currentUser?.id);
+          }
+
+          return;
+        }
+
+        // OAuth token'ı varsa, başvuru kaydı oluştur
+        const application = {
+          jobId: this.job!.id,
+          message: 'Otomatik oluşturulan başvuru', // Message alanı null olamaz
+          appliedMethod: 'Manual',
+          isAutoApplied: true, // n8n tarafından oluşturulduğu için true
+          cvAttached: true,
+          telegramNotification: 'true', // n8n webhook'u tetiklendiği için true
+          emailContent: this.emailContent // E-posta içeriği
+        };
+
+        this.applicationService.createApplication(application).subscribe({
+          next: (createdApplication) => {
+            // Oluşturulan başvuru kaydı ile e-posta gönder
+            // Kullanıcının profil ID'sini al
+            const currentUser = this.authService.currentUserValue;
+            const profileId = currentUser?.profileId;
+
+            this.applicationService.sendEmail(
+              createdApplication.id,
+              this.emailContent,
+              profileId
+            ).subscribe({
+              next: (response) => {
+                this.sendingEmail = false;
+                if (response && response.success) {
+                  // Başvuru başarılı olduğunda, ilanı başvuruldu olarak işaretle
+                  this.job!.isApplied = true;
+                  this.job!.appliedDate = new Date().toISOString();
+
+                  alert('E-posta başarıyla gönderildi!');
+                  this.closeEmailModal();
+                } else {
+                  alert('E-posta gönderilirken bir hata oluştu: ' + (response?.message || 'Bilinmeyen hata'));
+                }
+              },
+              error: (err) => {
+                this.sendingEmail = false;
+
+                // Gmail API hatası kontrolü
+                if (err.error?.message && err.error.message.includes('Gmail API')) {
+                  if (confirm('E-posta göndermek için Gmail API\'yi etkinleştirmeniz gerekiyor. Google Cloud Console\'a yönlendirilmek istiyor musunuz?')) {
+                    window.open('https://console.developers.google.com/apis/api/gmail.googleapis.com/overview?project=602631296713', '_blank');
+                  }
+                } else {
+                  alert('E-posta gönderilirken bir hata oluştu: ' + (err.error?.message || err.message || 'Bilinmeyen hata'));
+                }
+
+                console.error('E-posta gönderme hatası:', err);
+              }
+            });
+          },
+          error: (error) => {
+            this.sendingEmail = false;
+            alert('Başvuru kaydı oluşturulurken bir hata oluştu: ' + (error.error?.message || error.message || 'Bilinmeyen hata'));
+            console.error('Başvuru kaydı oluşturma hatası:', error);
+          }
+        });
+      },
+      error: (error) => {
+        this.sendingEmail = false;
+        alert('OAuth durumu kontrol edilirken bir hata oluştu: ' + (error.error?.message || error.message || 'Bilinmeyen hata'));
+        console.error('OAuth durumu kontrol hatası:', error);
+      }
+    });
   }
 
   notifyWebhook(): void {
@@ -193,7 +300,6 @@ Ali Yılmaz`;
       return;
     }
 
-
     if (!confirm(`"${this.job.title}" ilanını silmek istediğinize emin misiniz?`)) {
       return;
     }
@@ -204,7 +310,6 @@ Ali Yılmaz`;
       next: (response) => {
         if (response.success) {
           alert('İş ilanı başarıyla silindi!');
-
           this.router.navigate(['/']);
         }
         this.loading = false;
@@ -232,7 +337,7 @@ Ali Yılmaz`;
       case 'sakla': return 'action-store';
       case 'bildir': return 'action-notify';
       case 'ilgisiz': return 'action-ignore';
-      default: return '';
+      default: return 'action-default';
     }
   }
 
