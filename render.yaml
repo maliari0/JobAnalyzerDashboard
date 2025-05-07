@@ -13,9 +13,7 @@ services:
       - key: PORT
         value: 10000
       - key: ConnectionStrings__DefaultConnection
-        fromDatabase:
-          name: jobanalyzerdashboard-db
-          property: connectionString
+        value: "postgresql://n8n_db_7rcs_user:tTT6Uaxnv5FrGFKbqiLz1LAGgwSGQRIv@dpg-d034egali9vc73edf1og-a.oregon-postgres.render.com/n8n_db_7rcs"
       - key: JwtSettings__Secret
         generateValue: true
       - key: JwtSettings__Issuer
@@ -33,8 +31,9 @@ services:
       - key: AppSettings__BaseUrl
         sync: false
 
-databases:
-  - name: jobanalyzerdashboard-db
-    plan: free
-    databaseName: jobanalyzerdashboard
-    user: jobanalyzerdashboard_user
+# Mevcut n8n veritabanını kullanıyoruz, bu yüzden yeni veritabanı oluşturmuyoruz
+# databases:
+#   - name: jobanalyzerdashboard-db
+#     plan: free
+#     databaseName: jobanalyzerdashboard
+#     user: jobanalyzerdashboard_user

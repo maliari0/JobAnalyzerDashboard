@@ -53,7 +53,11 @@ builder.Services.AddSwaggerGen();
 
 // PostgreSQL veritabanı bağlantısını ekle
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    Console.WriteLine($"Veritabanı bağlantı dizesi: {connectionString}");
+    options.UseNpgsql(connectionString);
+});
 
 // JWT ayarlarını yapılandır
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
