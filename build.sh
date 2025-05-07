@@ -9,5 +9,11 @@ curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
 export PATH="$HOME/.dotnet:$PATH"
 export DOTNET_ROOT="$HOME/.dotnet"
 
-# Projeyi derle
+# Angular uygulamasını derle
+cd jobanalyzerdashboard.client
+chmod +x build-prod.sh
+./build-prod.sh
+cd ..
+
+# Backend projesini derle
 dotnet publish -c Release -o out

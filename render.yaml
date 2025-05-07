@@ -5,6 +5,8 @@ services:
     plan: free
     buildCommand: chmod +x build.sh && ./build.sh
     startCommand: cd out && dotnet JobAnalyzerDashboard.Server.dll
+    domains:
+      - jobanalyzerdashboard.onrender.com
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
