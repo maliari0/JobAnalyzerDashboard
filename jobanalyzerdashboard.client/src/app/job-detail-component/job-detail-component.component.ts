@@ -105,33 +105,17 @@ export class JobDetailComponentComponent implements OnInit {
       return;
     }
 
-    // Önce OAuth durumunu kontrol et
-    this.profileService.getOAuthStatus().subscribe({
-      next: (tokens) => {
-        // Google OAuth token'ı var mı kontrol et
-        const googleToken = tokens.find(t => t.provider === 'Google');
+    this.applyingInProgress = true;
 
-        if (!googleToken) {
-          // OAuth token'ı yoksa, kullanıcıya bildir ve yetkilendirme sayfasına yönlendir
-          if (confirm('Manuel başvuru yapmak için Google hesabınızı yetkilendirmeniz gerekiyor. Yetkilendirme sayfasına yönlendirilmek istiyor musunuz?')) {
-            const currentUser = this.authService.currentUserValue;
-            this.profileService.authorizeGoogle(currentUser?.id);
-          }
-          return;
-        }
+    const application = {
+      jobId: this.job.id,
+      message: this.applicationMessage,
+      appliedMethod: 'Manual',
+      isAutoApplied: false,
+      cvAttached: this.cvAttached
+    };
 
-        // OAuth token'ı varsa devam et
-        this.applyingInProgress = true;
-
-        const application = {
-          jobId: this.job!.id,
-          message: this.applicationMessage,
-          appliedMethod: 'Manual',
-          isAutoApplied: false,
-          cvAttached: this.cvAttached
-        };
-
-        this.applicationService.createApplication(application).subscribe({
+    this.applicationService.createApplication(application).subscribe({
       next: (response) => {
         this.applyingInProgress = false;
         this.job!.isApplied = true;
@@ -153,31 +137,15 @@ export class JobDetailComponentComponent implements OnInit {
       return;
     }
 
-    // Önce OAuth durumunu kontrol et
-    this.profileService.getOAuthStatus().subscribe({
-      next: (tokens) => {
-        // Google OAuth token'ı var mı kontrol et
-        const googleToken = tokens.find(t => t.provider === 'Google');
+    this.applyingInProgress = true;
 
-        if (!googleToken) {
-          // OAuth token'ı yoksa, kullanıcıya bildir ve yetkilendirme sayfasına yönlendir
-          if (confirm('Otomatik başvuru yapmak için Google hesabınızı yetkilendirmeniz gerekiyor. Yetkilendirme sayfasına yönlendirilmek istiyor musunuz?')) {
-            const currentUser = this.authService.currentUserValue;
-            this.profileService.authorizeGoogle(currentUser?.id);
-          }
-          return;
-        }
+    // Mevcut kullanıcının ID'sini al
+    const currentUser = this.authService.currentUserValue;
+    const userId = currentUser?.id;
 
-        // OAuth token'ı varsa devam et
-        this.applyingInProgress = true;
+    console.log('Otomatik başvuru yapılıyor, kullanıcı ID:', userId);
 
-        // Mevcut kullanıcının ID'sini al
-        const currentUser = this.authService.currentUserValue;
-        const userId = currentUser?.id;
-
-        console.log('Otomatik başvuru yapılıyor, kullanıcı ID:', userId);
-
-        this.jobService.autoApply(this.job!.id, userId).subscribe({
+    this.jobService.autoApply(this.job.id, userId).subscribe({
       next: (response) => {
         if (response.success) {
           // Başvuru durumunu henüz değiştirme, sadece işaretleme
