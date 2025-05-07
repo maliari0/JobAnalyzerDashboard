@@ -1,8 +1,8 @@
 services:
   - type: web
     name: jobanalyzerdashboard-api
+    env: dotnet
     plan: free
-    rootDir: .
     buildCommand: dotnet publish -c Release -o out
     startCommand: cd out && dotnet JobAnalyzerDashboard.Server.dll
     envVars:
