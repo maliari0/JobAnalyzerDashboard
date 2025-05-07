@@ -17,3 +17,7 @@ cd ..
 
 # Backend projesini derle
 dotnet publish -c Release -o out
+
+# Angular build çıktılarını wwwroot klasörüne kopyala
+chmod +x copy-spa.sh
+./copy-spa.sh

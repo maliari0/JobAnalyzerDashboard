@@ -145,6 +145,24 @@ app.UseStaticFiles(new StaticFileOptions
     }
 });
 
+// wwwroot klasörünün varlığını kontrol et
+string wwwrootFolder = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+if (!Directory.Exists(wwwrootFolder))
+{
+    Directory.CreateDirectory(wwwrootFolder);
+    Console.WriteLine($"wwwroot klasörü oluşturuldu: {wwwrootFolder}");
+}
+else
+{
+    Console.WriteLine($"wwwroot klasörü mevcut: {wwwrootFolder}");
+    var files = Directory.GetFiles(wwwrootFolder, "*.*", SearchOption.AllDirectories);
+    Console.WriteLine($"wwwroot içindeki dosya sayısı: {files.Length}");
+    foreach (var file in files.Take(5))
+    {
+        Console.WriteLine($"Örnek dosya: {file}");
+    }
+}
+
 // Uploads klasörünün varlığını kontrol et ve oluştur
 string uploadsFolder = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads", "resumes");
 if (!Directory.Exists(uploadsFolder))

@@ -13,5 +13,9 @@ export DOTNET_ROOT="$HOME/.dotnet"
 export ASPNETCORE_URLS="http://+:$PORT"
 echo "ASPNETCORE_URLS: $ASPNETCORE_URLS"
 
+# wwwroot klasörünü kontrol et
+echo "wwwroot klasörü içeriği:"
+ls -la out/wwwroot || echo "wwwroot klasörü bulunamadı!"
+
 # Uygulamayı başlat
 cd out && dotnet JobAnalyzerDashboard.Server.dll
