@@ -1,0 +1,38 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: jobanalyzerdashboard-api
+    runtime: dotnet
+    plan: free
+    rootDir: .
+    buildCommand: dotnet publish -c Release -o out
+    startCommand: cd out && dotnet JobAnalyzerDashboard.Server.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: jobanalyzerdashboard-db
+          property: connectionString
+      - key: JwtSettings__Secret
+        generateValue: true
+      - key: JwtSettings__Issuer
+        value: JobAnalyzerDashboard
+      - key: JwtSettings__Audience
+        value: JobAnalyzerDashboardUsers
+      - key: JwtSettings__ExpirationInMinutes
+        value: 60
+      - key: Authentication__Google__ClientId
+        sync: false
+      - key: Authentication__Google__ClientSecret
+        sync: false
+      - key: Authentication__Google__RedirectUri
+        sync: false
+      - key: AppSettings__BaseUrl
+        sync: false
+
+databases:
+  - name: jobanalyzerdashboard-db
+    plan: free
+    databaseName: jobanalyzerdashboard
+    user: jobanalyzerdashboard_user

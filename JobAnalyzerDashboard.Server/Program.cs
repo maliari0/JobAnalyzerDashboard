@@ -115,7 +115,10 @@ builder.Services.AddCors(options =>
 
     options.AddPolicy("AllowN8n", policy =>
     {
-        policy.WithOrigins("http://localhost:5678", "https://n8n-service-a2yz.onrender.com") // n8n'in çalıştığı adresler
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ??
+            new[] { "http://localhost:5678", "https://n8n-service-a2yz.onrender.com" };
+
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials()
