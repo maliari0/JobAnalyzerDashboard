@@ -29,6 +29,10 @@
       "PackagePath": "staticwebassets\\uploads\\resumes\\cv_1_ornek_20250506120311.pdf"
     },
     {
+      "Id": "C:\\Users\\aliar\\source\\repos\\JobAnalyzerDashboard\\JobAnalyzerDashboard.Server\\wwwroot\\uploads\\resumes\\cv_1_ornek_20250507074102.pdf",
+      "PackagePath": "staticwebassets\\uploads\\resumes\\cv_1_ornek_20250507074102.pdf"
+    },
+    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.JobAnalyzerDashboard.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
     },

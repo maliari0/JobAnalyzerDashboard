@@ -475,7 +475,43 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                 if (application == null)
                 {
-                    return NotFound(new { success = false, message = "No applications found" });
+                    _logger.LogWarning("No applications found for jobId: {JobId}, applicationId: {ApplicationId}", jobId, applicationId);
+
+                    // Uygulama bulunamadıysa, yeni bir uygulama oluştur
+                    if (jobId.HasValue)
+                    {
+                        var job = await _context.Jobs.FindAsync(jobId.Value);
+                        if (job != null)
+                        {
+                            application = new Application
+                            {
+                                JobId = job.Id,
+                                AppliedDate = DateTime.UtcNow,
+                                Status = "Applying",
+                                AppliedMethod = "n8n",
+                                SentMessage = "",
+                                Message = "",
+                                IsAutoApplied = true,
+                                CvAttached = false,
+                                TelegramNotificationSent = ""
+                            };
+
+                            await _context.Applications.AddAsync(application);
+                            await _context.SaveChangesAsync();
+
+                            _logger.LogInformation("Created new application for jobId: {JobId}, applicationId: {ApplicationId}",
+                                jobId, application.Id);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Job not found for jobId: {JobId}", jobId);
+                            return NotFound(new { success = false, message = "Job not found" });
+                        }
+                    }
+                    else
+                    {
+                        return NotFound(new { success = false, message = "No applications found and no jobId provided" });
+                    }
                 }
 
                 // Save the email content
@@ -645,6 +681,25 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         _logger.LogError(ex, "Kullanıcı {UserId} için özgeçmiş alınırken hata oluştu", userId);
                     }
 
+                    // Önce başvuru kaydı oluştur
+                    var application = new Application
+                    {
+                        JobId = job.Id,
+                        AppliedDate = DateTime.UtcNow,
+                        Status = "Applying", // Başvuru durumu "Applying" olarak ayarlandı
+                        AppliedMethod = "n8n",
+                        SentMessage = "",
+                        Message = "", // Veritabanı şeması ile uyumlu olması için
+                        IsAutoApplied = true,
+                        CvAttached = defaultResume != null,
+                        TelegramNotificationSent = ""
+                    };
+
+                    await _applicationRepository.AddAsync(application);
+                    await _applicationRepository.SaveChangesAsync();
+
+                    _logger.LogInformation("Otomatik başvuru kaydı oluşturuldu: {Id} - {JobId}", application.Id, job.Id);
+
                     var jobData = new
                     {
                         title = job.Title,
@@ -656,6 +711,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         location = job.Location?.ToLower(),
                         company = job.Company,
                         userId = userId,
+                        jobId = job.Id, // JobId değerini ekle
+                        applicationId = application.Id, // ApplicationId değerini ekle
                         resume = defaultResume != null ? new
                         {
                             fileContent = resumeBase64,
@@ -705,10 +762,12 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                     if (response.IsSuccessStatusCode)
                     {
-                        job.IsApplied = true;
-                        job.AppliedDate = DateTime.UtcNow;
-                        await _jobRepository.UpdateAsync(job);
-                        await _jobRepository.SaveChangesAsync();
+                        // İş ilanını henüz "Başvuruldu" olarak işaretleme
+                        // Kullanıcı e-postayı gönderdiğinde işaretlenecek
+                        // job.IsApplied = true;
+                        // job.AppliedDate = DateTime.UtcNow;
+                        // await _jobRepository.UpdateAsync(job);
+                        // await _jobRepository.SaveChangesAsync();
 
                         // n8n webhook'undan dönen yanıtı parse et ve e-posta içeriğini çıkar
                         string emailContent = "";

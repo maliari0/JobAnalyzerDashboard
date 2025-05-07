@@ -2,7 +2,7 @@
   "nodes": [
     {
       "parameters": {
-        "jsCode": "// Gelen veriyi işle\nconst output = $input.item.json.output;\n\n// E-posta içeriğini hazırla\nreturn {\n  emailContent: output\n};"
+        "jsCode": "// Gelen veriyi işle\nconst output = $input.item.json.output;\n\n// Webhook'tan gelen jobId ve applicationId değerlerini al\nconst jobId = $('Webhook').item.json.body.jobId;\nconst applicationId = $('Webhook').item.json.body.applicationId;\n\n// Değerleri logla\nconsole.log('jobId:', jobId);\nconsole.log('applicationId:', applicationId);\n\n// E-posta içeriğini hazırla\nreturn {\n  emailContent: output,\n  jobId: jobId,\n  applicationId: applicationId\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -140,11 +140,11 @@
             },
             {
               "name": "applicationId",
-              "value": "={{ $('Webhook').item.json.body.applicationId }}"
+              "value": "={{ $json.applicationId }}"
             },
             {
               "name": "jobId",
-              "value": "={{ $('Webhook').item.json.body.jobId }}"
+              "value": "={{ $json.jobId }}"
             }
           ]
         },
