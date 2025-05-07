@@ -23,13 +23,15 @@ services:
       - key: JwtSettings__ExpirationInMinutes
         value: 60
       - key: Authentication__Google__ClientId
-        sync: false
+        value: "602631296713-kueq8lm3tsc3ms8ff87de29f4r7bjjjd.apps.googleusercontent.com"
       - key: Authentication__Google__ClientSecret
-        sync: false
+        value: "GOCSPX-717SkyWhuTcanQmmpmlj1BCtK44"
       - key: Authentication__Google__RedirectUri
-        sync: false
+        value: "https://jobanalyzerdashboard.onrender.com/api/auth/google/callback"
+      - key: Authentication__Google__Scopes
+        value: "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
       - key: AppSettings__BaseUrl
-        sync: false
+        value: "https://jobanalyzerdashboard.onrender.com"
 
 # Mevcut n8n veritabanını kullanıyoruz, bu yüzden yeni veritabanı oluşturmuyoruz
 # databases:
