@@ -220,4 +220,14 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Render.com için port yapılandırması
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    Console.WriteLine($"Using PORT environment variable: {port}");
+    app.Urls.Clear();
+    app.Urls.Add($"http://*:{port}");
+    Console.WriteLine($"Application listening on: {string.Join(", ", app.Urls)}");
+}
+
 app.Run();

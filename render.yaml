@@ -10,6 +10,8 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: PORT
+        value: 10000
       - key: ConnectionStrings__DefaultConnection
         fromDatabase:
           name: jobanalyzerdashboard-db
