@@ -1,8 +1,6 @@
 services:
-  # Backend Web Service
   - type: web
     name: jobanalyzerdashboard-api
-    runtime: dotnet-core
     plan: free
     rootDir: .
     buildCommand: dotnet publish -c Release -o out
