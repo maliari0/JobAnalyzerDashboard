@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using JobAnalyzerDashboard.Server.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
@@ -44,8 +45,28 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                _logger.LogInformation("Başvurular alınıyor. Filtreler: JobId={JobId}, Status={Status}, AppliedMethod={AppliedMethod}, IsAutoApplied={IsAutoApplied}",
-                    filter.JobId, filter.Status, filter.AppliedMethod, filter.IsAutoApplied);
+                // Kullanıcı kimliğini al
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                int? userId = null;
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                {
+                    userId = parsedUserId;
+
+                    // Admin kullanıcıları için UserId filtresini uygulama
+                    var userRoleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+                    bool isAdmin = userRoleClaim != null && userRoleClaim.Value == "Admin";
+
+                    // Eğer admin değilse, kullanıcı ID'sini filtre olarak ekle
+                    if (!isAdmin)
+                    {
+                        filter.UserId = userId;
+                    }
+                    // Admin kullanıcıları için, eğer özel olarak bir UserId belirtilmişse, onu kullan
+                }
+
+                _logger.LogInformation("Başvurular alınıyor. Filtreler: JobId={JobId}, Status={Status}, AppliedMethod={AppliedMethod}, IsAutoApplied={IsAutoApplied}, UserId={UserId}",
+                    filter.JobId, filter.Status, filter.AppliedMethod, filter.IsAutoApplied, filter.UserId);
 
                 var applications = await _applicationRepository.GetApplicationsWithFiltersAsync(
                     filter.JobId,
@@ -55,7 +76,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     filter.FromDate,
                     filter.ToDate,
                     filter.SortBy,
-                    filter.SortDirection);
+                    filter.SortDirection,
+                    filter.UserId);
 
                 _logger.LogInformation("Başvurular başarıyla alındı. Toplam: {Count}", applications?.Count() ?? 0);
 
@@ -140,6 +162,29 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { message = "İş ilanı bulunamadı" });
                 }
 
+                // Kullanıcı kimliğini al
+                int? userId = model.UserId;
+
+                // Eğer model'de UserId belirtilmemişse, mevcut kullanıcının ID'sini kullan
+                if (!userId.HasValue)
+                {
+                    var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                    if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                    {
+                        userId = parsedUserId;
+                    }
+                }
+
+                // Kullanıcı kimliği varsa, kullanıcının bu ilana daha önce başvurup başvurmadığını kontrol et
+                if (userId.HasValue)
+                {
+                    bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(model.JobId, userId.Value);
+                    if (hasApplied)
+                    {
+                        return BadRequest(new { success = false, message = "Bu ilana daha önce başvurdunuz." });
+                    }
+                }
+
                 var application = new Application
                 {
                     JobId = model.JobId,
@@ -151,7 +196,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     IsAutoApplied = model.IsAutoApplied,
                     CvAttached = model.CvAttached,
                     TelegramNotificationSent = model.TelegramNotification ?? string.Empty,
-                    EmailContent = model.EmailContent ?? string.Empty
+                    EmailContent = model.EmailContent ?? string.Empty,
+                    UserId = userId
                 };
 
                 await _applicationRepository.AddAsync(application);
@@ -292,6 +338,24 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { message = "İş ilanı bulunamadı" });
                 }
 
+                // Kullanıcı kimliğini al
+                int? userId = null;
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                {
+                    userId = parsedUserId;
+                }
+
+                // Kullanıcı kimliği varsa, kullanıcının bu ilana daha önce başvurup başvurmadığını kontrol et
+                if (userId.HasValue)
+                {
+                    bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(model.JobId, userId.Value);
+                    if (hasApplied)
+                    {
+                        return BadRequest(new { success = false, message = "Bu ilana daha önce başvurdunuz." });
+                    }
+                }
+
                 // Başvuru oluştur
                 var application = new Application
                 {
@@ -303,7 +367,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     Message = model.Message ?? string.Empty, // Veritabanı şeması ile uyumlu olması için
                     IsAutoApplied = true,
                     CvAttached = true,
-                    TelegramNotificationSent = model.TelegramNotification ?? string.Empty
+                    TelegramNotificationSent = model.TelegramNotification ?? string.Empty,
+                    UserId = userId
                 };
 
                 await _applicationRepository.AddAsync(application);
@@ -464,6 +529,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
         public DateTime? ToDate { get; set; }
         public string? SortBy { get; set; }
         public string? SortDirection { get; set; }
+        public int? UserId { get; set; }
     }
 
     public class ApplicationCreateModel
@@ -475,6 +541,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
         public bool CvAttached { get; set; } = false;
         public string? TelegramNotification { get; set; }
         public string? EmailContent { get; set; } // E-posta içeriği
+        public int? UserId { get; set; } // Kullanıcı ID'si
     }
 
     public class AutoApplyModel

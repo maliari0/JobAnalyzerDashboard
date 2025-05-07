@@ -118,7 +118,7 @@ export class ApplicationHistoryComponentComponent implements OnInit {
         // Başvuru durumunu güncelle
         const index = this.applications.findIndex(a => a.id === this.selectedEmailApplication?.id);
         if (index !== -1 && response && response.success) {
-          this.applications[index].status = 'Sent';
+          this.applications[index].status = 'Pending'; //Başvurunun gönderildiğini göstermek maksadıyla 'Sent' yapmak mantıklı ama 'Pending' duruma daha uygun duruyor.
           this.selectedEmailApplication = null;
         }
       },

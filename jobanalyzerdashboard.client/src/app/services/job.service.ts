@@ -242,4 +242,8 @@ export class JobService {
   deleteJob(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
+
+  hasUserAppliedToJob(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/has-applied/${id}`);
+  }
 }

@@ -30,6 +30,13 @@ namespace JobAnalyzerDashboard.Server.Data
                 .HasForeignKey(a => a.JobId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Application ve User ilişkisi
+            modelBuilder.Entity<Application>()
+                .HasOne(a => a.User)
+                .WithMany()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<Resume>()
                 .HasOne(r => r.Profile)
                 .WithMany(p => p.Resumes)

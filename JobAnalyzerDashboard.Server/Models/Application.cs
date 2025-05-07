@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace JobAnalyzerDashboard.Server.Models
 {
@@ -29,5 +30,10 @@ namespace JobAnalyzerDashboard.Server.Models
 
         // İş ilanı silinmiş mi?
         public bool IsJobDeleted { get; set; } = false;
+
+        // Kullanıcı ilişkisi
+        public int? UserId { get; set; }
+        [JsonIgnore]
+        public User? User { get; set; }
     }
 }

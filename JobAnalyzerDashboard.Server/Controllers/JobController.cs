@@ -12,6 +12,7 @@ using System.Text.Json;
 using JobAnalyzerDashboard.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace JobAnalyzerDashboard.Server.Controllers
 {
@@ -123,12 +124,72 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { message = "İş ilanı bulunamadı" });
                 }
 
+                // Kullanıcının kimliğini al
+                int? userId = null;
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                {
+                    userId = parsedUserId;
+
+                    // Kullanıcı kimliği varsa, kullanıcının bu ilana başvurup başvurmadığını kontrol et
+                    if (userId.HasValue)
+                    {
+                        bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(id, userId.Value);
+
+                        // Kullanıcı başvurmuşsa, ilanı başvuruldu olarak işaretle
+                        if (hasApplied)
+                        {
+                            job.IsApplied = true;
+
+                            // Başvuru tarihini bulmak için en son başvuruyu al
+                            var applications = await _applicationRepository.GetApplicationsWithFiltersAsync(
+                                jobId: id,
+                                userId: userId.Value);
+
+                            var latestApplication = applications.OrderByDescending(a => a.AppliedDate).FirstOrDefault();
+                            if (latestApplication != null)
+                            {
+                                job.AppliedDate = latestApplication.AppliedDate;
+                            }
+                        }
+                    }
+                }
+
                 return Ok(job);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "İş ilanı alınırken hata oluştu: {Id}", id);
                 return StatusCode(500, new { message = "İş ilanı alınırken bir hata oluştu" });
+            }
+        }
+
+        [HttpGet("has-applied/{id}")]
+        public async Task<IActionResult> HasUserAppliedToJob(int id)
+        {
+            try
+            {
+                // Kullanıcının kimliğini al
+                int? userId = null;
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                {
+                    userId = parsedUserId;
+                }
+
+                if (!userId.HasValue)
+                {
+                    return BadRequest(new { success = false, message = "Kullanıcı kimliği bulunamadı" });
+                }
+
+                bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(id, userId.Value);
+
+                return Ok(new { success = true, hasApplied = hasApplied });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kullanıcının iş ilanına başvurup başvurmadığı kontrol edilirken hata oluştu: {Id}", id);
+                return StatusCode(500, new { success = false, message = "Kullanıcının iş ilanına başvurup başvurmadığı kontrol edilirken bir hata oluştu" });
             }
         }
 
@@ -237,6 +298,21 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
                 }
 
+                // Kullanıcı kimliğini al
+                int? userId = null;
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                {
+                    userId = parsedUserId;
+
+                    // Kullanıcı kimliği varsa, kullanıcının bu ilana daha önce başvurup başvurmadığını kontrol et
+                    bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(id, userId.Value);
+                    if (hasApplied)
+                    {
+                        return BadRequest(new { success = false, message = "Bu ilana daha önce başvurdunuz." });
+                    }
+                }
+
                 // Profil bilgilerini al
                 var profile = await _profileRepository.GetProfileWithResumesAsync(1); // Varsayılan profil ID'si
                 if (profile == null)
@@ -289,6 +365,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 // Başvuru geçmişine ekle
                 try
                 {
+                    // userId değişkeni zaten yukarıda tanımlandı, tekrar tanımlamaya gerek yok
+
                     var application = new Application
                     {
                         JobId = job.Id,
@@ -297,7 +375,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         AppliedMethod = model?.Method ?? "Manual",
                         SentMessage = message,
                         IsAutoApplied = false,
-                        CvAttached = defaultResume != null
+                        CvAttached = defaultResume != null,
+                        UserId = userId
                     };
 
                     await _applicationRepository.AddAsync(application);
@@ -483,6 +562,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         var job = await _context.Jobs.FindAsync(jobId.Value);
                         if (job != null)
                         {
+                            // Admin kullanıcısını bul
+                            var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com");
+                            int? userId = adminUser?.Id;
+
                             application = new Application
                             {
                                 JobId = job.Id,
@@ -493,7 +576,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                                 Message = "",
                                 IsAutoApplied = true,
                                 CvAttached = false,
-                                TelegramNotificationSent = ""
+                                TelegramNotificationSent = "",
+                                UserId = userId
                             };
 
                             await _context.Applications.AddAsync(application);
@@ -609,19 +693,29 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         userId = adminUser.Id;
                         _logger.LogInformation("Kullanıcı ID belirtilmediği için admin kullanıcısı kullanılıyor: {UserId}", userId);
                     }
+                }
+
+                // Kullanıcı kimliği varsa, kullanıcının bu ilana daha önce başvurup başvurmadığını kontrol et
+                if (userId > 0)
+                {
+                    bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(id, userId);
+                    if (hasApplied)
+                    {
+                        return BadRequest(new { success = false, message = "Bu ilana daha önce başvurulmuş." });
+                    }
+                }
+                else
+                {
+                    // Admin kullanıcısı bulunamazsa, herhangi bir kullanıcıyı dene
+                    var anyUser = await _context.Users.FirstOrDefaultAsync(u => u.ProfileId.HasValue);
+                    if (anyUser != null)
+                    {
+                        userId = anyUser.Id;
+                        _logger.LogInformation("Admin kullanıcısı bulunamadığı için başka bir kullanıcı kullanılıyor: {UserId}", userId);
+                    }
                     else
                     {
-                        // Admin kullanıcısı bulunamazsa, herhangi bir kullanıcıyı dene
-                        var anyUser = await _context.Users.FirstOrDefaultAsync(u => u.ProfileId.HasValue);
-                        if (anyUser != null)
-                        {
-                            userId = anyUser.Id;
-                            _logger.LogInformation("Admin kullanıcısı bulunamadığı için başka bir kullanıcı kullanılıyor: {UserId}", userId);
-                        }
-                        else
-                        {
-                            return BadRequest(new { success = false, message = "Sistemde profil bilgisi olan kullanıcı bulunamadı" });
-                        }
+                        return BadRequest(new { success = false, message = "Sistemde profil bilgisi olan kullanıcı bulunamadı" });
                     }
                 }
 
@@ -692,7 +786,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         Message = "", // Veritabanı şeması ile uyumlu olması için
                         IsAutoApplied = true,
                         CvAttached = defaultResume != null,
-                        TelegramNotificationSent = ""
+                        TelegramNotificationSent = "",
+                        UserId = userId
                     };
 
                     await _applicationRepository.AddAsync(application);

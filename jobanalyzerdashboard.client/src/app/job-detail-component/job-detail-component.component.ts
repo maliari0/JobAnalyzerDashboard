@@ -53,10 +53,18 @@ export class JobDetailComponentComponent implements OnInit {
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.jobService.getJobById(parseInt(id, 10)).subscribe({
+      const jobId = parseInt(id, 10);
+
+      // İş ilanını getir
+      this.jobService.getJobById(jobId).subscribe({
         next: (job) => {
           this.job = job;
           this.loading = false;
+
+          // Kullanıcının bu ilana başvurup başvurmadığını kontrol et
+          if (currentUser) {
+            this.checkIfUserHasApplied(jobId);
+          }
         },
         error: (err) => {
           this.error = 'İş ilanı yüklenirken bir hata oluştu.';
@@ -68,6 +76,24 @@ export class JobDetailComponentComponent implements OnInit {
       this.error = 'Geçersiz iş ilanı ID\'si.';
       this.loading = false;
     }
+  }
+
+  // Kullanıcının ilana başvurup başvurmadığını kontrol et
+  checkIfUserHasApplied(jobId: number): void {
+    this.jobService.hasUserAppliedToJob(jobId).subscribe({
+      next: (response) => {
+        if (response.success && response.hasApplied) {
+          // Kullanıcı bu ilana daha önce başvurmuş, ilanı başvuruldu olarak işaretle
+          if (this.job) {
+            this.job.isApplied = true;
+            console.log('Kullanıcı bu ilana daha önce başvurmuş.');
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Kullanıcının ilana başvurup başvurmadığı kontrol edilirken hata oluştu:', err);
+      }
+    });
   }
 
   toggleApplicationForm(): void {

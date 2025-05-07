@@ -16,7 +16,7 @@ namespace JobAnalyzerDashboard.Server.Repositories
 
         public async Task<IEnumerable<Application>> GetApplicationsWithFiltersAsync(int? jobId = null, string status = null,
             string appliedMethod = null, bool? isAutoApplied = null, DateTime? fromDate = null, DateTime? toDate = null,
-            string sortBy = null, string sortDirection = null)
+            string sortBy = null, string sortDirection = null, int? userId = null)
         {
             try
             {
@@ -69,6 +69,12 @@ namespace JobAnalyzerDashboard.Server.Repositories
                 if (toDate.HasValue)
                 {
                     query = query.Where(a => a.AppliedDate <= toDate.Value);
+                }
+
+                // Kullanıcı ID'sine göre filtreleme
+                if (userId.HasValue)
+                {
+                    query = query.Where(a => a.UserId == userId.Value);
                 }
 
                 // Sıralama
@@ -178,14 +184,29 @@ namespace JobAnalyzerDashboard.Server.Repositories
                     .ToList()
             };
         }
+
+        public async Task<bool> HasUserAppliedToJobAsync(int jobId, int userId)
+        {
+            try
+            {
+                // Kullanıcının belirli bir iş ilanına başvurup başvurmadığını kontrol et
+                return await _dbSet.AnyAsync(a => a.JobId == jobId && a.UserId == userId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Kullanıcının iş ilanına başvurup başvurmadığı kontrol edilirken hata oluştu: {ex.Message}");
+                return false; // Hata durumunda false döndür
+            }
+        }
     }
 
     public interface IApplicationRepository : IRepository<Application>
     {
         Task<IEnumerable<Application>> GetApplicationsWithFiltersAsync(int? jobId = null, string status = null,
             string appliedMethod = null, bool? isAutoApplied = null, DateTime? fromDate = null, DateTime? toDate = null,
-            string sortBy = null, string sortDirection = null);
+            string sortBy = null, string sortDirection = null, int? userId = null);
         Task<Application> GetApplicationWithJobAsync(int id);
         Task<object> GetStatsAsync();
+        Task<bool> HasUserAppliedToJobAsync(int jobId, int userId);
     }
 }
