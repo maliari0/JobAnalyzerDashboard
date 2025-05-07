@@ -4,7 +4,7 @@ services:
     env: dotnet
     plan: free
     buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: cd out && dotnet JobAnalyzerDashboard.Server.dll
+    startCommand: chmod +x start.sh && ./start.sh
     domains:
       - jobanalyzerdashboard.onrender.com
     envVars:
