@@ -15,7 +15,7 @@ services:
       - key: ConnectionStrings__DefaultConnection
         value: "postgresql://n8n_db_7rcs_user:tTT6Uaxnv5FrGFKbqiLz1LAGgwSGQRIv@dpg-d034egali9vc73edf1og-a.oregon-postgres.render.com/n8n_db_7rcs"
       - key: JwtSettings__Secret
-        generateValue: true
+        value: "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurityReasons123456789"
       - key: JwtSettings__Issuer
         value: JobAnalyzerDashboard
       - key: JwtSettings__Audience

@@ -400,8 +400,16 @@ namespace JobAnalyzerDashboard.Server.Services
         private string GenerateJwtToken(User user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured"));
+            var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
 
+            // Ensure the key is at least 32 bytes (256 bits) long
+            if (secretKey.Length < 32)
+            {
+                secretKey = secretKey.PadRight(32, 'X');
+                _logger.LogWarning("JWT Secret key was too short and has been padded to 32 characters");
+            }
+
+            var key = Encoding.ASCII.GetBytes(secretKey);
             _logger.LogInformation("Generating JWT token for user: {UserId}, {Username}, {Role}", user.Id, user.Username, user.Role);
 
             var claims = new List<Claim>
