@@ -3,7 +3,7 @@ services:
     name: jobanalyzerdashboard-api
     env: dotnet
     plan: free
-    buildCommand: dotnet publish -c Release -o out
+    buildCommand: chmod +x build.sh && ./build.sh
     startCommand: cd out && dotnet JobAnalyzerDashboard.Server.dll
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
