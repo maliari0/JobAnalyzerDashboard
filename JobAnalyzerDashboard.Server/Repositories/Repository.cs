@@ -31,12 +31,16 @@ namespace JobAnalyzerDashboard.Server.Repositories
 
         public async Task<T> GetByIdAsync(int id)
         {
+#pragma warning disable CS8603 // Possible null reference return.
             return await _dbSet.FindAsync(id);
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public async Task<T> GetByIdAsNoTrackingAsync(int id)
         {
+#pragma warning disable CS8603 // Possible null reference return.
             return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public async Task AddAsync(T entity)

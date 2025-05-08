@@ -39,7 +39,9 @@ namespace JobAnalyzerDashboard.Server.Services
 
                 try
                 {
+#pragma warning disable CS8604 // Possible null reference argument.
                     var result = await _gmailService.SendEmailAsync(profileId, to, subject, body, attachmentPath);
+#pragma warning restore CS8604 // Possible null reference argument.
                     if (result)
                     {
                         Debug.WriteLine($"E-posta Gmail API ile başarıyla gönderildi: {to}, Konu: {subject}");

@@ -66,7 +66,9 @@ namespace JobAnalyzerDashboard.Server.Controllers
         }
 
         [HttpGet("google/callback")]
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         public async Task<IActionResult> GoogleCallback([FromQuery] string code, [FromQuery] string state, [FromQuery] string error = null)
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         {
             try
             {

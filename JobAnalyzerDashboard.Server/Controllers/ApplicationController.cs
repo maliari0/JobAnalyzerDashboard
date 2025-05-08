@@ -68,6 +68,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 _logger.LogInformation("Başvurular alınıyor. Filtreler: JobId={JobId}, Status={Status}, AppliedMethod={AppliedMethod}, IsAutoApplied={IsAutoApplied}, UserId={UserId}",
                     filter.JobId, filter.Status, filter.AppliedMethod, filter.IsAutoApplied, filter.UserId);
 
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
                 var applications = await _applicationRepository.GetApplicationsWithFiltersAsync(
                     filter.JobId,
                     filter.Status,
@@ -78,6 +82,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     filter.SortBy,
                     filter.SortDirection,
                     filter.UserId);
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
 
                 _logger.LogInformation("Başvurular başarıyla alındı. Toplam: {Count}", applications?.Count() ?? 0);
 

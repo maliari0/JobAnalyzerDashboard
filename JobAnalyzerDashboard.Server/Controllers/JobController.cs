@@ -51,6 +51,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
                 var jobs = await _jobRepository.GetJobsWithFiltersAsync(
                     filter.Category,
                     filter.MinQualityScore,
@@ -58,6 +62,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     filter.SearchTerm,
                     filter.SortBy,
                     filter.SortDirection);
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
 
                 return Ok(jobs);
             }
@@ -321,14 +329,18 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 }
 
                 // Varsayılan özgeçmişi al
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 Resume defaultResume = null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 if (model?.AttachCV == true)
                 {
                     defaultResume = await _profileRepository.GetDefaultResumeAsync(profile.Id);
                 }
 
                 // Başvuru mesajını hazırla
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 string messageInput = model?.Message;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 string message = string.Empty;
 
                 if (string.IsNullOrEmpty(messageInput))
@@ -341,7 +353,9 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 }
 
                 // E-posta gönder
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 string attachmentPath = null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 if (defaultResume != null)
                 {
                     attachmentPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", defaultResume.FilePath.TrimStart('/'));
@@ -517,12 +531,16 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return BadRequest(new { success = false, message = "Could not extract email content from request" });
                 }
 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 Application application = null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
                 // If applicationId is provided, find that specific application
                 if (applicationId.HasValue)
                 {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     application = await _context.Applications.FindAsync(applicationId.Value);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                     if (application == null)
                     {
                         _logger.LogWarning("Application with ID {ApplicationId} not found", applicationId.Value);
@@ -532,10 +550,12 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 // If application not found by ID but jobId is provided, find the latest application for that job
                 if (application == null && jobId.HasValue)
                 {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     application = await _context.Applications
                         .Where(a => a.JobId == jobId.Value)
                         .OrderByDescending(a => a.AppliedDate)
                         .FirstOrDefaultAsync();
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
                     if (application == null)
                     {
@@ -546,9 +566,11 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 // If still no application found, get the latest application overall
                 if (application == null)
                 {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     application = await _context.Applications
                         .OrderByDescending(a => a.AppliedDate)
                         .FirstOrDefaultAsync();
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 }
 
                 if (application == null)
@@ -725,8 +747,12 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 {
                     var webhookUrl = "https://n8n-service-a2yz.onrender.com/webhook/apply-auto"; // n8n oto başvuru webhook URL'i
 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     Resume defaultResume = null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     string resumeBase64 = null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                     Models.Profile? profile = null;
 
                     try

@@ -15,9 +15,11 @@ namespace JobAnalyzerDashboard.Server.Repositories
 
         public async Task<Profile> GetProfileWithResumesAsync(int id)
         {
+#pragma warning disable CS8603 // Possible null reference return.
             return await _dbSet
                 .Include(p => p.Resumes)
                 .FirstOrDefaultAsync(p => p.Id == id);
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public async Task<IEnumerable<Resume>> GetResumesAsync(int profileId)
@@ -29,13 +31,17 @@ namespace JobAnalyzerDashboard.Server.Repositories
 
         public async Task<Resume> GetDefaultResumeAsync(int profileId)
         {
+#pragma warning disable CS8603 // Possible null reference return.
             return await _context.Resumes
                 .FirstOrDefaultAsync(r => r.ProfileId == profileId && r.IsDefault);
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public async Task<Resume> GetResumeByIdAsync(int resumeId)
         {
+#pragma warning disable CS8603 // Possible null reference return.
             return await _context.Resumes.FindAsync(resumeId);
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public async Task AddResumeAsync(Resume resume)

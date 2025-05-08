@@ -14,9 +14,17 @@ namespace JobAnalyzerDashboard.Server.Repositories
         {
         }
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         public async Task<IEnumerable<Application>> GetApplicationsWithFiltersAsync(int? jobId = null, string status = null,
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             string appliedMethod = null, bool? isAutoApplied = null, DateTime? fromDate = null, DateTime? toDate = null,
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             string sortBy = null, string sortDirection = null, int? userId = null)
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         {
             try
             {
@@ -145,7 +153,9 @@ namespace JobAnalyzerDashboard.Server.Repositories
                 application.IsJobDeleted = true;
             }
 
+#pragma warning disable CS8603 // Possible null reference return.
             return application;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public async Task<object> GetStatsAsync()
@@ -202,9 +212,17 @@ namespace JobAnalyzerDashboard.Server.Repositories
 
     public interface IApplicationRepository : IRepository<Application>
     {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         Task<IEnumerable<Application>> GetApplicationsWithFiltersAsync(int? jobId = null, string status = null,
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             string appliedMethod = null, bool? isAutoApplied = null, DateTime? fromDate = null, DateTime? toDate = null,
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             string sortBy = null, string sortDirection = null, int? userId = null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         Task<Application> GetApplicationWithJobAsync(int id);
         Task<object> GetStatsAsync();
         Task<bool> HasUserAppliedToJobAsync(int jobId, int userId);

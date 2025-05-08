@@ -105,6 +105,7 @@ namespace JobAnalyzerDashboard.Server.Services
                 // Artık kayıt sonrası token oluşturmuyoruz
                 // Kullanıcı giriş sayfasına yönlendirilecek
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
                 return new AuthResponseDTO
                 {
                     Success = true,
@@ -112,6 +113,7 @@ namespace JobAnalyzerDashboard.Server.Services
                     Token = null,
                     User = null
                 };
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
             }
             catch (Exception ex)
             {

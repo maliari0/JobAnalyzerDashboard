@@ -21,7 +21,9 @@ namespace JobAnalyzerDashboard.Server.Services
             _logger = logger;
         }
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         public async Task<bool> SendEmailAsync(int profileId, string to, string subject, string body, string attachmentPath = null)
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         {
             try
             {

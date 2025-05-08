@@ -14,8 +14,16 @@ namespace JobAnalyzerDashboard.Server.Repositories
         {
         }
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         public async Task<IEnumerable<Job>> GetJobsWithFiltersAsync(string category = null, int? minQualityScore = null,
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             bool? isApplied = null, string searchTerm = null, string sortBy = null, string sortDirection = null)
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         {
             var query = _dbSet.AsQueryable();
 
@@ -146,8 +154,16 @@ namespace JobAnalyzerDashboard.Server.Repositories
 
     public interface IJobRepository : IRepository<Job>
     {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         Task<IEnumerable<Job>> GetJobsWithFiltersAsync(string category = null, int? minQualityScore = null,
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             bool? isApplied = null, string searchTerm = null, string sortBy = null, string sortDirection = null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         Task<IEnumerable<string>> GetCategoriesAsync();
         Task<IEnumerable<string>> GetTagsAsync();
         Task<object> GetStatsAsync();

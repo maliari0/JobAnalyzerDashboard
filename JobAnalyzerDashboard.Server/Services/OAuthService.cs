@@ -48,7 +48,9 @@ namespace JobAnalyzerDashboard.Server.Services
 
                 var state = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{provider}:{profileId}"));
 
+#pragma warning disable CS8604 // Possible null reference argument.
                 return $"https://accounts.google.com/o/oauth2/v2/auth?client_id={clientId}&redirect_uri={Uri.EscapeDataString(redirectUri)}&response_type=code&scope={Uri.EscapeDataString(scopeString)}&access_type=offline&prompt=consent&state={state}";
+#pragma warning restore CS8604 // Possible null reference argument.
             }
 
             throw new NotSupportedException($"Provider {provider} is not supported");
@@ -66,6 +68,9 @@ namespace JobAnalyzerDashboard.Server.Services
 
                 using (var client = new HttpClient())
                 {
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
                     var content = new FormUrlEncodedContent(new Dictionary<string, string>
                     {
                         { "code", code },
@@ -74,6 +79,9 @@ namespace JobAnalyzerDashboard.Server.Services
                         { "redirect_uri", redirectUri },
                         { "grant_type", "authorization_code" }
                     });
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
 
                     var response = await client.PostAsync(tokenEndpoint, content);
                     var responseString = await response.Content.ReadAsStringAsync();
@@ -102,13 +110,17 @@ namespace JobAnalyzerDashboard.Server.Services
 
                     if (existingToken != null)
                     {
+#pragma warning disable CS8601 // Possible null reference assignment.
                         existingToken.AccessToken = accessToken;
+#pragma warning restore CS8601 // Possible null reference assignment.
                         if (!string.IsNullOrEmpty(refreshToken))
                         {
                             existingToken.RefreshToken = refreshToken;
                         }
                         existingToken.ExpiresAt = DateTime.UtcNow.AddSeconds(expiresIn);
+#pragma warning disable CS8601 // Possible null reference assignment.
                         existingToken.Email = email;
+#pragma warning restore CS8601 // Possible null reference assignment.
 
                         _context.OAuthTokens.Update(existingToken);
                         await _context.SaveChangesAsync();
@@ -130,6 +142,8 @@ namespace JobAnalyzerDashboard.Server.Services
                             scopeString = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
                         }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
+#pragma warning disable CS8601 // Possible null reference assignment.
                         var newToken = new OAuthToken
                         {
                             ProfileId = profileId,
@@ -140,6 +154,8 @@ namespace JobAnalyzerDashboard.Server.Services
                             Email = email,
                             Scope = scopeString
                         };
+#pragma warning restore CS8601 // Possible null reference assignment.
+#pragma warning restore CS8601 // Possible null reference assignment.
 
                         _context.OAuthTokens.Add(newToken);
                         await _context.SaveChangesAsync();
@@ -164,6 +180,8 @@ namespace JobAnalyzerDashboard.Server.Services
 
                 using (var client = new HttpClient())
                 {
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
                     var content = new FormUrlEncodedContent(new Dictionary<string, string>
                     {
                         { "client_id", clientId },
@@ -171,6 +189,8 @@ namespace JobAnalyzerDashboard.Server.Services
                         { "refresh_token", token.RefreshToken },
                         { "grant_type", "refresh_token" }
                     });
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
 
                     var response = await client.PostAsync(tokenEndpoint, content);
                     var responseString = await response.Content.ReadAsStringAsync();
@@ -186,13 +206,17 @@ namespace JobAnalyzerDashboard.Server.Services
                     var accessToken = tokenResponse.GetProperty("access_token").GetString();
                     var expiresIn = tokenResponse.GetProperty("expires_in").GetInt32();
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                     token.AccessToken = accessToken;
+#pragma warning restore CS8601 // Possible null reference assignment.
                     token.ExpiresAt = DateTime.UtcNow.AddSeconds(expiresIn);
 
                     _context.OAuthTokens.Update(token);
                     await _context.SaveChangesAsync();
 
+#pragma warning disable CS8603 // Possible null reference return.
                     return accessToken;
+#pragma warning restore CS8603 // Possible null reference return.
                 }
             }
 
