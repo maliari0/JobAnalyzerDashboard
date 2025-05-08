@@ -141,4 +141,6 @@ export class ApplicationHistoryComponentComponent implements OnInit {
       default: return '';
     }
   }
+
+
 }

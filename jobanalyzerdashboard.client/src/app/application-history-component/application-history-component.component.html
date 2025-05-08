@@ -33,7 +33,9 @@
             {{ application.job?.title || 'Silinmiş İlan' }}
             <span *ngIf="application.isJobDeleted" class="deleted-badge">Silinmiş</span>
           </td>
-          <td [ngClass]="{'deleted-job': application.isJobDeleted}">{{ application.job?.company || 'Bilinmeyen Şirket' }}</td>
+          <td [ngClass]="{'deleted-job': application.isJobDeleted}">
+            {{ application.job?.company || 'Bilinmeyen Şirket' }}
+          </td>
           <td>{{ application.appliedMethod }}</td>
           <td>
             <span class="status-badge" [ngClass]="getStatusClass(application.status)">
