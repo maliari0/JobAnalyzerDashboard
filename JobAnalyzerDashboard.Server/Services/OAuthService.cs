@@ -31,9 +31,24 @@ namespace JobAnalyzerDashboard.Server.Services
             {
                 var clientId = _configuration["Authentication:Google:ClientId"];
                 var redirectUri = _configuration["Authentication:Google:RedirectUri"];
-                var scopes = _configuration.GetSection("Authentication:Google:Scopes").Get<List<string>>();
 
-                var scopeString = string.Join(" ", scopes);
+                // Düzeltme: Scopes'u doğrudan string olarak al
+                string scopeString;
+                var scopesConfig = _configuration["Authentication:Google:Scopes"];
+
+                if (!string.IsNullOrEmpty(scopesConfig))
+                {
+                    // Eğer zaten boşluklarla ayrılmış bir string ise, doğrudan kullan
+                    scopeString = scopesConfig;
+                }
+                else
+                {
+                    // Eğer null ise, varsayılan scope'ları kullan
+                    scopeString = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+                }
+
+                _logger.LogInformation("Google OAuth scopes: {Scopes}", scopeString);
+
                 var state = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{provider}:{profileId}"));
 
                 return $"https://accounts.google.com/o/oauth2/v2/auth?client_id={clientId}&redirect_uri={Uri.EscapeDataString(redirectUri)}&response_type=code&scope={Uri.EscapeDataString(scopeString)}&access_type=offline&prompt=consent&state={state}";
@@ -107,6 +122,19 @@ namespace JobAnalyzerDashboard.Server.Services
                     }
                     else
                     {
+                        // Düzeltme: Scope'u doğrudan string olarak al
+                        string scopeString;
+                        var scopesConfig = _configuration["Authentication:Google:Scopes"];
+
+                        if (!string.IsNullOrEmpty(scopesConfig))
+                        {
+                            scopeString = scopesConfig;
+                        }
+                        else
+                        {
+                            scopeString = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+                        }
+
                         var newToken = new OAuthToken
                         {
                             ProfileId = profileId,
@@ -115,7 +143,7 @@ namespace JobAnalyzerDashboard.Server.Services
                             RefreshToken = refreshToken ?? string.Empty,
                             ExpiresAt = DateTime.UtcNow.AddSeconds(expiresIn),
                             Email = email,
-                            Scope = string.Join(" ", _configuration.GetSection("Authentication:Google:Scopes").Get<List<string>>())
+                            Scope = scopeString
                         };
 
                         _context.OAuthTokens.Add(newToken);
@@ -128,6 +156,7 @@ namespace JobAnalyzerDashboard.Server.Services
 
             throw new NotSupportedException($"Provider {provider} is not supported");
         }
+    
 
         public async Task<string> RefreshTokenAsync(OAuthToken token)
         {
