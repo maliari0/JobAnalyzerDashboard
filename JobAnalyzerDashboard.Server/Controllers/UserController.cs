@@ -13,13 +13,15 @@ namespace JobAnalyzerDashboard.Server.Controllers
     [Route("api/user")]
     public class UserController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly AuthService _authService;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(AuthService authService, ILogger<UserController> logger)
+        public UserController(AuthService authService, ILogger<UserController> logger, IConfiguration configuration)
         {
             _authService = authService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -153,6 +155,69 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
 
             return NotFound(new { message = "Kullanıcı bulunamadı." });
+        }
+    }
+
+    // Root level endpoint for e-posta doğrulama yönlendirmesi
+    [ApiController]
+    [Route("")]
+    public class ConfirmEmailRedirectController : ControllerBase
+    {
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<ConfirmEmailRedirectController> _logger;
+
+        public ConfirmEmailRedirectController(IConfiguration configuration, ILogger<ConfirmEmailRedirectController> logger)
+        {
+            _configuration = configuration;
+            _logger = logger;
+        }
+
+        [HttpGet("confirm-email")]
+        [AllowAnonymous]
+        public IActionResult RedirectToFrontendConfirmEmail([FromQuery] string token, [FromQuery] string email)
+        {
+            try
+            {
+                // Frontend URL'sini al
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "https://jobanalyzerdashboard.onrender.com";
+
+                // Tam yönlendirme URL'sini oluştur
+                var redirectUrl = $"{frontendUrl}/confirm-email?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(email)}";
+
+                _logger.LogInformation("E-posta doğrulama isteği frontend'e yönlendiriliyor: {RedirectUrl}", redirectUrl);
+
+                // Frontend'e yönlendir
+                return Redirect(redirectUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "E-posta doğrulama yönlendirmesi sırasında bir hata oluştu");
+                return StatusCode(500, new { message = "E-posta doğrulama yönlendirmesi sırasında bir hata oluştu" });
+            }
+        }
+
+        [HttpGet("reset-password")]
+        [AllowAnonymous]
+        public IActionResult RedirectToFrontendResetPassword([FromQuery] string token, [FromQuery] string email)
+        {
+            try
+            {
+                // Frontend URL'sini al
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "https://jobanalyzerdashboard.onrender.com";
+
+                // Tam yönlendirme URL'sini oluştur
+                var redirectUrl = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(email)}";
+
+                _logger.LogInformation("Şifre sıfırlama isteği frontend'e yönlendiriliyor: {RedirectUrl}", redirectUrl);
+
+                // Frontend'e yönlendir
+                return Redirect(redirectUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Şifre sıfırlama yönlendirmesi sırasında bir hata oluştu");
+                return StatusCode(500, new { message = "Şifre sıfırlama yönlendirmesi sırasında bir hata oluştu" });
+            }
         }
     }
 }

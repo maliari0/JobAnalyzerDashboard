@@ -461,8 +461,11 @@ namespace JobAnalyzerDashboard.Server.Services
                     return;
                 }
 
-                var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:52545";
-                var confirmationLink = $"{baseUrl}/confirm-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(user.Email)}";
+                // Önce API URL'sini al (backend)
+                var apiUrl = _configuration["AppSettings:BaseUrl"] ?? "https://jobanalyzerdashboard-api.onrender.com";
+
+                // Doğrudan backend URL'sine yönlendir (yönlendirme controller'ı bunu frontend'e yönlendirecek)
+                var confirmationLink = $"{apiUrl}/confirm-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(user.Email)}";
 
                 _logger.LogInformation("E-posta doğrulama bağlantısı oluşturuldu: {ConfirmationLink}", confirmationLink);
 
@@ -512,8 +515,11 @@ namespace JobAnalyzerDashboard.Server.Services
                     return;
                 }
 
-                var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:52545";
-                var resetLink = $"{baseUrl}/reset-password?token={Uri.EscapeDataString(user.PasswordResetToken)}&email={Uri.EscapeDataString(user.Email)}";
+                // Önce API URL'sini al (backend)
+                var apiUrl = _configuration["AppSettings:BaseUrl"] ?? "https://jobanalyzerdashboard-api.onrender.com";
+
+                // Doğrudan backend URL'sine yönlendir (yönlendirme controller'ı bunu frontend'e yönlendirecek)
+                var resetLink = $"{apiUrl}/reset-password?token={Uri.EscapeDataString(user.PasswordResetToken)}&email={Uri.EscapeDataString(user.Email)}";
 
                 var subject = "Şifre Sıfırlama - Job Analyzer Dashboard";
                 var body = $@"
