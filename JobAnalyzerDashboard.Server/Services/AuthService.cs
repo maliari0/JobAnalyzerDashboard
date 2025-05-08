@@ -462,12 +462,20 @@ namespace JobAnalyzerDashboard.Server.Services
                 }
 
                 // Önce API URL'sini al (backend)
-                var apiUrl = _configuration["AppSettings:BaseUrl"] ?? "https://jobanalyzerdashboard-api.onrender.com";
+                var baseUrl = _configuration["AppSettings:BaseUrl"];
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"];
+
+                // Eğer her iki URL de tanımlıysa ve farklıysa, backend URL'sini kullan
+                // Aksi takdirde, frontend URL'sini veya varsayılan değeri kullan
+                var apiUrl = !string.IsNullOrEmpty(baseUrl) && !string.IsNullOrEmpty(frontendUrl) && baseUrl != frontendUrl
+                    ? baseUrl
+                    : frontendUrl ?? baseUrl ?? "https://jobanalyzerdashboard.onrender.com";
 
                 // API yönlendirme endpoint'i üzerinden frontend'e yönlendir
                 var confirmationLink = $"{apiUrl}/api/redirect/confirm-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(user.Email)}";
 
-                _logger.LogInformation("E-posta doğrulama bağlantısı oluşturuldu: {ConfirmationLink}", confirmationLink);
+                _logger.LogInformation("E-posta doğrulama bağlantısı oluşturuldu: {ConfirmationLink} (BaseUrl: {BaseUrl}, FrontendUrl: {FrontendUrl})",
+                    confirmationLink, baseUrl, frontendUrl);
 
                 var subject = "E-posta Adresinizi Doğrulayın - Job Analyzer Dashboard";
                 var body = $@"
@@ -516,7 +524,14 @@ namespace JobAnalyzerDashboard.Server.Services
                 }
 
                 // Önce API URL'sini al (backend)
-                var apiUrl = _configuration["AppSettings:BaseUrl"] ?? "https://jobanalyzerdashboard-api.onrender.com";
+                var baseUrl = _configuration["AppSettings:BaseUrl"];
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"];
+
+                // Eğer her iki URL de tanımlıysa ve farklıysa, backend URL'sini kullan
+                // Aksi takdirde, frontend URL'sini veya varsayılan değeri kullan
+                var apiUrl = !string.IsNullOrEmpty(baseUrl) && !string.IsNullOrEmpty(frontendUrl) && baseUrl != frontendUrl
+                    ? baseUrl
+                    : frontendUrl ?? baseUrl ?? "https://jobanalyzerdashboard.onrender.com";
 
                 // API yönlendirme endpoint'i üzerinden frontend'e yönlendir
                 var resetLink = $"{apiUrl}/api/redirect/reset-password?token={Uri.EscapeDataString(user.PasswordResetToken)}&email={Uri.EscapeDataString(user.Email)}";
