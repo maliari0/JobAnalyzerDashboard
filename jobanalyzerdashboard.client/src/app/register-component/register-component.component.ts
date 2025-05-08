@@ -87,7 +87,7 @@ export class RegisterComponentComponent implements OnInit {
             // Başarılı kayıt
             this.success = 'Kayıt başarılı! E-posta adresinizi doğrulamak için gönderilen e-postayı kontrol edin.';
             setTimeout(() => {
-              this.router.navigate(['/']);
+              this.router.navigate(['/login']);
             }, 3000);
           } else {
             // Başarısız kayıt

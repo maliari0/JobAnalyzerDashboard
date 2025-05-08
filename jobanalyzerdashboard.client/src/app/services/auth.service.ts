@@ -50,11 +50,8 @@ export class AuthService {
   register(registerData: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerData)
       .pipe(
-        tap(response => {
-          if (response.success && response.token && response.user) {
-            this.storeUserData(response);
-          }
-        }),
+        // Kayıt sonrası kullanıcı bilgilerini saklamıyoruz
+        // Kullanıcı giriş sayfasına yönlendirilecek
         catchError(error => {
           console.error('Registration error:', error);
           return throwError(() => error);

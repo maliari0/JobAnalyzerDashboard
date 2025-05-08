@@ -102,25 +102,15 @@ namespace JobAnalyzerDashboard.Server.Services
                 // E-posta doğrulama e-postası gönder
                 await SendEmailConfirmationAsync(user);
 
-                // JWT token oluştur
-                var token = GenerateJwtToken(user);
+                // Artık kayıt sonrası token oluşturmuyoruz
+                // Kullanıcı giriş sayfasına yönlendirilecek
 
                 return new AuthResponseDTO
                 {
                     Success = true,
                     Message = "Kayıt başarılı. Lütfen e-posta adresinizi doğrulayın.",
-                    Token = token,
-                    User = new UserDTO
-                    {
-                        Id = user.Id,
-                        Email = user.Email,
-                        Username = user.Username,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Role = user.Role,
-                        EmailConfirmed = user.EmailConfirmed,
-                        ProfileId = user.ProfileId
-                    }
+                    Token = null,
+                    User = null
                 };
             }
             catch (Exception ex)
@@ -402,7 +392,6 @@ namespace JobAnalyzerDashboard.Server.Services
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
 
-            // Ensure the key is at least 32 bytes (256 bits) long
             if (secretKey.Length < 32)
             {
                 secretKey = secretKey.PadRight(32, 'X');
@@ -461,17 +450,13 @@ namespace JobAnalyzerDashboard.Server.Services
                     return;
                 }
 
-                // Önce API URL'sini al (backend)
                 var baseUrl = _configuration["AppSettings:BaseUrl"];
                 var frontendUrl = _configuration["AppSettings:FrontendUrl"];
 
-                // Eğer her iki URL de tanımlıysa ve farklıysa, backend URL'sini kullan
-                // Aksi takdirde, frontend URL'sini veya varsayılan değeri kullan
                 var apiUrl = !string.IsNullOrEmpty(baseUrl) && !string.IsNullOrEmpty(frontendUrl) && baseUrl != frontendUrl
                     ? baseUrl
                     : frontendUrl ?? baseUrl ?? "https://jobanalyzerdashboard.onrender.com";
 
-                // API yönlendirme endpoint'i üzerinden frontend'e yönlendir
                 var confirmationLink = $"{apiUrl}/api/redirect/confirm-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(user.Email)}";
 
                 _logger.LogInformation("E-posta doğrulama bağlantısı oluşturuldu: {ConfirmationLink} (BaseUrl: {BaseUrl}, FrontendUrl: {FrontendUrl})",
@@ -504,7 +489,6 @@ namespace JobAnalyzerDashboard.Server.Services
             {
                 _logger.LogError(ex, "E-posta doğrulama e-postası gönderilirken bir hata oluştu: {ErrorMessage}", ex.Message);
 
-                // İç içe istisnalar varsa onları da logla
                 var innerException = ex.InnerException;
                 while (innerException != null)
                 {
@@ -523,17 +507,13 @@ namespace JobAnalyzerDashboard.Server.Services
                     return;
                 }
 
-                // Önce API URL'sini al (backend)
                 var baseUrl = _configuration["AppSettings:BaseUrl"];
                 var frontendUrl = _configuration["AppSettings:FrontendUrl"];
 
-                // Eğer her iki URL de tanımlıysa ve farklıysa, backend URL'sini kullan
-                // Aksi takdirde, frontend URL'sini veya varsayılan değeri kullan
                 var apiUrl = !string.IsNullOrEmpty(baseUrl) && !string.IsNullOrEmpty(frontendUrl) && baseUrl != frontendUrl
                     ? baseUrl
                     : frontendUrl ?? baseUrl ?? "https://jobanalyzerdashboard.onrender.com";
 
-                // API yönlendirme endpoint'i üzerinden frontend'e yönlendir
                 var resetLink = $"{apiUrl}/api/redirect/reset-password?token={Uri.EscapeDataString(user.PasswordResetToken)}&email={Uri.EscapeDataString(user.Email)}";
 
                 var subject = "Şifre Sıfırlama - Job Analyzer Dashboard";
