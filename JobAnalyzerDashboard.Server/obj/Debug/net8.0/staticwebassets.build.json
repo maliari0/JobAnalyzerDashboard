@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "OXgUExnfzjaPRY5yL2NHNLAbkwvPnAoiHFLpEHzLTT0=",
+  "Hash": "cB8E9JD4LcOvbSabNxR/O4/HVGhSrBTmNdhCTmBU8wI=",
   "Source": "JobAnalyzerDashboard.Server",
   "BasePath": "_content/JobAnalyzerDashboard.Server",
   "Mode": "Default",
@@ -11,10 +11,10 @@
       "Version": 2,
       "Source": "jobanalyzerdashboard.client",
       "GetPublishAssetsTargets": "GetCurrentProjectPublishStaticWebAssetItems",
-      "AdditionalPublishProperties": "",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
       "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained",
       "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
-      "AdditionalBuildProperties": "",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
       "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
     }
   ],

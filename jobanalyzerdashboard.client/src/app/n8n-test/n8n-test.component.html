@@ -23,18 +23,8 @@
       </div>
 
       <div class="form-group">
-        <label for="employment_type">Çalışma Şekli:</label>
-        <input type="text" id="employment_type" [(ngModel)]="testData.employment_type" class="data-input">
-      </div>
-
-      <div class="form-group">
         <label for="company_website">Firma Web Sitesi:</label>
         <input type="text" id="company_website" [(ngModel)]="testData.company_website" class="data-input">
-      </div>
-
-      <div class="form-group">
-        <label for="contact_email">İletişim E-posta:</label>
-        <input type="text" id="contact_email" [(ngModel)]="testData.contact_email" class="data-input">
       </div>
 
       <div class="form-group">
@@ -86,9 +76,7 @@
     <ul>
       <li>title: İş ilanı başlığı</li>
       <li>description: İş ilanı açıklaması</li>
-      <li>employment_type: Çalışma şekli (remote, full-time, part-time, vb.)</li>
       <li>company_website: Firma web sitesi</li>
-      <li>contact_email: İletişim e-posta adresi</li>
       <li>url: İlan sayfasının URL'i</li>
     </ul>
 
@@ -98,6 +86,9 @@
       <li>Analiz sonucunda kalite puanı, kategori ve eylem önerisi belirlenir</li>
       <li>Sonuçlar Telegram'a bildirim olarak gönderilir</li>
       <li>Analiz edilen iş ilanı JobAnalyzerDashboard'a kaydedilir</li>
+      <li>Otomatik başvuru için, sistem kullanıcının profil bilgilerini ve CV'sini kullanarak başvuru e-postası oluşturur</li>
+      <li>Oluşturulan e-posta içeriği, kullanıcının onayı için JobAnalyzerDashboard'a gönderilir</li>
+      <li>Kullanıcı, e-posta içeriğini inceleyip düzenledikten sonra Google OAuth ile gönderebilir</li>
     </ul>
   </div>
 </div>
