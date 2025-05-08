@@ -464,8 +464,8 @@ namespace JobAnalyzerDashboard.Server.Services
                 // Önce API URL'sini al (backend)
                 var apiUrl = _configuration["AppSettings:BaseUrl"] ?? "https://jobanalyzerdashboard-api.onrender.com";
 
-                // Doğrudan backend URL'sine yönlendir (yönlendirme controller'ı bunu frontend'e yönlendirecek)
-                var confirmationLink = $"{apiUrl}/confirm-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(user.Email)}";
+                // API yönlendirme endpoint'i üzerinden frontend'e yönlendir
+                var confirmationLink = $"{apiUrl}/api/redirect/confirm-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(user.Email)}";
 
                 _logger.LogInformation("E-posta doğrulama bağlantısı oluşturuldu: {ConfirmationLink}", confirmationLink);
 
@@ -518,8 +518,8 @@ namespace JobAnalyzerDashboard.Server.Services
                 // Önce API URL'sini al (backend)
                 var apiUrl = _configuration["AppSettings:BaseUrl"] ?? "https://jobanalyzerdashboard-api.onrender.com";
 
-                // Doğrudan backend URL'sine yönlendir (yönlendirme controller'ı bunu frontend'e yönlendirecek)
-                var resetLink = $"{apiUrl}/reset-password?token={Uri.EscapeDataString(user.PasswordResetToken)}&email={Uri.EscapeDataString(user.Email)}";
+                // API yönlendirme endpoint'i üzerinden frontend'e yönlendir
+                var resetLink = $"{apiUrl}/api/redirect/reset-password?token={Uri.EscapeDataString(user.PasswordResetToken)}&email={Uri.EscapeDataString(user.Email)}";
 
                 var subject = "Şifre Sıfırlama - Job Analyzer Dashboard";
                 var body = $@"

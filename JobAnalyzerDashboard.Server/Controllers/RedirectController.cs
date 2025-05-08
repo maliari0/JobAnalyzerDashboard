@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 namespace JobAnalyzerDashboard.Server.Controllers
 {
     [ApiController]
-    [Route("")]
+    [Route("api/redirect")]
     public class RedirectController : ControllerBase
     {
         private readonly IConfiguration _configuration;
