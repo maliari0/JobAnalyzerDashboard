@@ -47,7 +47,6 @@ namespace JobAnalyzerDashboard.Server.Middleware
         {
             try
             {
-                // Token'ı parse et
                 var handler = new JwtSecurityTokenHandler();
                 var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
 
@@ -57,11 +56,9 @@ namespace JobAnalyzerDashboard.Server.Middleware
                     return;
                 }
 
-                // Claim'leri logla
                 _logger.LogInformation("Token claims: {Claims}",
                     string.Join(", ", jsonToken.Claims.Select(c => $"{c.Type}={c.Value}")));
 
-                // E-posta claim'ini bul
                 var emailClaim = jsonToken.Claims.FirstOrDefault(x =>
                     x.Type == ClaimTypes.Email ||
                     x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
@@ -75,10 +72,8 @@ namespace JobAnalyzerDashboard.Server.Middleware
                     {
                         _logger.LogInformation("User found by email: {Email}, Role: {Role}", user.Email, user.Role);
 
-                        // Kullanıcıyı context'e ekle
                         context.Items["User"] = user;
 
-                        // Kullanıcı kimliğini HttpContext.User'a ekle
                         var identity = new ClaimsIdentity(jsonToken.Claims, "Bearer");
                         context.User = new ClaimsPrincipal(identity);
 
@@ -86,24 +81,20 @@ namespace JobAnalyzerDashboard.Server.Middleware
                     }
                 }
 
-                // Kullanıcı ID claim'ini bul
                 var userIdClaim = jsonToken.Claims.FirstOrDefault(x =>
                     x.Type == ClaimTypes.NameIdentifier ||
                     x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
 
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
                 {
-                    // ID ile kullanıcıyı bul
                     var user = await dbContext.Users.FindAsync(userId);
 
                     if (user != null)
                     {
                         _logger.LogInformation("User found by ID: {UserId}, Role: {Role}", user.Id, user.Role);
 
-                        // Kullanıcıyı context'e ekle
                         context.Items["User"] = user;
 
-                        // Kullanıcı kimliğini HttpContext.User'a ekle
                         var identity = new ClaimsIdentity(jsonToken.Claims, "Bearer");
                         context.User = new ClaimsPrincipal(identity);
 
@@ -111,16 +102,13 @@ namespace JobAnalyzerDashboard.Server.Middleware
                     }
                 }
 
-                // Admin kullanıcısını özel olarak kontrol et
                 var adminUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com" && u.Role == "Admin");
                 if (adminUser != null)
                 {
                     _logger.LogInformation("Admin user found as fallback");
 
-                    // Admin kullanıcısını context'e ekle
                     context.Items["User"] = adminUser;
 
-                    // Admin kimliğini HttpContext.User'a ekle
                     var claims = new[]
                     {
                         new Claim(ClaimTypes.NameIdentifier, adminUser.Id.ToString()),
@@ -139,7 +127,6 @@ namespace JobAnalyzerDashboard.Server.Middleware
             }
             catch (Exception ex)
             {
-                // Token doğrulama hatası durumunda log kaydı oluştur
                 _logger.LogError(ex, "JWT token validation failed");
             }
         }

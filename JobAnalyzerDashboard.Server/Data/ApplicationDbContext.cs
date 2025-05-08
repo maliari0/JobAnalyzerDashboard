@@ -23,14 +23,12 @@ namespace JobAnalyzerDashboard.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // İlişkileri ve kısıtlamaları tanımla
             modelBuilder.Entity<Application>()
                 .HasOne(a => a.Job)
                 .WithMany()
                 .HasForeignKey(a => a.JobId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Application ve User ilişkisi
             modelBuilder.Entity<Application>()
                 .HasOne(a => a.User)
                 .WithMany()
@@ -49,14 +47,12 @@ namespace JobAnalyzerDashboard.Server.Data
                 .HasForeignKey(t => t.ProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // User ve Profile ilişkisi
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Profile)
                 .WithOne(p => p.User)
                 .HasForeignKey<Profile>(p => p.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // User entity'si için indeksler
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
@@ -65,41 +61,34 @@ namespace JobAnalyzerDashboard.Server.Data
                 .HasIndex(u => u.Username)
                 .IsUnique();
 
-            // Job entity'si için Tags alanını JSON olarak sakla
             modelBuilder.Entity<Job>()
                 .Property(j => j.Tags)
                 .HasColumnType("text");
 
-            // Job entity'si için Description alanını UTF-8 olarak sakla
             modelBuilder.Entity<Job>()
                 .Property(j => j.Description)
                 .HasColumnType("text")
                 .IsUnicode(true);
 
-            // Job entity'si için Title alanını UTF-8 olarak sakla
             modelBuilder.Entity<Job>()
                 .Property(j => j.Title)
                 .HasColumnType("text")
                 .IsUnicode(true);
 
-            // Job entity'si için Company alanını UTF-8 olarak sakla
             modelBuilder.Entity<Job>()
                 .Property(j => j.Company)
                 .HasColumnType("text")
                 .IsUnicode(true);
 
-            // Profile entity'si için PreferredCategories alanını JSON olarak sakla
             modelBuilder.Entity<Profile>()
                 .Property(p => p.PreferredCategories)
                 .HasColumnType("text");
 
-            // Seed data ekle
             SeedData(modelBuilder);
         }
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Varsayılan profil ekle
             modelBuilder.Entity<Profile>().HasData(
                 new Profile
                 {

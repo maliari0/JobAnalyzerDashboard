@@ -71,7 +71,7 @@
 6. Tarayıcınızda aşağıdaki adresi açın:
 
    ```text
-   https://localhost:5001
+   https://localhost:5267 veya https://localhost:52545:
    ```
 
 ## Geliştirme

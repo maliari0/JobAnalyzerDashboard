@@ -15,13 +15,10 @@ namespace JobAnalyzerDashboard.Server.Data
             // Veritabanını oluştur (eğer yoksa)
             await context.Database.EnsureCreatedAsync();
 
-            // Admin kullanıcısı var mı kontrol et
             if (!await context.Users.AnyAsync(u => u.Username == "admin"))
             {
-                // Admin kullanıcısı için şifre hash'i oluştur
                 CreatePasswordHash("admin123", out string passwordHash, out string passwordSalt);
 
-                // Admin kullanıcısını oluştur
                 var adminUser = new User
                 {
                     Username = "admin",
@@ -36,11 +33,9 @@ namespace JobAnalyzerDashboard.Server.Data
                     Role = "Admin"
                 };
 
-                // Admin kullanıcısını veritabanına ekle
                 await context.Users.AddAsync(adminUser);
                 await context.SaveChangesAsync();
 
-                // Admin kullanıcısı için profil oluştur
                 var adminProfile = new Profile
                 {
                     FullName = "Admin User",
@@ -50,7 +45,6 @@ namespace JobAnalyzerDashboard.Server.Data
                 await context.Profiles.AddAsync(adminProfile);
                 await context.SaveChangesAsync();
 
-                // Admin kullanıcısı ve profil ilişkisini güncelle
                 adminUser.ProfileId = adminProfile.Id;
                 context.Users.Update(adminUser);
                 await context.SaveChangesAsync();
