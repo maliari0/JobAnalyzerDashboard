@@ -75,7 +75,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
-        // Webhook test endpoint'i
         [HttpGet("test")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult TestWebhook()
@@ -92,7 +91,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
-        // Ana webhook endpoint'i - n8n için
         [HttpPost]
         public async Task<IActionResult> HandleWebhook([FromBody] object payload)
         {
@@ -103,7 +101,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return BadRequest(new { success = false, message = "Geçersiz veri" });
                 }
 
-                // Payload'ı JSON olarak al
                 var options = new JsonSerializerOptions
                 {
                     Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -112,10 +109,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 var jsonString = JsonSerializer.Serialize(payload, options);
                 _logger.LogInformation("Gelen veri: {JsonData}", jsonString);
 
-                // output alanını kontrol et
                 try
                 {
-                    // UTF-8 kodlamasını kullanarak JSON'ı parse et
                     var jsonDocOptions = new System.Text.Json.JsonDocumentOptions
                     {
                         AllowTrailingCommas = true,
@@ -125,8 +120,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                     if (jsonDoc.RootElement.TryGetProperty("output", out var outputElement))
                     {
-                        // n8n'den gelen veriyi işle
-                        // Gelen veriyi logla
                         _logger.LogInformation("n8n'den gelen veri: {JsonData}", outputElement.ToString());
 
                         var job = new Job
@@ -151,10 +144,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             Tags = GetJsonPropertyValueArray(outputElement, "tags")
                         };
 
-                        // Şirket adı boşsa ve company alanı yoksa
                         if (string.IsNullOrEmpty(job.Company) || job.Company == "Bilinmeyen Şirket")
                         {
-                            // Başlıktan şirket adını çıkarmaya çalış
                             var titleParts = job.Title.Split(new[] { '-', '|', '@' }, StringSplitOptions.RemoveEmptyEntries);
                             if (titleParts.Length > 1)
                             {
@@ -162,10 +153,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             }
                         }
 
-                        // Konum bilgisi boşsa veya "Belirtilmemiş" ise
                         if (string.IsNullOrEmpty(job.Location) || job.Location == "Belirtilmemiş")
                         {
-                            // Önce employment_type'dan konum bilgisini çıkarmaya çalış
                             if (!string.IsNullOrEmpty(job.EmploymentType))
                             {
                                 if (job.EmploymentType.Contains("remote", StringComparison.OrdinalIgnoreCase) ||
@@ -186,7 +175,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                                 }
                             }
 
-                            // Hala boşsa, açıklamadan konum bilgisini çıkarmaya çalış
                             if (string.IsNullOrEmpty(job.Location) || job.Location == "Belirtilmemiş")
                             {
                                 if (job.Description.Contains("remote", StringComparison.OrdinalIgnoreCase) ||
@@ -248,7 +236,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
-        // JSON yardımcı metotları
         private string GetJsonPropertyValue(JsonElement element, string propertyName, string defaultValue)
         {
             if (element.TryGetProperty(propertyName, out var property))
@@ -318,7 +305,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
             try
             {
-                // Maaş aralığı formatlarını işle: "35.000 - 45.000 TL", "35K-45K", "35,000 TL" vb.
                 salaryText = salaryText.ToLower()
                     .Replace("tl", "")
                     .Replace("₺", "")
@@ -326,7 +312,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     .Replace(",", "")
                     .Replace(" ", "");
 
-                // Aralık varsa (örn. 35000-45000)
                 if (salaryText.Contains("-") || salaryText.Contains("–"))
                 {
                     var parts = salaryText.Split(new[] { '-', '–' }, StringSplitOptions.RemoveEmptyEntries);
@@ -335,7 +320,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         // İlk kısmı al (minimum maaş)
                         var minSalaryPart = parts[0].Trim();
 
-                        // "K" veya "k" ile biten değerleri işle (35k -> 35000)
                         if (minSalaryPart.EndsWith("k"))
                         {
                             minSalaryPart = minSalaryPart.TrimEnd('k');
@@ -345,7 +329,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             }
                         }
 
-                        // Doğrudan sayısal değeri işle
                         if (int.TryParse(minSalaryPart, out int directValue))
                         {
                             return directValue;
@@ -354,7 +337,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 }
                 else
                 {
-                    // Aralık yoksa, doğrudan değeri işle
                     if (salaryText.EndsWith("k"))
                     {
                         salaryText = salaryText.TrimEnd('k');
@@ -372,7 +354,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
             catch (Exception ex)
             {
-                // Hata durumunda loglama yap
                 Console.WriteLine($"Maaş ayrıştırma hatası: {ex.Message}");
             }
 

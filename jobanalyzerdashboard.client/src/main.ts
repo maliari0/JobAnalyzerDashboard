@@ -5,7 +5,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
 import { AppModule } from './app/app.module';
 
-// Modül tabanlı yaklaşım
 import { platformBrowser } from '@angular/platform-browser';
 platformBrowser().bootstrapModule(AppModule, {
   ngZoneEventCoalescing: true,

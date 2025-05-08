@@ -419,8 +419,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
                 }
 
-                // Burada n8n webhook'una bildirim gönderilecek
-                // Şimdilik sadece başarılı yanıt döndürüyoruz
+
 
                 return Ok(new { success = true, message = "Webhook bildirimi gönderildi", jobId = id });
             }
@@ -686,7 +685,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 // Kullanıcı ID'si belirtilmemişse, varsayılan olarak admin kullanıcısını kullan
                 if (userId <= 0)
                 {
-                    // Admin kullanıcısını bul
                     var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com");
                     if (adminUser != null && adminUser.ProfileId.HasValue)
                     {
@@ -695,7 +693,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     }
                 }
 
-                // Kullanıcı kimliği varsa, kullanıcının bu ilana daha önce başvurup başvurmadığını kontrol et
                 if (userId > 0)
                 {
                     bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(id, userId);
@@ -706,7 +703,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 }
                 else
                 {
-                    // Admin kullanıcısı bulunamazsa, herhangi bir kullanıcıyı dene
                     var anyUser = await _context.Users.FirstOrDefaultAsync(u => u.ProfileId.HasValue);
                     if (anyUser != null)
                     {
@@ -719,7 +715,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     }
                 }
 
-                // Kullanıcıyı bul
                 var user = await _context.Users.FindAsync(userId);
                 if (user == null || !user.ProfileId.HasValue)
                 {
@@ -730,27 +725,22 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 {
                     var webhookUrl = "https://n8n-service-a2yz.onrender.com/webhook/apply-auto"; // n8n oto başvuru webhook URL'i
 
-                    // Kullanıcının özgeçmişini al
                     Resume defaultResume = null;
                     string resumeBase64 = null;
                     Models.Profile? profile = null;
 
                     try
                     {
-                        // Kullanıcının profilini al
                         profile = await _profileRepository.GetProfileWithResumesAsync(user.ProfileId.Value);
                         if (profile != null)
                         {
                             defaultResume = await _profileRepository.GetDefaultResumeAsync(profile.Id);
                             if (defaultResume != null)
                             {
-                                // Dosya yolunu oluştur
                                 string filePath = Path.Combine(_environment.WebRootPath, defaultResume.FilePath.TrimStart('/'));
 
-                                // Dosyanın varlığını kontrol et
                                 if (System.IO.File.Exists(filePath))
                                 {
-                                    // Dosyayı oku
                                     var fileBytes = System.IO.File.ReadAllBytes(filePath);
                                     resumeBase64 = Convert.ToBase64String(fileBytes);
                                     _logger.LogInformation("Kullanıcı {UserId} için özgeçmiş alındı: {Id} - {FileName}", userId, defaultResume.Id, defaultResume.FileName);
@@ -775,7 +765,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         _logger.LogError(ex, "Kullanıcı {UserId} için özgeçmiş alınırken hata oluştu", userId);
                     }
 
-                    // Önce başvuru kaydı oluştur
                     var application = new Application
                     {
                         JobId = job.Id,
@@ -806,8 +795,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         location = job.Location?.ToLower(),
                         company = job.Company,
                         userId = userId,
-                        jobId = job.Id, // JobId değerini ekle
-                        applicationId = application.Id, // ApplicationId değerini ekle
+                        jobId = job.Id, 
+                        applicationId = application.Id, 
                         resume = defaultResume != null ? new
                         {
                             fileContent = resumeBase64,
@@ -864,14 +853,11 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         // await _jobRepository.UpdateAsync(job);
                         // await _jobRepository.SaveChangesAsync();
 
-                        // n8n webhook'undan dönen yanıtı parse et ve e-posta içeriğini çıkar
                         string emailContent = "";
                         try
                         {
-                            // responseContent'i JSON olarak parse et
                             var responseJson = JsonSerializer.Deserialize<JsonElement>(responseContent);
 
-                            // Telegram mesajını al
                             if (responseJson.TryGetProperty("ok", out var okProp) && okProp.GetBoolean() &&
                                 responseJson.TryGetProperty("result", out var resultProp) &&
                                 resultProp.TryGetProperty("text", out var textProp))

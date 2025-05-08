@@ -162,7 +162,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { message = "İş ilanı bulunamadı" });
                 }
 
-                // Kullanıcı kimliğini al
                 int? userId = model.UserId;
 
                 // Eğer model'de UserId belirtilmemişse, mevcut kullanıcının ID'sini kullan
@@ -175,7 +174,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     }
                 }
 
-                // Kullanıcı kimliği varsa, kullanıcının bu ilana daha önce başvurup başvurmadığını kontrol et
                 if (userId.HasValue)
                 {
                     bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(model.JobId, userId.Value);
@@ -189,10 +187,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 {
                     JobId = model.JobId,
                     AppliedDate = DateTime.UtcNow,
-                    Status = "Applying", // Başvuru durumu "Applying" olarak ayarlandı
+                    Status = "Applying",
                     AppliedMethod = model.AppliedMethod,
                     SentMessage = model.Message,
-                    Message = model.Message, // Veritabanı şeması ile uyumlu olması için
+                    Message = model.Message,
                     IsAutoApplied = model.IsAutoApplied,
                     CvAttached = model.CvAttached,
                     TelegramNotificationSent = model.TelegramNotification ?? string.Empty,
@@ -338,7 +336,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { message = "İş ilanı bulunamadı" });
                 }
 
-                // Kullanıcı kimliğini al
                 int? userId = null;
                 var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
@@ -346,7 +343,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     userId = parsedUserId;
                 }
 
-                // Kullanıcı kimliği varsa, kullanıcının bu ilana daha önce başvurup başvurmadığını kontrol et
                 if (userId.HasValue)
                 {
                     bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(model.JobId, userId.Value);
@@ -361,10 +357,10 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 {
                     JobId = model.JobId,
                     AppliedDate = DateTime.UtcNow,
-                    Status = "Applying", // Başvuru durumu "Applying" olarak ayarlandı
+                    Status = "Applying",
                     AppliedMethod = "n8n",
                     SentMessage = model.Message ?? string.Empty,
-                    Message = model.Message ?? string.Empty, // Veritabanı şeması ile uyumlu olması için
+                    Message = model.Message ?? string.Empty,
                     IsAutoApplied = true,
                     CvAttached = true,
                     TelegramNotificationSent = model.TelegramNotification ?? string.Empty,
@@ -402,36 +398,30 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                // Başvuruyu bul
                 var application = await _applicationRepository.GetApplicationWithJobAsync(id);
                 if (application == null)
                 {
                     return NotFound(new { success = false, message = "Başvuru bulunamadı" });
                 }
 
-                // İş ilanını kontrol et
                 if (application.Job == null)
                 {
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
                 }
 
-                // E-posta içeriğini kontrol et
                 string emailContent = model?.CustomEmailContent ?? application.EmailContent;
                 if (string.IsNullOrEmpty(emailContent))
                 {
                     return BadRequest(new { success = false, message = "E-posta içeriği bulunamadı" });
                 }
 
-                // İş ilanının e-posta adresini kontrol et
                 if (string.IsNullOrEmpty(application.Job.ContactEmail))
                 {
                     return BadRequest(new { success = false, message = "İş ilanında e-posta adresi bulunamadı" });
                 }
 
-                // Profil ID'sini al (varsayılan olarak 1)
                 int profileId = model?.ProfileId ?? 1;
 
-                // Kullanıcının varsayılan CV dosyasını al
                 string? attachmentPath = null;
                 try
                 {
@@ -443,10 +433,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                     if (defaultResume != null)
                     {
-                        // Dosya yolunu oluştur
                         string filePath = Path.Combine(_environment.WebRootPath, defaultResume.FilePath.TrimStart('/'));
 
-                        // Dosyanın varlığını kontrol et
                         if (System.IO.File.Exists(filePath))
                         {
                             attachmentPath = filePath;
@@ -474,12 +462,11 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     subject,
                     emailContent,
                     attachmentPath, // Varsayılan CV dosyası
-                    profileId // Profil ID'si
+                    profileId
                 );
 
                 if (emailSent)
                 {
-                    // Başvuru durumunu güncelle
                     application.Status = "Sent";
                     application.SentMessage = emailContent;
                     await _applicationRepository.UpdateAsync(application);
@@ -536,12 +523,12 @@ namespace JobAnalyzerDashboard.Server.Controllers
     {
         public int JobId { get; set; }
         public string AppliedMethod { get; set; } = "Manual";
-        public string Message { get; set; } = string.Empty; // Nullable olmayan bir alan
+        public string Message { get; set; } = string.Empty;
         public bool IsAutoApplied { get; set; } = false;
         public bool CvAttached { get; set; } = false;
         public string? TelegramNotification { get; set; }
-        public string? EmailContent { get; set; } // E-posta içeriği
-        public int? UserId { get; set; } // Kullanıcı ID'si
+        public string? EmailContent { get; set; }
+        public int? UserId { get; set; }
     }
 
     public class AutoApplyModel

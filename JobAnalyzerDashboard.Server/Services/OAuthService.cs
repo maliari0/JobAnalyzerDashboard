@@ -32,18 +32,15 @@ namespace JobAnalyzerDashboard.Server.Services
                 var clientId = _configuration["Authentication:Google:ClientId"];
                 var redirectUri = _configuration["Authentication:Google:RedirectUri"];
 
-                // Düzeltme: Scopes'u doğrudan string olarak al
                 string scopeString;
                 var scopesConfig = _configuration["Authentication:Google:Scopes"];
 
                 if (!string.IsNullOrEmpty(scopesConfig))
                 {
-                    // Eğer zaten boşluklarla ayrılmış bir string ise, doğrudan kullan
                     scopeString = scopesConfig;
                 }
                 else
                 {
-                    // Eğer null ise, varsayılan scope'ları kullan
                     scopeString = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
                 }
 
@@ -95,13 +92,11 @@ namespace JobAnalyzerDashboard.Server.Services
                         : null;
                     var expiresIn = tokenResponse.GetProperty("expires_in").GetInt32();
 
-                    // Get user email
                     var userInfoResponse = await client.GetAsync($"https://www.googleapis.com/oauth2/v2/userinfo?access_token={accessToken}");
                     var userInfoString = await userInfoResponse.Content.ReadAsStringAsync();
                     var userInfo = JsonSerializer.Deserialize<JsonElement>(userInfoString);
                     var email = userInfo.GetProperty("email").GetString();
 
-                    // Check if token already exists
                     var existingToken = await _context.OAuthTokens
                         .FirstOrDefaultAsync(t => t.ProfileId == profileId && t.Provider == provider);
 
@@ -122,7 +117,7 @@ namespace JobAnalyzerDashboard.Server.Services
                     }
                     else
                     {
-                        // Düzeltme: Scope'u doğrudan string olarak al
+                        // Düzeltme: Scope'u doğrudan string olarak almamız gerek.
                         string scopeString;
                         var scopesConfig = _configuration["Authentication:Google:Scopes"];
 

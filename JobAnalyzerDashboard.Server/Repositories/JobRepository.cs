@@ -19,7 +19,7 @@ namespace JobAnalyzerDashboard.Server.Repositories
         {
             var query = _dbSet.AsQueryable();
 
-            // Filtreleri uygula
+            // Filtreler
             if (!string.IsNullOrEmpty(category))
             {
                 query = query.Where(j => j.Category.ToLower() == category.ToLower());
@@ -111,7 +111,7 @@ namespace JobAnalyzerDashboard.Server.Repositories
                     }
                     catch
                     {
-                        // JSON deserialize hatası, yoksay
+                        // Hatalı JSON formatı
                     }
                 }
             }

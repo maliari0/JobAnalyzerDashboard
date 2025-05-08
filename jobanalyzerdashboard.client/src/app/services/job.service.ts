@@ -68,22 +68,17 @@ export class JobService {
       );
   }
 
-  // Job verilerini işleyen yardımcı metot
   private processJobData(job: Job): Job {
     try {
-      // Tags alanını işle
       if (job && job.tags) {
-        // Tags string ise ve JSON formatında ise parse et
         if (typeof job.tags === 'string') {
           try {
             job.parsedTags = JSON.parse(job.tags);
           } catch (e) {
-            // Parse hatası durumunda boş dizi ata
             job.parsedTags = [];
             console.warn('Tags parse edilemedi:', job.tags);
           }
         } else if (Array.isArray(job.tags)) {
-          // Eğer zaten dizi ise doğrudan ata
           job.parsedTags = job.tags as any;
         }
       } else {
@@ -107,9 +102,7 @@ export class JobService {
         job.location = this.fixTurkishCharacters(job.location);
       }
 
-      // Şirket adını kontrol et
       if (job && job.company === "Bilinmeyen Şirket" && job.description) {
-        // Açıklamadan şirket adını çıkarmaya çalış
         const companyMatch = job.description.match(/([A-Za-z0-9\s]+) (şirketimiz|firması|şirketi)/i);
 
         if (companyMatch && companyMatch[1]) {
@@ -117,12 +110,10 @@ export class JobService {
         }
       }
 
-      // Açıklamadan şirket adını çıkarmaya çalış (alternatif yöntem)
       if (job && job.company === "Bilinmeyen Şirket" && job.description) {
         const words = job.description.split(' ');
         for (let i = 0; i < words.length - 1; i++) {
           if (words[i].toLowerCase() === 'merhaba,' && i + 1 < words.length) {
-            // "Merhaba, [Şirket Adı]" formatını kontrol et
             const potentialCompany = words[i + 1];
             if (potentialCompany && potentialCompany.length > 2 &&
                 potentialCompany !== 'ben' &&
@@ -186,7 +177,6 @@ export class JobService {
 
   // Birden fazla job için process işlemi
   private processJobsData(jobs: any): Job[] {
-    // jobs bir dizi değilse, boş dizi döndür
     if (!jobs) {
       console.error('Jobs verisi boş:', jobs);
       return [];
@@ -197,10 +187,8 @@ export class JobService {
       console.log('ASP.NET Core özel JSON formatı tespit edildi, $values kullanılıyor');
       jobs = jobs.$values;
     }
-    // jobs bir dizi değilse, dizi olarak dönüştür
     else if (!Array.isArray(jobs)) {
       console.error('Jobs verisi bir dizi değil:', jobs);
-      // Eğer jobs bir nesne ise ve data özelliği varsa, data'yı kullan
       if (jobs && typeof jobs === 'object' && 'data' in jobs && Array.isArray(jobs.data)) {
         jobs = jobs.data;
       } else {

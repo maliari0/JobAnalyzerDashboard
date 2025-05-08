@@ -19,7 +19,6 @@ namespace JobAnalyzerDashboard.Server.Models
         public bool IsApplied { get; set; }
         public DateTime? AppliedDate { get; set; }
 
-        // N8n entegrasyonu için eklenen alanlar
         public string ActionSuggestion { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public string Tags { get; set; } = "[]";

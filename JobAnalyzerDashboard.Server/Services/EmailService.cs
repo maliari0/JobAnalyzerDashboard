@@ -37,10 +37,8 @@ namespace JobAnalyzerDashboard.Server.Services
                 Console.WriteLine($"E-posta gönderme isteği alındı: {to}, Konu: {subject}, ProfileId: {profileId}");
                 _logger.LogInformation("E-posta gönderme isteği alındı: {To}, Konu: {Subject}, ProfileId: {ProfileId}", to, subject, profileId);
 
-                // Kullanıcının OAuth token'ını kontrol et
                 try
                 {
-                    // Gmail API ile e-posta göndermeyi dene
                     var result = await _gmailService.SendEmailAsync(profileId, to, subject, body, attachmentPath);
                     if (result)
                     {
@@ -56,20 +54,17 @@ namespace JobAnalyzerDashboard.Server.Services
                     Console.WriteLine($"Gmail API hatası: {gmailEx.Message}. SMTP ile devam ediliyor.");
                     _logger.LogWarning(gmailEx, "Gmail API hatası: {ErrorMessage}. SMTP ile devam ediliyor.", gmailEx.Message);
 
-                    // Eğer Gmail API hatası, API'nin etkinleştirilmediği veya yetkilendirilmediği ile ilgiliyse
                     if (gmailEx.Message.Contains("Gmail API is not enabled or authorized"))
                     {
                         throw new Exception("E-posta göndermek için Gmail API'yi etkinleştirmeniz veya yetkilendirmeniz gerekiyor. Lütfen Google Cloud Console'da Gmail API'yi etkinleştirin ve tekrar deneyin.", gmailEx);
                     }
 
-                    // Gmail API başarısız olursa, SMTP ile devam et
+                    // Gmail API başarısız olursa, SMTP ile devam etmek gerek
                 }
 
-                // Doğrudan SMTP kullanarak e-posta gönder
                 Debug.WriteLine("Doğrudan SMTP kullanarak e-posta gönderiliyor");
                 Console.WriteLine("Doğrudan SMTP kullanarak e-posta gönderiliyor");
 
-                // E-posta ayarlarını yapılandırmadan al
                 var emailSettings = _configuration.GetSection("EmailSettings");
                 var smtpServer = emailSettings["SmtpServer"] ?? "smtp.gmail.com";
                 var smtpPort = int.Parse(emailSettings["SmtpPort"] ?? "587");
@@ -83,7 +78,7 @@ namespace JobAnalyzerDashboard.Server.Services
                 _logger.LogInformation("SMTP Ayarları: Server={Server}, Port={Port}, Username={Username}, SenderEmail={SenderEmail}",
                     smtpServer, smtpPort, smtpUsername, senderEmail);
 
-                // Gmail SMTP ile e-posta gönder
+                // Gmail SMTP
                 using var client = new SmtpClient
                 {
                     Host = smtpServer,
@@ -145,7 +140,6 @@ namespace JobAnalyzerDashboard.Server.Services
                     Console.WriteLine($"SMTP hatası: {smtpEx.Message}");
                     _logger.LogError(smtpEx, "SMTP hatası: {ErrorMessage}", smtpEx.Message);
 
-                    // İç içe istisnalar varsa onları da logla
                     var innerException = smtpEx.InnerException;
                     int level = 1;
                     while (innerException != null)
@@ -157,7 +151,7 @@ namespace JobAnalyzerDashboard.Server.Services
                         level++;
                     }
 
-                    throw; // Yeniden fırlat
+                    throw; 
                 }
             }
             catch (Exception ex)
@@ -167,7 +161,6 @@ namespace JobAnalyzerDashboard.Server.Services
                 _logger.LogError(ex, "E-posta gönderilirken hata oluştu: {To}, Konu: {Subject}, Hata: {ErrorMessage}",
                     to, subject, ex.Message);
 
-                // İç içe istisnalar varsa onları da logla
                 var innerException = ex.InnerException;
                 int level = 1;
                 while (innerException != null)

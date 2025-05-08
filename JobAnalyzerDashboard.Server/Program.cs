@@ -14,18 +14,15 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Geliştirme ortamında User Secrets kullan
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-// Loglama yapılandırması
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-// UTF-8 kodlamasını varsayılan olarak ayarla
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
@@ -33,12 +30,9 @@ System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Inst
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    // Döngüsel referanslar için ReferenceHandler.IgnoreCycles kullan
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-    options.JsonSerializerOptions.MaxDepth = 64; // Varsayılan değer 32'dir
-    // Özel JSON formatını devre dışı bırak
+    options.JsonSerializerOptions.MaxDepth = 64; // Varsayılan değer 32
     options.JsonSerializerOptions.WriteIndented = true;
-    // Büyük boyutlu verilerin serileştirilmesine izin ver
     options.JsonSerializerOptions.DefaultBufferSize = 1024 * 1024; // 1 MB
 });
 
@@ -51,7 +45,7 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// PostgreSQL veritabanı bağlantısını ekle
+// PostgreSQL veritabanı bağlantısı
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -59,10 +53,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
-// JWT ayarlarını yapılandır
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
-// Kimlik doğrulama servislerini ekle
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -84,7 +76,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS politikalarını yapılandır
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -95,18 +86,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Repository servislerini ekle
 builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IJobRepository, JobAnalyzerDashboard.Server.Repositories.JobRepository>();
 builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IApplicationRepository, JobAnalyzerDashboard.Server.Repositories.ApplicationRepository>();
 builder.Services.AddScoped<JobAnalyzerDashboard.Server.Repositories.IProfileRepository, JobAnalyzerDashboard.Server.Repositories.ProfileRepository>();
 
-// OAuth, E-posta ve Kimlik Doğrulama servislerini ekle
 builder.Services.AddScoped<OAuthService>();
 builder.Services.AddScoped<GmailApiService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<AuthService>();
 
-// CORS politikasını ekle - n8n entegrasyonu ve statik dosya erişimi için
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -132,24 +120,20 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Statik dosyaları sunmak için middleware'leri yapılandır
 app.UseDefaultFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
     {
-        // PDF dosyaları için MIME türünü ayarla
         if (ctx.File.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
         {
             ctx.Context.Response.Headers.Append("Content-Type", "application/pdf");
         }
 
-        // Cache kontrolü
         ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
     }
 });
 
-// wwwroot klasörünün varlığını kontrol et
 string wwwrootFolder = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
 if (!Directory.Exists(wwwrootFolder))
 {
@@ -167,43 +151,36 @@ else
     }
 }
 
-// Uploads klasörünün varlığını kontrol et ve oluştur
 string uploadsFolder = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads", "resumes");
 if (!Directory.Exists(uploadsFolder))
 {
     Directory.CreateDirectory(uploadsFolder);
 }
 
-// Uploads klasörü için özel dosya sağlayıcısı ekle
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads")),
     RequestPath = "/uploads",
-    ServeUnknownFileTypes = true, // Bilinmeyen dosya türlerini de servis et
-    DefaultContentType = "application/octet-stream", // Varsayılan içerik türü
+    ServeUnknownFileTypes = true,
+    DefaultContentType = "application/octet-stream",
     OnPrepareResponse = ctx =>
     {
-        // PDF dosyaları için MIME türünü ayarla
         if (ctx.File.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
         {
             ctx.Context.Response.Headers.Append("Content-Type", "application/pdf");
         }
 
-        // CORS başlıklarını ekle
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
         ctx.Context.Response.Headers.Append("Cross-Origin-Resource-Policy", "cross-origin");
 
-        // Content-Security-Policy başlığını ekle
         ctx.Context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'");
 
-        // Cache kontrolü
         ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
     }
 });
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -212,13 +189,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// CORS middleware'ini etkinleştir
 app.UseCors("AllowAll");
 
-// JWT middleware'i ekle
-app.UseMiddleware<JobAnalyzerDashboard.Server.Middleware.JwtMiddleware>();
+app.UseMiddleware<JwtMiddleware>();
 
-// Kimlik doğrulama ve yetkilendirme middleware'lerini ekle
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -226,7 +200,6 @@ app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
 
-// Veritabanını başlat ve admin kullanıcısını oluştur
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -242,7 +215,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Render.com için port yapılandırması
 var port = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrEmpty(port))
 {

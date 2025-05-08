@@ -13,14 +13,6 @@
 /DeleteUserApp/
 /TestEmailSender/
 
-# Deployment dosyaları
-/build.sh
-/start.sh
-/copy-spa.sh
-/vercel.json
-/render.yaml
-/Dockerfile
-/Program.cs.patch
 
 # Hassas bilgiler içeren dosyalar
 **/appsettings.json

@@ -33,7 +33,6 @@ namespace JobAnalyzerDashboard.Server.Services
                     ApplicationName = "JobAnalyzerDashboard"
                 });
 
-                // Kullanıcının e-posta adresini al
                 var token = await _oauthService.GetOAuthTokenByProfileIdAndProvider(profileId, "Google");
                 if (token == null)
                 {
@@ -46,11 +45,8 @@ namespace JobAnalyzerDashboard.Server.Services
                 message.To.Add(new MailboxAddress("", to));
                 message.Subject = subject;
 
-                // HTML formatında e-posta gövdesi oluştur
-                // Satır sonlarını <br> etiketlerine dönüştür
                 string htmlBody = body.Replace("\n", "<br>").Replace("\r\n", "<br>");
 
-                // Eğer HTML formatında değilse, HTML formatına çevir
                 if (!htmlBody.Contains("<html>") && !htmlBody.Contains("<body>"))
                 {
                     htmlBody = $@"

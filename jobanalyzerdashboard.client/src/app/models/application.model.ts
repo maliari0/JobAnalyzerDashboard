@@ -4,27 +4,22 @@ export interface Application {
   id: number;
   jobId: number;
   appliedDate: string;
-  status: string; // Pending, Accepted, Rejected, Interview
+  status: string;
   responseDetails?: string;
   responseDate?: string;
-  appliedMethod: string; // Email, Form, API, n8n
+  appliedMethod: string;
   job?: Job;
 
-  // Admin paneli için eklenen alanlar
-  jobTitle?: string; // İş ilanı başlığı
-  company?: string; // Şirket adı
-  notes?: string; // Başvuru notları
+  jobTitle?: string;
+  company?: string;
+  notes?: string;
 
-  // N8n entegrasyonu için eklenen alanlar
-  sentMessage?: string; // Gönderilen başvuru mesajı
-  isAutoApplied?: boolean; // Otomatik başvuru yapıldı mı?
-  notionPageId?: string; // Notion'daki sayfa ID'si
-  cvAttached?: boolean; // CV eklendi mi?
-  telegramNotificationSent?: string; // Telegram bildirimi gönderildi mi?
+  sentMessage?: string;
+  isAutoApplied?: boolean;
+  notionPageId?: string;
+  cvAttached?: boolean;
+  telegramNotificationSent?: string;
 
-  // İş ilanı silinmiş mi?
   isJobDeleted?: boolean;
-
-  // LLM tarafından oluşturulan e-posta içeriği
   emailContent?: string;
 }
