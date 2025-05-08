@@ -32,6 +32,8 @@ services:
         value: "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
       - key: AppSettings__BaseUrl
         value: "https://jobanalyzerdashboard.onrender.com"
+      - key: AppSettings__FrontendUrl
+        value: "https://jobanalyzerdashboard.onrender.com"
 
 # Mevcut n8n veritabanını kullanıyoruz, bu yüzden yeni veritabanı oluşturmuyoruz
 # databases:
