@@ -452,6 +452,45 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
+        [HttpGet("resumes/has-resume")]
+        public async Task<IActionResult> HasUploadedResume()
+        {
+            try
+            {
+                // Kullanıcı ID'sini al
+                var userId = GetCurrentUserId();
+                if (userId <= 0)
+                {
+                    return Unauthorized(new { message = "Oturum açmanız gerekiyor" });
+                }
+
+                // Kullanıcıyı bul
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                }
+
+                // Kullanıcının profil ID'sini kontrol et
+                if (!user.ProfileId.HasValue)
+                {
+                    return Ok(new { hasResume = false });
+                }
+
+                // Kullanıcının özgeçmişlerini getir
+                var resumes = await _profileRepository.GetResumesAsync(user.ProfileId.Value);
+                bool hasResume = resumes != null && resumes.Any();
+
+                _logger.LogInformation("Kullanıcı {UserId} için özgeçmiş kontrolü yapıldı. Sonuç: {HasResume}", userId, hasResume);
+                return Ok(new { hasResume = hasResume });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Özgeçmiş kontrolü yapılırken hata oluştu");
+                return StatusCode(500, new { message = "Özgeçmiş kontrolü yapılırken bir hata oluştu" });
+            }
+        }
+
         [HttpGet("resumes/default")]
         public async Task<IActionResult> GetDefaultResume()
         {

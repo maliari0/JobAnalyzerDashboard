@@ -105,31 +105,48 @@ export class JobDetailComponentComponent implements OnInit {
       return;
     }
 
-    this.applyingInProgress = true;
+    // CV yüklenip yüklenmediğini kontrol et
+    this.profileService.hasUploadedResume().subscribe(
+      (response) => {
+        if (!response.hasResume) {
+          // CV yüklenmemişse, kullanıcıyı profil sayfasına yönlendir
+          alert('Başvuru yapmak için önce CV yüklemeniz gerekmektedir. Profil sayfasına yönlendiriliyorsunuz.');
+          this.router.navigate(['/profile'], { fragment: 'resumeUploadSection' });
+          return;
+        }
 
-    const application = {
-      jobId: this.job.id,
-      message: this.applicationMessage,
-      appliedMethod: 'Manual',
-      isAutoApplied: false,
-      cvAttached: this.cvAttached
-    };
+        // CV yüklenmişse, başvuru işlemine devam et
+        this.applyingInProgress = true;
 
-    this.applicationService.createApplication(application).subscribe({
-      next: (response) => {
-        this.applyingInProgress = false;
-        this.job!.isApplied = true;
-        this.job!.appliedDate = new Date().toISOString();
-        this.showApplicationForm = false;
-        this.applicationMessage = '';
-        alert('Başvurunuz başarıyla gönderildi!');
+        const application = {
+          jobId: this.job!.id,
+          message: this.applicationMessage,
+          appliedMethod: 'Manual',
+          isAutoApplied: false,
+          cvAttached: this.cvAttached
+        };
+
+        this.applicationService.createApplication(application).subscribe({
+          next: (response) => {
+            this.applyingInProgress = false;
+            this.job!.isApplied = true;
+            this.job!.appliedDate = new Date().toISOString();
+            this.showApplicationForm = false;
+            this.applicationMessage = '';
+            alert('Başvurunuz başarıyla gönderildi!');
+          },
+          error: (err) => {
+            this.applyingInProgress = false;
+            this.error = 'Başvuru yapılırken bir hata oluştu.';
+            console.error(err);
+          }
+        });
       },
-      error: (err) => {
-        this.applyingInProgress = false;
-        this.error = 'Başvuru yapılırken bir hata oluştu.';
-        console.error(err);
+      (err) => {
+        console.error('CV kontrolü yapılırken bir hata oluştu:', err);
+        this.error = 'CV kontrolü yapılırken bir hata oluştu.';
       }
-    });
+    );
   }
 
   autoApply(): void {
@@ -137,66 +154,83 @@ export class JobDetailComponentComponent implements OnInit {
       return;
     }
 
-    this.applyingInProgress = true;
-
-    // Mevcut kullanıcının ID'sini al
-    const currentUser = this.authService.currentUserValue;
-    const userId = currentUser?.id;
-
-    console.log('Otomatik başvuru yapılıyor, kullanıcı ID:', userId);
-
-    this.jobService.autoApply(this.job.id, userId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Başvuru durumunu henüz değiştirme, sadece işaretleme
-          this.showApplicationForm = false;
-
-          // Başvuru işlemi başlatıldı, jobId'yi kullanacağız
-          console.log('Otomatik başvuru başlatıldı:', response);
-
-          // n8n'den gelen e-posta içeriğini doğrudan göster
-          this.loadingEmailContent = true;
-
-          // response içindeki emailContent'i al
-          if (response.emailContent) {
-            this.loadingEmailContent = false;
-            this.emailContent = response.emailContent;
-            this.showEmailModal = true;
-            this.applyingInProgress = false;
-
-            // İlanı henüz başvuruldu olarak işaretleme
-            // Kullanıcı "Gönder" tuşuna bastıktan sonra işaretlenecek
-          } else {
-            // E-posta içeriği yoksa, varsayılan bir içerik oluştur
-            this.loadingEmailContent = false;
-            this.emailContent = `Merhaba,\n\nİlanınızda belirtilen ${this.job!.title} pozisyonu için başvurmak istiyorum. Özgeçmişimi ekte bulabilirsiniz.\n\nTeşekkürler,\n${this.authService.currentUserValue?.firstName} ${this.authService.currentUserValue?.lastName}`;
-            this.showEmailModal = true;
-            this.applyingInProgress = false;
-
-            // İlanı henüz başvuruldu olarak işaretleme
-            // Kullanıcı "Gönder" tuşuna bastıktan sonra işaretlenecek
-          }
-        } else {
-          // Başarısız yanıt durumunda
-          this.job!.isApplied = false;
-          this.job!.appliedDate = undefined;
-          this.applyingInProgress = false;
-
-          this.error = response.message || 'Otomatik başvuru yapılırken bir hata oluştu.';
+    // CV yüklenip yüklenmediğini kontrol et
+    this.profileService.hasUploadedResume().subscribe(
+      (response) => {
+        if (!response.hasResume) {
+          // CV yüklenmemişse, kullanıcıyı profil sayfasına yönlendir
+          alert('Başvuru yapmak için önce CV yüklemeniz gerekmektedir. Profil sayfasına yönlendiriliyorsunuz.');
+          this.router.navigate(['/profile'], { fragment: 'resumeUploadSection' });
+          return;
         }
-        this.cdr.detectChanges();
+
+        // CV yüklenmişse, başvuru işlemine devam et
+        this.applyingInProgress = true;
+
+        // Mevcut kullanıcının ID'sini al
+        const currentUser = this.authService.currentUserValue;
+        const userId = currentUser?.id;
+
+        console.log('Otomatik başvuru yapılıyor, kullanıcı ID:', userId);
+
+        this.jobService.autoApply(this.job!.id, userId).subscribe({
+          next: (response) => {
+            if (response.success) {
+              // Başvuru durumunu henüz değiştirme, sadece işaretleme
+              this.showApplicationForm = false;
+
+              // Başvuru işlemi başlatıldı, jobId'yi kullanacağız
+              console.log('Otomatik başvuru başlatıldı:', response);
+
+              // n8n'den gelen e-posta içeriğini doğrudan göster
+              this.loadingEmailContent = true;
+
+              // response içindeki emailContent'i al
+              if (response.emailContent) {
+                this.loadingEmailContent = false;
+                this.emailContent = response.emailContent;
+                this.showEmailModal = true;
+                this.applyingInProgress = false;
+
+                // İlanı henüz başvuruldu olarak işaretleme
+                // Kullanıcı "Gönder" tuşuna bastıktan sonra işaretlenecek
+              } else {
+                // E-posta içeriği yoksa, varsayılan bir içerik oluştur
+                this.loadingEmailContent = false;
+                this.emailContent = `Merhaba,\n\nİlanınızda belirtilen ${this.job!.title} pozisyonu için başvurmak istiyorum. Özgeçmişimi ekte bulabilirsiniz.\n\nTeşekkürler,\n${this.authService.currentUserValue?.firstName} ${this.authService.currentUserValue?.lastName}`;
+                this.showEmailModal = true;
+                this.applyingInProgress = false;
+
+                // İlanı henüz başvuruldu olarak işaretleme
+                // Kullanıcı "Gönder" tuşuna bastıktan sonra işaretlenecek
+              }
+            } else {
+              // Başarısız yanıt durumunda
+              this.job!.isApplied = false;
+              this.job!.appliedDate = undefined;
+              this.applyingInProgress = false;
+
+              this.error = response.message || 'Otomatik başvuru yapılırken bir hata oluştu.';
+            }
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            // HTTP hatası durumunda
+            this.error = 'Otomatik başvuru yapılırken bir hata oluştu: ' +
+                        (err.error?.message || err.message || 'Bilinmeyen hata');
+            // İlan başvuruldu olarak işaretlenmediyse, UI'da da gösterme
+            this.job!.isApplied = false;
+            this.job!.appliedDate = undefined;
+            this.applyingInProgress = false;
+            console.error(err);
+          }
+        });
       },
-      error: (err) => {
-        // HTTP hatası durumunda
-        this.error = 'Otomatik başvuru yapılırken bir hata oluştu: ' +
-                    (err.error?.message || err.message || 'Bilinmeyen hata');
-        // İlan başvuruldu olarak işaretlenmediyse, UI'da da gösterme
-        this.job!.isApplied = false;
-        this.job!.appliedDate = undefined;
-        this.applyingInProgress = false;
-        console.error(err);
+      (err) => {
+        console.error('CV kontrolü yapılırken bir hata oluştu:', err);
+        this.error = 'CV kontrolü yapılırken bir hata oluştu.';
       }
-    });
+    );
   }
 
   // E-posta içeriği modalını kapat

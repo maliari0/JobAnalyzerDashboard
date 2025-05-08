@@ -130,3 +130,4 @@ C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\bin
 C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\aliar\source\repos\JobAnalyzerDashboard\JobAnalyzerDashboard.Server\bin\Debug\net8.0\appsettings.Production.json

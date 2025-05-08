@@ -58,6 +58,10 @@ export class ProfileService {
     return this.http.get<Resume>(`${this.apiUrl}/resumes/default`);
   }
 
+  hasUploadedResume(): Observable<{hasResume: boolean}> {
+    return this.http.get<{hasResume: boolean}>(`${this.apiUrl}/resumes/has-resume`);
+  }
+
   testTelegramConnection(chatId: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/test-telegram`, { chatId });
   }
