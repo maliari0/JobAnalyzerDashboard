@@ -7,9 +7,20 @@
 /DeleteUserScript.sql
 /DeleteAdminUser.sql
 /auto-apply.json
+/auto_apply_Render.json
+/Algilama3.json
 /TestEmailSender.cs
 /DeleteUserApp/
 /TestEmailSender/
+
+# Deployment dosyaları
+/build.sh
+/start.sh
+/copy-spa.sh
+/vercel.json
+/render.yaml
+/Dockerfile
+/Program.cs.patch
 
 # Hassas bilgiler içeren dosyalar
 **/appsettings.json
@@ -41,3 +52,19 @@
 
 # Yüklenen dosyalar
 **/wwwroot/uploads/
+
+# IDE ve editör dosyaları
+.vs/
+.vscode/
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.userprefs
+**/.idea/
+**/.DS_Store
+
+# Sunum ve dokümantasyon dosyaları
+*.pdf
+*.pptx
+*.docx
+*.xlsx
