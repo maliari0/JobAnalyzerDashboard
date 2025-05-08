@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: jobanalyzerdashboard-api
+    name: jobanalyzerdashboard
     env: dotnet
     plan: free
     buildCommand: chmod +x build.sh && ./build.sh
