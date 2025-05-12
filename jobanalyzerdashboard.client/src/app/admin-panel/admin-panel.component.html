@@ -28,6 +28,12 @@
     </button>
     <button
       class="tab-button"
+      [class.active]="activeTab === 'announcements'"
+      (click)="setActiveTab('announcements')">
+      <i class="fas fa-bullhorn"></i> Duyurular
+    </button>
+    <button
+      class="tab-button"
       [class.active]="activeTab === 'settings'"
       (click)="setActiveTab('settings')">
       <i class="fas fa-cog"></i> Ayarlar
@@ -103,6 +109,11 @@
     <!-- Başvurular -->
     <div *ngIf="activeTab === 'applications'">
       <app-application-management></app-application-management>
+    </div>
+
+    <!-- Duyurular -->
+    <div *ngIf="activeTab === 'announcements'">
+      <app-announcement-management></app-announcement-management>
     </div>
 
     <!-- Ayarlar -->

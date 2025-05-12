@@ -18,6 +18,7 @@ namespace JobAnalyzerDashboard.Server.Data
         public DbSet<Resume> Resumes { get; set; }
         public DbSet<OAuthToken> OAuthTokens { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -83,6 +84,17 @@ namespace JobAnalyzerDashboard.Server.Data
             modelBuilder.Entity<Profile>()
                 .Property(p => p.PreferredCategories)
                 .HasColumnType("text");
+
+            modelBuilder.Entity<Announcement>()
+                .HasOne(a => a.CreatedBy)
+                .WithMany()
+                .HasForeignKey(a => a.CreatedById)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Announcement>()
+                .Property(a => a.Content)
+                .HasColumnType("text")
+                .IsUnicode(true);
 
             SeedData(modelBuilder);
         }

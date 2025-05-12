@@ -1,4 +1,17 @@
 <div class="job-list-container">
+  <!-- Duyurular -->
+  <div *ngIf="announcements && announcements.length > 0" class="announcements-container">
+    <div *ngFor="let announcement of announcements" class="announcement-card" [ngClass]="'announcement-' + announcement.type">
+      <div class="announcement-header">
+        <h3>{{ announcement.title }}</h3>
+        <span class="announcement-date">{{ announcement.createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="announcement-content">
+        <p>{{ announcement.content }}</p>
+      </div>
+    </div>
+  </div>
+
   <div class="job-list-header">
     <h2>Mevcut İş İlanları</h2>
 

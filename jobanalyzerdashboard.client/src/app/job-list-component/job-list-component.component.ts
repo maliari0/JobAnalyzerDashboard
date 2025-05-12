@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { Job } from '../models/job.model';
 import { JobFilter, JobService, JobStats } from '../services/job.service';
 import { finalize } from 'rxjs/operators';
+import { Announcement } from '../models/announcement.model';
+import { AnnouncementService } from '../services/announcement.service';
 
 @Component({
   selector: 'app-job-list-component',
@@ -17,6 +19,7 @@ export class JobListComponentComponent implements OnInit {
   stats: JobStats | null = null;
   categories: string[] = [];
   tags: string[] = [];
+  announcements: Announcement[] = [];
 
   // Filtre seçenekleri
   filter: JobFilter = {};
@@ -31,7 +34,8 @@ export class JobListComponentComponent implements OnInit {
   constructor(
     private jobService: JobService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private announcementService: AnnouncementService
   ) {}
 
   ngOnInit(): void {
@@ -39,6 +43,20 @@ export class JobListComponentComponent implements OnInit {
     this.loadTags();
     this.loadStats();
     this.loadJobs();
+    this.loadAnnouncements();
+  }
+
+  loadAnnouncements(): void {
+    this.announcementService.getAnnouncements().subscribe({
+      next: (data) => {
+        this.announcements = data;
+      },
+      error: (err) => {
+        console.error('Duyurular yüklenirken hata oluştu:', err);
+        // Hata durumunda boş dizi atayalım
+        this.announcements = [];
+      }
+    });
   }
 
   loadJobs(): void {

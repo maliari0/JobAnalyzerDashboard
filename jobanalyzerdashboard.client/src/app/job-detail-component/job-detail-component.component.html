@@ -41,8 +41,8 @@
         <p class="job-location">{{ job.location }}</p>
       </div>
       <div class="job-links" *ngIf="job.companyWebsite || job.url">
-        <a *ngIf="job.companyWebsite" [href]="job.companyWebsite" target="_blank" class="company-link">Firma Web Sitesi</a>
-        <a *ngIf="job.url" [href]="job.url" target="_blank" class="job-link">İlan Sayfası</a>
+        <a *ngIf="job.companyWebsite" [href]="formatUrl(job.companyWebsite)" target="_blank" class="company-link">Firma Web Sitesi</a>
+        <a *ngIf="job.url" [href]="formatUrl(job.url)" target="_blank" class="job-link">İlan Sayfası</a>
       </div>
     </div>
 

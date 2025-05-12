@@ -14,23 +14,35 @@ namespace JobAnalyzerDashboard.Server.Migrations
                 name: "FK_Applications_Jobs_JobId",
                 table: "Applications");
 
-            migrationBuilder.AddColumn<string>(
-                name: "Message",
-                table: "Applications",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+            // Message sütunu zaten mevcut olduğu için bu kodu atlıyoruz
+            // migrationBuilder.AddColumn<string>(
+            //     name: "Message",
+            //     table: "Applications",
+            //     type: "text",
+            //     nullable: false,
+            //     defaultValue: "");
 
-            migrationBuilder.AddColumn<int>(
-                name: "UserId",
-                table: "Applications",
-                type: "integer",
-                nullable: true);
+            // Boş bir SQL komutu çalıştırarak migration'ın çalışmasını sağlayalım
+            migrationBuilder.Sql("SELECT 1");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Applications_UserId",
-                table: "Applications",
-                column: "UserId");
+            // UserId sütunu zaten mevcut olduğu için bu kodu atlıyoruz
+            // migrationBuilder.AddColumn<int>(
+            //     name: "UserId",
+            //     table: "Applications",
+            //     type: "integer",
+            //     nullable: true);
+
+            // Boş bir SQL komutu çalıştırarak migration'ın çalışmasını sağlayalım
+            migrationBuilder.Sql("SELECT 1");
+
+            // Index zaten mevcut olduğu için bu kodu atlıyoruz
+            // migrationBuilder.CreateIndex(
+            //     name: "IX_Applications_UserId",
+            //     table: "Applications",
+            //     column: "UserId");
+
+            // Boş bir SQL komutu çalıştırarak migration'ın çalışmasını sağlayalım
+            migrationBuilder.Sql("SELECT 1");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Applications_Jobs_JobId",
@@ -40,13 +52,17 @@ namespace JobAnalyzerDashboard.Server.Migrations
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Applications_Users_UserId",
-                table: "Applications",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+            // Foreign key constraint zaten mevcut olduğu için bu kodu atlıyoruz
+            // migrationBuilder.AddForeignKey(
+            //     name: "FK_Applications_Users_UserId",
+            //     table: "Applications",
+            //     column: "UserId",
+            //     principalTable: "Users",
+            //     principalColumn: "Id",
+            //     onDelete: ReferentialAction.SetNull);
+
+            // Boş bir SQL komutu çalıştırarak migration'ın çalışmasını sağlayalım
+            migrationBuilder.Sql("SELECT 1");
         }
 
         /// <inheritdoc />
@@ -64,9 +80,13 @@ namespace JobAnalyzerDashboard.Server.Migrations
                 name: "IX_Applications_UserId",
                 table: "Applications");
 
-            migrationBuilder.DropColumn(
-                name: "Message",
-                table: "Applications");
+            // Message sütunu zaten mevcut olduğu için bu kodu atlıyoruz
+            // migrationBuilder.DropColumn(
+            //     name: "Message",
+            //     table: "Applications");
+
+            // Boş bir SQL komutu çalıştırarak migration'ın çalışmasını sağlayalım
+            migrationBuilder.Sql("SELECT 1");
 
             migrationBuilder.DropColumn(
                 name: "UserId",

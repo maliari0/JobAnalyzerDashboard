@@ -577,13 +577,11 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 {
                     _logger.LogWarning("No applications found for jobId: {JobId}, applicationId: {ApplicationId}", jobId, applicationId);
 
-                    // Uygulama bulunamadıysa, yeni bir uygulama oluştur
                     if (jobId.HasValue)
                     {
                         var job = await _context.Jobs.FindAsync(jobId.Value);
                         if (job != null)
                         {
-                            // Admin kullanıcısını bul
                             var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com");
                             int? userId = adminUser?.Id;
 
@@ -619,7 +617,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     }
                 }
 
-                // Save the email content
                 application.EmailContent = emailContent;
 
                 try {
@@ -677,7 +674,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     _logger.LogInformation("İş ilanına ait {Count} başvuru silindi: {Id}", applications.Count, id);
                 }
 
-                // İş ilanını sil
                 _context.Jobs.Remove(job);
                 await _context.SaveChangesAsync();
 
@@ -704,7 +700,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
                 }
 
-                // Kullanıcı ID'si belirtilmemişse, varsayılan olarak admin kullanıcısını kullan
                 if (userId <= 0)
                 {
                     var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com");

@@ -37,6 +37,7 @@ import { UserManagementComponent } from './admin-panel/user-management/user-mana
 import { JobManagementComponent } from './admin-panel/job-management/job-management.component';
 import { ApplicationManagementComponent } from './admin-panel/application-management/application-management.component';
 import { SettingsManagementComponent } from './admin-panel/settings-management/settings-management.component';
+import { AnnouncementManagementComponent } from './admin-panel/announcement-management/announcement-management.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { SettingsManagementComponent } from './admin-panel/settings-management/s
     UserManagementComponent,
     JobManagementComponent,
     ApplicationManagementComponent,
-    SettingsManagementComponent
+    SettingsManagementComponent,
+    AnnouncementManagementComponent
   ],
   imports: [
     BrowserModule,

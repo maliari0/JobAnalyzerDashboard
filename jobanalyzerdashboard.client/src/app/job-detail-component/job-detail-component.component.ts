@@ -419,4 +419,26 @@ export class JobDetailComponentComponent implements OnInit {
   clearError(): void {
     this.error = '';
   }
+
+  formatUrl(url: string): string {
+    if (!url) return '';
+
+    // If the URL already starts with http:// or https://, return it as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    // If the URL contains the base URL (jobanalyzerdashboard.onrender.com), extract just the website part
+    const baseUrl = 'jobanalyzerdashboard.onrender.com/';
+    if (url.includes(baseUrl)) {
+      return url.substring(url.indexOf(baseUrl) + baseUrl.length);
+    }
+
+    // If it's just a domain without protocol, add https://
+    if (!url.startsWith('http')) {
+      return 'https://' + url;
+    }
+
+    return url;
+  }
 }

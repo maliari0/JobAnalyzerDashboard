@@ -2,6 +2,62 @@
   padding: var(--spacing-lg);
 }
 
+/* Duyurular */
+.announcements-container {
+  margin-bottom: var(--spacing-lg);
+}
+
+.announcement-card {
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.announcement-info {
+  background-color: rgba(100, 181, 246, 0.1);
+  border-left: 4px solid var(--info-color);
+}
+
+.announcement-warning {
+  background-color: rgba(233, 184, 114, 0.1);
+  border-left: 4px solid var(--warning-color);
+}
+
+.announcement-success {
+  background-color: rgba(76, 175, 147, 0.1);
+  border-left: 4px solid var(--success-color);
+}
+
+.announcement-error {
+  background-color: rgba(229, 115, 115, 0.1);
+  border-left: 4px solid var(--danger-color);
+}
+
+.announcement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.announcement-header h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.announcement-date {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+}
+
+.announcement-content p {
+  margin: 0;
+  line-height: 1.5;
+}
+
 .job-list-header {
   display: flex;
   justify-content: space-between;

@@ -13,7 +13,8 @@ const PROXY_CONFIG = [
       "/api/webhook",
       "/api/user",
       "/api/auth",
-      "/api/admin"
+      "/api/admin",
+      "/api/announcement"
     ],
     target,
     secure: false

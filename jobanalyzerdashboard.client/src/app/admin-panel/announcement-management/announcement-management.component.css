@@ -1,0 +1,285 @@
+.announcement-management-container {
+  padding: var(--spacing-md);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.section-header h2 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+
+.add-button {
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: background-color var(--transition-fast);
+}
+
+.add-button:hover {
+  background-color: #3a9d78;
+}
+
+.success-message, .error-message {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+}
+
+.success-message {
+  background-color: rgba(76, 175, 147, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(76, 175, 147, 0.3);
+}
+
+.error-message {
+  background-color: rgba(229, 115, 115, 0.1);
+  color: var(--danger-color);
+  border: 1px solid rgba(229, 115, 115, 0.3);
+  justify-content: space-between;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: var(--danger-color);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+
+.announcement-form-container {
+  background-color: var(--card-color);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.announcement-form-container h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-color);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: var(--font-size-base);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.error-text {
+  color: var(--danger-color);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.save-button, .cancel-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.save-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.save-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.save-button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #4d6a88;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: var(--spacing-md);
+  color: var(--text-light);
+}
+
+.announcements-table-container {
+  overflow-x: auto;
+}
+
+.announcements-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-md);
+}
+
+.announcements-table th,
+.announcements-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.announcements-table th {
+  background-color: rgba(0, 0, 0, 0.02);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.announcements-table tr:hover {
+  background-color: rgba(0, 0, 0, 0.01);
+}
+
+.type-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.type-info {
+  background-color: rgba(100, 181, 246, 0.1);
+  color: var(--info-color);
+}
+
+.type-warning {
+  background-color: rgba(233, 184, 114, 0.1);
+  color: var(--warning-color);
+}
+
+.type-success {
+  background-color: rgba(76, 175, 147, 0.1);
+  color: var(--success-color);
+}
+
+.type-error {
+  background-color: rgba(229, 115, 115, 0.1);
+  color: var(--danger-color);
+}
+
+.active-status, .inactive-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.active-status {
+  background-color: rgba(76, 175, 147, 0.1);
+  color: var(--success-color);
+}
+
+.inactive-status {
+  background-color: rgba(229, 115, 115, 0.1);
+  color: var(--danger-color);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.edit-btn, .delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.edit-btn {
+  color: var(--info-color);
+}
+
+.delete-btn {
+  color: var(--danger-color);
+}
+
+.edit-btn:hover {
+  background-color: rgba(100, 181, 246, 0.1);
+}
+
+.delete-btn:hover {
+  background-color: rgba(229, 115, 115, 0.1);
+}
+
+.no-data {
+  text-align: center;
+  padding: var(--spacing-lg);
+  color: var(--text-light);
+  background-color: var(--card-color);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+}
