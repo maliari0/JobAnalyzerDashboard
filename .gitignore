@@ -1,4 +1,3 @@
-# Özel proje dosyaları
 /Gonderme.json
 /Gonderme(1).json
 /Gonderme(2).json
@@ -13,6 +12,7 @@
 /DeleteUserApp/
 /TestEmailSender/
 /JobAnalyzerDashboard_Sunum.md
+/n8n workflows/
 
 
 # Hassas bilgiler içeren dosyalar

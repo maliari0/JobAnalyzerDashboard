@@ -160,6 +160,28 @@ E-posta doğrulama ve şifre sıfırlama için SMTP yapılandırması:
 - Otomatik başvuru e-postası oluşturma
 - Telegram bildirimleri
 
+### LLM Analizi
+
+Projede kullanılan LLM modelleri için yapılan karşılaştırmalı analiz sonuçları:
+
+- **Ücretsiz Kullanım Seçenekleri:**
+  - **Mistral Cloud Chat:** Aylık 1 milyar token kotası, n8n'de yerel entegrasyon
+  - **OpenRouter:** Günlük 50 istek kotası, çeşitli modellere tek noktadan erişim
+  - **Ollama (Self-Hosted):** Tamamen ücretsiz, gizlilik odaklı çözüm
+
+- **Maliyet-Performans Karşılaştırması:**
+  - **En Düşük Maliyet:** Gemini 1.5 Flash-8B ($0.1875/1M token)
+  - **Dengeli Seçenek:** Mistral NeMo ($0.30/1M token)
+  - **Yüksek Kalite:** GPT-4.1 mini ($2.00/1M token), Claude 3.5 Haiku ($4.80/1M token)
+
+- **Önerilen Kullanım Senaryoları:**
+  - **JSON Çıkarma & Etiketleme:** Mistral NeMo veya Gemini 2.0 Flash
+  - **Kalite Puanlama & Kategori Atama:** Mistral NeMo
+  - **Türkçe E-posta Üretimi:** GPT-4.1 mini/nano veya Claude 3.5 Haiku
+  - **Gizlilik Gerektiren İşlemler:** Ollama Self-Hosted
+
+Detaylı analiz için [LLM Analizi.md](LLM%20Analizi.md) dosyasını inceleyebilirsiniz.
+
 ## Gelecek Planlar
 
 - Mülakat takibi ve Google Calendar entegrasyonu

@@ -44,16 +44,13 @@ namespace JobAnalyzerDashboard.Server.Controllers
 
                 _logger.LogInformation("User found. ID: {UserId}, ProfileId: {ProfileId}", user.Id, user.ProfileId);
 
-                // İlişkili verileri sil
                 if (user.ProfileId.HasValue)
                 {
-                    // Profili bul
                     var profile = await _context.Profiles
                         .FirstOrDefaultAsync(p => p.Id == user.ProfileId.Value);
 
                     if (profile != null)
                     {
-                        // OAuthTokens tablosundan ilgili kayıtları sil
                         var oauthTokens = await _context.OAuthTokens
                             .Where(t => t.ProfileId == profile.Id)
                             .ToListAsync();
@@ -64,7 +61,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             _logger.LogInformation("Removed {Count} OAuth tokens", oauthTokens.Count);
                         }
 
-                        // Resumes tablosundan ilgili kayıtları sil
                         var resumes = await _context.Resumes
                             .Where(r => r.ProfileId == profile.Id)
                             .ToListAsync();
@@ -75,21 +71,16 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             _logger.LogInformation("Removed {Count} resumes", resumes.Count);
                         }
 
-                        // Applications tablosundan ilgili kayıtları sil
-                        // Not: Application modelinde ProfileId alanı olmadığı için bu adımı atlıyoruz
                         _logger.LogInformation("Skipping application removal as there is no ProfileId in Application model");
 
-                        // Profili sil
                         _context.Profiles.Remove(profile);
                         _logger.LogInformation("Removed profile with ID: {ProfileId}", profile.Id);
                     }
                 }
 
-                // Kullanıcıyı sil
                 _context.Users.Remove(user);
                 _logger.LogInformation("Removed user with ID: {UserId}", user.Id);
 
-                // Değişiklikleri kaydet
                 await _context.SaveChangesAsync();
 
                 return Ok(new { message = $"User with email {email} and all related data successfully deleted" });
@@ -106,7 +97,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                // İstatistikleri hesapla
                 var totalUsers = await _context.Users.CountAsync();
                 var activeUsers = await _context.Users.CountAsync(u => u.IsActive);
                 var totalJobs = await _context.Jobs.CountAsync();
@@ -132,10 +122,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                // Toplam kullanıcı sayısını al
                 var totalCount = await _context.Users.CountAsync();
 
-                // Sayfalama ile kullanıcıları al
                 var users = await _context.Users
                     .OrderByDescending(u => u.CreatedAt)
                     .Skip((page - 1) * pageSize)
@@ -170,7 +158,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                // Kullanıcıyı bul
                 var user = await _context.Users.FindAsync(id);
 
                 if (user == null)
@@ -179,7 +166,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { message = "User not found" });
                 }
 
-                // Kullanıcı bilgilerini güncelle
                 user.IsActive = model.IsActive;
                 user.Role = model.Role;
 

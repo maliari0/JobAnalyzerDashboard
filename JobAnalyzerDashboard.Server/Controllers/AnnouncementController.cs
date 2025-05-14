@@ -23,13 +23,12 @@ namespace JobAnalyzerDashboard.Server.Controllers
             _logger = logger;
         }
 
-        // GET: api/announcement
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Announcement>>> GetAnnouncements()
         {
             try
             {
-                // For regular users, only return active announcements that haven't expired
+
                 var now = DateTime.UtcNow;
                 var announcements = await _context.Announcements
                     .Where(a => a.IsActive && (a.ExpiresAt == null || a.ExpiresAt > now))
@@ -45,15 +44,12 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
-        // GET: api/announcement/all
         [HttpGet("all")]
-        // Geçici olarak yetkilendirme gereksinimini kaldırıyoruz
-        // [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<Announcement>>> GetAllAnnouncements()
         {
             try
             {
-                // For admins, return all announcements
+
                 var announcements = await _context.Announcements
                     .OrderByDescending(a => a.CreatedAt)
                     .ToListAsync();
@@ -67,7 +63,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
-        // GET: api/announcement/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Announcement>> GetAnnouncement(int id)
         {
@@ -81,10 +76,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
             return announcement;
         }
 
-        // POST: api/announcement
         [HttpPost]
-        // Geçici olarak yetkilendirme gereksinimini kaldırıyoruz
-        // [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Announcement>> CreateAnnouncement(AnnouncementCreateModel model)
         {
             try
@@ -94,7 +86,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return BadRequest(ModelState);
                 }
 
-                // Kullanıcı kimliğini almaya çalışalım, ancak hata durumunda null kullanacağız
+
                 int? createdById = null;
                 try
                 {
@@ -129,10 +121,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
-        // PUT: api/announcement/5
         [HttpPut("{id}")]
-        // Geçici olarak yetkilendirme gereksinimini kaldırıyoruz
-        // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateAnnouncement(int id, AnnouncementUpdateModel model)
         {
             if (!ModelState.IsValid)
@@ -171,10 +160,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
             return NoContent();
         }
 
-        // DELETE: api/announcement/5
         [HttpDelete("{id}")]
-        // Geçici olarak yetkilendirme gereksinimini kaldırıyoruz
-        // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAnnouncement(int id)
         {
             var announcement = await _context.Announcements.FindAsync(id);
@@ -201,7 +187,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
         public string Content { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
         public DateTime? ExpiresAt { get; set; }
-        public string Type { get; set; } = "info"; // info, warning, success, error
+        public string Type { get; set; } = "info";
     }
 
     public class AnnouncementUpdateModel
@@ -210,6 +196,6 @@ namespace JobAnalyzerDashboard.Server.Controllers
         public string Content { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
         public DateTime? ExpiresAt { get; set; }
-        public string Type { get; set; } = "info"; // info, warning, success, error
+        public string Type { get; set; } = "info";
     }
 }

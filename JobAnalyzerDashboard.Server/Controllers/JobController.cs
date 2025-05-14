@@ -132,24 +132,24 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { message = "İş ilanı bulunamadı" });
                 }
 
-                // Kullanıcının kimliğini al
+
                 int? userId = null;
                 var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
                 {
                     userId = parsedUserId;
 
-                    // Kullanıcı kimliği varsa, kullanıcının bu ilana başvurup başvurmadığını kontrol et
+
                     if (userId.HasValue)
                     {
                         bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(id, userId.Value);
 
-                        // Kullanıcı başvurmuşsa, ilanı başvuruldu olarak işaretle
+
                         if (hasApplied)
                         {
                             job.IsApplied = true;
 
-                            // Başvuru tarihini bulmak için en son başvuruyu al
+
                             var applications = await _applicationRepository.GetApplicationsWithFiltersAsync(
                                 jobId: id,
                                 userId: userId.Value);
@@ -177,7 +177,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
         {
             try
             {
-                // Kullanıcının kimliğini al
+
                 int? userId = null;
                 var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
@@ -306,14 +306,14 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     return NotFound(new { success = false, message = "İş ilanı bulunamadı" });
                 }
 
-                // Kullanıcı kimliğini al
+
                 int? userId = null;
                 var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
                 {
                     userId = parsedUserId;
 
-                    // Kullanıcı kimliği varsa, kullanıcının bu ilana daha önce başvurup başvurmadığını kontrol et
+
                     bool hasApplied = await _applicationRepository.HasUserAppliedToJobAsync(id, userId.Value);
                     if (hasApplied)
                     {
@@ -321,14 +321,14 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     }
                 }
 
-                // Profil bilgilerini al
+
                 var profile = await _profileRepository.GetProfileWithResumesAsync(1); // Varsayılan profil ID'si
                 if (profile == null)
                 {
                     return BadRequest(new { success = false, message = "Profil bilgileri bulunamadı" });
                 }
 
-                // Varsayılan özgeçmişi al
+
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 Resume defaultResume = null;
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -337,7 +337,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     defaultResume = await _profileRepository.GetDefaultResumeAsync(profile.Id);
                 }
 
-                // Başvuru mesajını hazırla
+
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 string messageInput = model?.Message;
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -352,7 +352,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     message = messageInput;
                 }
 
-                // E-posta gönder
+
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 string attachmentPath = null;
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -370,16 +370,16 @@ namespace JobAnalyzerDashboard.Server.Controllers
                     _logger.LogInformation("Başvuru e-postası gönderildi: {Email}, İlan: {Title}", job.ContactEmail, job.Title);
                 }
 
-                // İş ilanını güncelle
+
                 job.IsApplied = true;
                 job.AppliedDate = DateTime.UtcNow;
                 await _jobRepository.UpdateAsync(job);
                 await _jobRepository.SaveChangesAsync();
 
-                // Başvuru geçmişine ekle
+
                 try
                 {
-                    // userId değişkeni zaten yukarıda tanımlandı, tekrar tanımlamaya gerek yok
+
 
                     var application = new Application
                     {
@@ -401,7 +401,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Başvuru geçmişine eklenirken hata oluştu: {Id}", job.Id);
-                    // Hata olsa bile devam et
+
                 }
 
                 return Ok(new
@@ -444,53 +444,53 @@ namespace JobAnalyzerDashboard.Server.Controllers
             }
         }
 
-        // n8n için özel endpoint - e-posta içeriğini kaydetmek için
+
         [AllowAnonymous]
         [HttpPost("n8n-save-email")]
         public async Task<IActionResult> N8nSaveEmail([FromBody] object rawData)
         {
             try
             {
-                // Log the raw data for debugging
+
                 string rawJson = JsonSerializer.Serialize(rawData);
                 _logger.LogInformation("Received raw data from n8n: {RawData}", rawJson);
 
-                // Extract email content from various formats
+
                 string emailContent = "";
                 int? applicationId = null;
                 int? jobId = null;
 
                 try
                 {
-                    // Try to parse as Dictionary
+
                     var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(rawJson);
 
-                    // Check for direct emailContent
+
                     if (dict != null && dict.ContainsKey("emailContent"))
                     {
                         emailContent = dict["emailContent"].GetString() ?? "";
                     }
-                    // Check for applicationId
+
                     if (dict != null && dict.ContainsKey("applicationId") && dict["applicationId"].ValueKind == JsonValueKind.Number)
                     {
                         applicationId = dict["applicationId"].GetInt32();
                     }
-                    // Check for jobId
+
                     if (dict != null && dict.ContainsKey("jobId") && dict["jobId"].ValueKind == JsonValueKind.Number)
                     {
                         jobId = dict["jobId"].GetInt32();
                     }
-                    // Check for body.emailContent
+
                     else if (dict != null && dict.ContainsKey("body"))
                     {
                         var bodyElement = dict["body"];
 
-                        // If body is a string, use it directly
+
                         if (bodyElement.ValueKind == JsonValueKind.String)
                         {
                             emailContent = bodyElement.GetString() ?? "";
                         }
-                        // If body is an object, look for emailContent
+
                         else if (bodyElement.ValueKind == JsonValueKind.Object)
                         {
                             var bodyDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(bodyElement.GetRawText());
@@ -499,7 +499,7 @@ namespace JobAnalyzerDashboard.Server.Controllers
                             {
                                 emailContent = bodyDict["emailContent"].GetString() ?? "";
                             }
-                            // Check for applicationId in body
+
                             if (bodyDict != null && bodyDict.ContainsKey("applicationId") &&
                                 bodyDict["applicationId"].ValueKind == JsonValueKind.Number)
                             {
@@ -816,8 +816,8 @@ namespace JobAnalyzerDashboard.Server.Controllers
                         location = job.Location?.ToLower(),
                         company = job.Company,
                         userId = userId,
-                        jobId = job.Id, 
-                        applicationId = application.Id, 
+                        jobId = job.Id,
+                        applicationId = application.Id,
                         resume = defaultResume != null ? new
                         {
                             fileContent = resumeBase64,
